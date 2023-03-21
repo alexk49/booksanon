@@ -1,0 +1,7 @@
+*.swp
+.stats
+
+venv
+.venv
+
+__pycache__
