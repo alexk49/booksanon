@@ -1,1 +1,29 @@
+{% extends "layout.html" %}
 
+{% block title %}
+    Recommendations
+{% endblock %}
+
+{% block main %}
+<h2>Recommend a book</h2>    
+<div class="recommend">
+<form action="/recommend" method="post">
+    <p>Use the form to submit a book to the database.</p>
+    <input autocomplete="off" autofocus class="book-input" id="book-input" placeholder="Enter a title, author, or isbn" type="text">
+    <button class="submit-button" type="submit">Submit</button>
+</form>
+</div>
+<h2>Latest Recommendations</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Title
+            </th>
+            <th>
+                Author
+            </th>
+        </tr>
+    </thead>
+</table>
+{% endblock %}
