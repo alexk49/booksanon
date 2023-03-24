@@ -7,6 +7,7 @@
 {% block main %}
 <h2>Latest Recommendations</h2>
 <table class="table">
+    <!-- title, author, pub_year, review --!>
     <thead>
         <tr>
             <th>
@@ -15,7 +16,31 @@
             <th>
                 Author
             </th>
+            <th>
+                Publication date
+            </th>
+            <th>
+                Review
+            </th>
         </tr>
     </thead>
+    <tbody>
+        {% for book in books %}
+        <tr>
+        <td>
+            {{ book["title"] }}
+        </td>
+        <td>
+            {{ book["author"] }}
+        </td>
+        <td>
+            {{ book["pub_year"] }}
+        </td>
+        <td>
+            {{ book["review"] }}
+        </td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 {% endblock %}
