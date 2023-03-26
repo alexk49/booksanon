@@ -9,17 +9,25 @@
 <div class="recommend">
 <form action="/recommend" method="post">
     <p>Use the form to submit a book to the database.</p>
-    <!-- <input autocomplete="off" autofocus class="book-input" id="book-input" name="book-input" placeholder="Enter a title, author, or isbn" type="text"> --!>
+    <li>Search via:</li>
+    <input class="search-method" name="search-method" type="radio" value="open-library" checked="checked"> 
+    <label for="open-library">Open Library</label>
+    <input class="search-via" name="search-via" type="radio" value="isbn" checked="checked"> 
+    <label for="isbn">ISBN</label>
+    <input autocomplete="off" autofocus class="isbn" name="isbn" placeholder="Enter ISBN" type="text">
+    <button class="validate" type="validate">Validate book</button>
+    <!--
+    <input autocomplete="off" autofocus class="book-input" id="book-input" name="book-input" placeholder="Enter a title, author, or isbn" type="text"> 
     <input autocomplete="off" autofocus class="title" id="book-input" name="title" placeholder="title" type="text">
     <input autocomplete="off" autofocus class="author" id="book-input" name="author" placeholder="author" type="text">
     <input autocomplete="off" autofocus class="pub_year" id="book-input" name="pub_year" placeholder="publication year" type="text">
     <input autocomplete="off" autofocus class="review" id="book-input" name="review" placeholder="review" type="text">
-    <!--
+    --!>
     <p>Would you like to leave a review?</p>
     <input class="review-button" name="review-button" type="radio" value="yes"> 
     <label for="yes">Yes</label> 
     <input class="review-button" name="review-button" type="radio" checked="checked" value="no"> 
-    <label for="no">No</label></br> --!>
+    <label for="no">No</label></br> 
     <button class="submit-button" type="submit">Submit</button>
 </form>
 </div>
