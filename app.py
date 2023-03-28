@@ -2,11 +2,13 @@
 
 import sqlite3
 import requests
-from flask import Flask, g, redirect, render_template, request, session
+from flask import Flask, g, redirect, render_template, request, session, url_for
+
+from key_file import key
 
 # Configure app
 app = Flask(__name__)
-
+app.secret_key = key
 # ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
@@ -14,7 +16,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 test_table - 
 title, author, year of publication, review, timestamp
 
-functions taken pretty much exactly from flask docs
+functions for database taken pretty much exactly from flask docs
 
 """
 
@@ -89,27 +91,42 @@ def recommend():
                 
                 # get biblographic data via open lib api 
                 title, author, pub_date  = open_lib_isbn(isbn)                 
-                review = request.form['review-button']
+                # review = request.form['review-button']
                 
-                if review == 'no':
-                    review = ""
+                # if review == 'no':
+                    # review = ""
 
-                rows = [(title, author, pub_date, review)]
-                
-                # establish cursor for processing
-                cursor = get_db().cursor() 
-                cursor.executemany('''INSERT into "test_books" (title, author, pub_year, review) VALUES (?, ?, ?, ?)''', rows)
+                results = [{'title': title, 'author': author, 'pub_date': pub_date}]
+                # results = [(title, author, pub_date, review)]
+                session['results'] = results
 
-                # commit changes to database
-                db = get_db()
-                db.commit()
-                 
+                return render_template("submit.html", results=results)
+                                
         # redirect to homepage
-        return redirect("/")
-
+        return render_template("submit.html", results=results)
     else:
         return render_template("recommend.html")
 
+
+@app.route("/submit", methods=["GET", "POST"])
+def submit():
+    """ validate recommendation and submit to database """
+    if request.method == "POST":
+        option = request.form["select"]
+        print(session.get("results"))
+        return render_template("submit.html")
+        # print(results)
+    """ submit to datbase
+    # establish cursor for processing
+    cursor = get_db().cursor() 
+    cursor.executemany('''INSERT into "test_books" (title, author, pub_year, review) VALUES (?, ?, ?, ?)''', results)
+
+    # commit changes to database
+    db = get_db()
+    db.commit()
+    """
+    if request.method == "GET":
+        return render_template("submit.html")
 
 @app.route("/history")
 def history():
@@ -132,7 +149,10 @@ def about():
 
 def validate_isbn(isbn):
     """ test for valid isbn """
+
+    # remove white space and dashes
     isbn = isbn.replace("-", "")
+    isbn = isbn.replace(" ", "")
     check = isbn.isdigit()
     if check:
         length = len(isbn)
@@ -171,14 +191,16 @@ def open_lib_isbn(isbn):
         for count, author in enumerate(authors):
             author_key = authors[count]['authors']
 
-            author_url = "https://openlibrary.org" + author_key + ".json"
-            
+            author_url = "https://openlibrary.org" + author_key + ".json" 
             response = requests.get(author_url)
             response_dict = response.json()
-            author = respons_dict['name']
+            author = respones_dict['name']
 
             authors = authors + ", " + author
-        # reset numerous authors as one author value         
+        # reset numerous authors as one author value
         author = authors
-    
     return(title, author, pub_date)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

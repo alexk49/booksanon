@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Submit
+{% endblock %}
+
+{% block main %}
+<h2>Submit</h2>
+<p>These are your results from your query, please verify which one you would like to submit.</p>
+<div class="submit">
+<form action="/submit" method="post" >
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Title
+            </th>
+            <th>
+                Author
+            </th>
+            <th>
+                Publication date
+            </th>
+            <th>
+                Select
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for result in results %}
+        <tr>
+        <td>
+            {{ result["title"] }}
+        </td>
+        <td>
+            {{ result["author"] }}
+        </td>
+        <td>
+            {{ result["pub_date"] }}
+        </td>
+        <td>
+            <input class="select" name="select" type="radio" value="{{ loop.index }}"> 
+         <label for="{{ loop.index }}">Book {{ loop.index }}</label>
+        </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+    <p>Would you like to leave a review?</p>
+    <input class="review-button" name="review-button" type="radio" value="yes"> 
+    <label for="yes">Yes</label> 
+    <input class="review-button" name="review-button" type="radio" checked="checked" value="no"> 
+    <label for="no">No</label></br> 
+    <button class="submit-button" type="submit">Submit</button>
+</form>
+    </div>
+{% endblock %}
