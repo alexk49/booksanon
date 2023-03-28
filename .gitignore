@@ -1,6 +1,7 @@
 *.swp
 .stats
 notes.txt
+key_file.py
 
 venv
 .venv
