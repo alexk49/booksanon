@@ -112,21 +112,30 @@ def recommend():
 def submit():
     """ validate recommendation and submit to database """
     if request.method == "POST":
-        option = request.form["select"]
-        print(session.get("results"))
-        return render_template("submit.html")
-        # print(results)
-    """ submit to datbase
-    # establish cursor for processing
-    cursor = get_db().cursor() 
-    cursor.executemany('''INSERT into "test_books" (title, author, pub_year, review) VALUES (?, ?, ?, ?)''', results)
+        # get form option turn to integer and adapt for index value
+        option = int(request.form["select"])
+        option = (option - 1)
+        # get passed over book info
+        results = session.get("results")
+        # get selected index
+        result = (results[option])
+        
+        # get review value
 
-    # commit changes to database
-    db = get_db()
-    db.commit()
-    """
-    if request.method == "GET":
-        return render_template("submit.html")
+        review = "good"
+        # submit to datbase
+        # establish cursor for processing
+        cursor = get_db().cursor() 
+        cursor.execute('''INSERT into "test_books" (title, author, pub_year, review) VALUES (?, ?, ?, ?)''', (result['title'], result['author'], result['pub_date'], review))
+
+        # commit changes to database
+        db = get_db()
+        db.commit()
+
+        return redirect("/")
+        # print(results)
+        if request.method == "GET":
+            return render_template("submit.html")
 
 @app.route("/history")
 def history():
