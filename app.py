@@ -83,13 +83,12 @@ def recommend():
         search_method = request.form['search-method']
 
         if search_method == "open-library":
-            print(search_method)
             isbn = request.form.get("isbn")
-            # test isbn = 978-0747579885 
+            # test isbn = 978-0747579885
             valid = validate_isbn(isbn)
             if valid:
                 
-                # get biblographic data via open lib api 
+                # get biblographic data via open lib api
                 title, author, pub_date  = open_lib_isbn(isbn)                 
                 # review = request.form['review-button']
                 
@@ -121,8 +120,10 @@ def submit():
         result = (results[option])
         
         # get review value
-
-        review = "good"
+        if request.form["review-button"] == "no":
+            review = ""
+        else:
+            review = request.form.get("review-box")
         # submit to datbase
         # establish cursor for processing
         cursor = get_db().cursor() 
