@@ -4,6 +4,8 @@
     <meta name="viewport" content="initial-scale=1.0, width=device-width" charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link href="/static/styles.css" rel="stylesheet">
+    {% block css %}{% endblock %}
+        <script src="{{ url_for('static',filename='review.js') }}"></script>
     <title>booksanon {% block title %}{% endblock %}</title>
 </head>
 <body>

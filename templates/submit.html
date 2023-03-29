@@ -1,5 +1,11 @@
 {% extends "layout.html" %}
 
+{% block css %}
+<link href="/static/submit.css" rel="stylesheet">
+{% endblock %}
+{% block javascript %}
+    <script src="{{ url_for('static',filename='review.js') }}"></script>
+{% endblock %}
 {% block title %}
     Submit
 {% endblock %}
@@ -47,11 +53,11 @@
     </tbody>
 </table>
     <p>Would you like to leave a review?</p>
-    <input class="review-button" name="review-button" type="radio" value="yes"> 
+    <input class="review-button" id="yes-review-button" name="review-button" type="radio" value="yes" onclick="review:show_hide_review_box();"> 
     <label for="yes">Yes</label> 
-    <input class="review-button" name="review-button" type="radio" checked="checked" value="no"> 
+    <input class="review-button" id="no-review-button" name="review-button" type="radio" checked="checked" value="no" onclick="review:show_hide_review_box();">
     <label for="no">No</label></br> 
-    <input autocomplete="off" autofocus class="review-box" id="review-box" name="review-box" placeholder="Enter review" type="text">
+    <input autocomplete="off" class="review-box" id="review-box" name="review-box" placeholder="Enter review" type="text">
     <button class="submit-button" type="submit">Submit</button>
 </form>
     </div>

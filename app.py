@@ -64,6 +64,7 @@ def index():
 
     return render_template("index.html", books=books)
 
+
 @app.route("/recommend", methods=["GET", "POST"])
 def recommend():
     """ 

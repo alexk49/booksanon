@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
-
+{% block javascript %}
+    <script src="{{ url_for('static',filename='review.js') }}"></script>
+{% endblock %}
 {% block title %}
     Recommend
 {% endblock %}
