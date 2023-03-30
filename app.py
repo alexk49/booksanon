@@ -91,11 +91,7 @@ def recommend():
                 
                 # get biblographic data via open lib api
                 title, author, pub_date  = open_lib_isbn(isbn)                 
-                # review = request.form['review-button']
                 
-                # if review == 'no':
-                    # review = ""
-
                 results = [{'title': title, 'author': author, 'pub_date': pub_date}]
                 # results = [(title, author, pub_date, review)]
                 session['results'] = results
@@ -205,7 +201,7 @@ def open_lib_isbn(isbn):
             author_url = "https://openlibrary.org" + author_key + ".json" 
             response = requests.get(author_url)
             response_dict = response.json()
-            author = respones_dict['name']
+            author = respone_dict['name']
 
             authors = authors + ", " + author
         # reset numerous authors as one author value
@@ -213,5 +209,50 @@ def open_lib_isbn(isbn):
     return(title, author, pub_date)
 
 
+def open_lib_search(search_via, term):
+    """ get data using general open library search api """
+    url = "https://openlibrary.org/search.json"
+    
+    if search_via != "title" or search_via != "isbn":
+        search_via = "" 
+    
+    # create url query 
+    search_url = url + "?" + search_via + "=" + term
+    response = requests.get(search_url)
+    response_dict = response.json()
+    
+    unique_works = []
+    results = []
+    # get top five unique results
+    while len(unique_works) < 5:
+        for num in range(len(response_dict['docs'])):
+            work_key = respone_dict['docs'][num]['key']
+            
+            # add work key to unique works if not already there
+            if work_key not in unique_works:
+                unique_works.append(work_key)
+                
+                # get basic biblographic data
+                title = response_dict['docs'][num]['title'] 
+                first_publish_date = response_dict['docs'][num]['first_publish_year'] 
+                num_of_pages = response_dict['docs'][num]['number_of_pages_median']
+                author = response_dict['docs'][num]['author_name']
+                
+                # librarything id can be added to url like:
+                # https://www.librarything.com/work/1060
+                librarything_id = response_dict['docs'][num]['id_librarything']
+                
+                # cover id can be added to url like: 
+                # https://covers.openlibrary.org/b/id/525391-S.jpg - change S to L or M for different sizes
+                cover_id = response_dict['docs'][0]['cover_i']
+                
+                results.append({'work_key': work_key, 'title': title, 
+                                'pub_date': first_publish_date, 'num_of_pages': num_of_pages,
+                                'author': author, 'librarything_id': librarything_id, 
+                                'cover_id': cover_id, 'searched_via': search_via,
+                                'search_term': term}) 
+
+        print(results)
+        return results
 if __name__ == "__main__":
     app.run(debug=True)
