@@ -68,7 +68,7 @@ def index():
 @app.route("/recommend", methods=["GET", "POST"])
 def recommend():
     """ 
-    page for submitting recommendations
+    page for querying books api recommendations
     """
     if request.method == "POST":
         # get data from form
@@ -85,10 +85,6 @@ def recommend():
         search_via = request.form['search-via']
         search_term = request.form['search-term']
 
-        print(search_method)
-        print(search_via)
-        print(search_term)
-
         if search_method == "open-library":
             if search_via == "isbn":
                 valid = validate_isbn(search_term)
@@ -102,10 +98,10 @@ def recommend():
             # results = [{'title': title, 'author': author, 'pub_date': pub_date}]
             # results = [(title, author, pub_date, review)]
             session['results'] = results
-            print(results)
             # return render_template("submit.html", results=results)
         # render submit with results
         return render_template("submit.html", results=results)
+    # if get request
     else:
         return render_template("recommend.html")
 
@@ -207,8 +203,7 @@ def open_lib_isbn(isbn):
             author_url = "https://openlibrary.org" + author_key + ".json" 
             response = requests.get(author_url)
             response_dict = response.json()
-            author = respone_dict['name']
-
+            author = response_dict['name']
             authors = authors + ", " + author
         # reset numerous authors as one author value
         author = authors
@@ -260,11 +255,12 @@ def open_lib_search(search_via, term):
                 
                 # librarything id can be added to url like:
                 # https://www.librarything.com/work/1060
-                try:
-                    librarything_id = response_dict['docs'][num]['id_librarything']
-                except KeyError:
-                    librarything_id = "n/a"
                 
+                try:
+                    librarything_ids = response_dict['docs'][num]['id_librarything']
+                    
+                except KeyError:
+                    librarything_ids = "n/a"
                 try:
                     first_publish_date = response_dict['docs'][num]['first_publish_year'] 
                 except KeyError:
@@ -272,11 +268,12 @@ def open_lib_search(search_via, term):
  
                 # cover id can be added to url like: 
                 # https://covers.openlibrary.org/b/id/525391-S.jpg - change S to L or M for different sizes
-                cover_id = response_dict['docs'][0]['cover_i']
-                
+                cover_id_num = response_dict['docs'][num]['cover_i']
+                cover_id = f"https://covers.openlibrary.org/b/id/{cover_id_num}-S.jpg"
+
                 results.append({'work_key': work_key, 'title': title, 
                                 'pub_date': first_publish_date, 'num_of_pages': num_of_pages,
-                                'author': author, 'librarything_id': librarything_id, 
+                                'author': author, 'librarything_id': librarything_ids, 
                                 'cover_id': cover_id, 'searched_via': search_via,
                                 'search_term': term}) 
                 

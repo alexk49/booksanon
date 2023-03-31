@@ -19,22 +19,31 @@
     <thead>
         <tr>
             <th>
+                Cover
+            </th>
+            <th>
                 Title
             </th>
             <th>
-                Author
+                Author/s
             </th>
             <th>
                 Publication date
+            </th>
+            <th>
+                Number of pages
             </th>
             <th>
                 Select
             </th>
         </tr>
     </thead>
-    <tbody>
+ <tbody>
         {% for result in results %}
         <tr>
+            <td>
+                <img src="{{ result["cover_id"] }}" alt="Book cover">                
+            </td>
         <td>
             {{ result["title"] }}
         </td>
@@ -43,6 +52,9 @@
         </td>
         <td>
             {{ result["pub_date"] }}
+        </td>
+        <td>
+            {{ result["num_of_pages"] }}
         </td>
         <td>
             <input class="select" name="select" type="radio" value="{{ loop.index }}"> 
