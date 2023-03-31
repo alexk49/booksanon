@@ -82,23 +82,29 @@ def recommend():
             example string https://openlibrary.org/api/books?bibkeys=ISBN:9781785039065&format=json
         """
         search_method = request.form['search-method']
+        search_via = request.form['search-via']
+        search_term = request.form['search-term']
+
+        print(search_method)
+        print(search_via)
+        print(search_term)
 
         if search_method == "open-library":
-            isbn = request.form.get("isbn")
-            # test isbn = 978-0747579885
-            valid = validate_isbn(isbn)
-            if valid:
-                
-                # get biblographic data via open lib api
-                title, author, pub_date  = open_lib_isbn(isbn)                 
-                
-                results = [{'title': title, 'author': author, 'pub_date': pub_date}]
-                # results = [(title, author, pub_date, review)]
-                session['results'] = results
+            if search_via == "isbn":
+                valid = validate_isbn(search_term)
+                if not valid:
+                    return render_template("recommend.html")
 
-                return render_template("submit.html", results=results)
-                                
-        # redirect to homepage
+            results = open_lib_search(search_via, search_term)
+            # get biblographic data via open lib api
+            # title, author, pub_date  = open_lib_isbn(isbn)                 
+            
+            # results = [{'title': title, 'author': author, 'pub_date': pub_date}]
+            # results = [(title, author, pub_date, review)]
+            session['results'] = results
+            print(results)
+            # return render_template("submit.html", results=results)
+        # render submit with results
         return render_template("submit.html", results=results)
     else:
         return render_template("recommend.html")
@@ -213,35 +219,57 @@ def open_lib_search(search_via, term):
     """ get data using general open library search api """
     url = "https://openlibrary.org/search.json"
     
-    if search_via != "title" or search_via != "isbn":
+    search_via_options = ['title', 'isbn']
+    if search_via not in search_via_options: 
         search_via = "" 
-    
     # create url query 
     search_url = url + "?" + search_via + "=" + term
+
     response = requests.get(search_url)
     response_dict = response.json()
     
     unique_works = []
     results = []
+
     # get top five unique results
-    while len(unique_works) < 5:
-        for num in range(len(response_dict['docs'])):
-            work_key = respone_dict['docs'][num]['key']
-            
+    for num in range(len(response_dict['docs'])):
+    
+        if response_dict['docs'][num]['ebook_access'] == 'no_ebook':
+            pass
+        else:
             # add work key to unique works if not already there
+            work_key = response_dict['docs'][num]['key']
+            
             if work_key not in unique_works:
                 unique_works.append(work_key)
                 
                 # get basic biblographic data
                 title = response_dict['docs'][num]['title'] 
-                first_publish_date = response_dict['docs'][num]['first_publish_year'] 
                 num_of_pages = response_dict['docs'][num]['number_of_pages_median']
+                
+                                
                 author = response_dict['docs'][num]['author_name']
+                
+                # handle multiple authors
+                if len(author) == 1:
+                    author = author[0]
+                else:
+                    author = ', '.join(author)
+                
+                # handle values that caused key errors on rarer books in testing 
                 
                 # librarything id can be added to url like:
                 # https://www.librarything.com/work/1060
-                librarything_id = response_dict['docs'][num]['id_librarything']
+                try:
+                    librarything_id = response_dict['docs'][num]['id_librarything']
+                except KeyError:
+                    librarything_id = "n/a"
                 
+                try:
+                    first_publish_date = response_dict['docs'][num]['first_publish_year'] 
+                except KeyError:
+                    first_publish_date = "n/a"
+ 
                 # cover id can be added to url like: 
                 # https://covers.openlibrary.org/b/id/525391-S.jpg - change S to L or M for different sizes
                 cover_id = response_dict['docs'][0]['cover_i']
@@ -251,8 +279,12 @@ def open_lib_search(search_via, term):
                                 'author': author, 'librarything_id': librarything_id, 
                                 'cover_id': cover_id, 'searched_via': search_via,
                                 'search_term': term}) 
+                
+                # enforce limit on number of results 
+                if len(results) == 10:
+                    break
+    return results
 
-        print(results)
-        return results
+
 if __name__ == "__main__":
     app.run(debug=True)

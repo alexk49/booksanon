@@ -14,9 +14,11 @@
     <li>Search via:</li>
     <input class="search-method" name="search-method" type="radio" value="open-library" checked="checked"> 
     <label for="open-library">Open Library</label>
-    <input class="search-via" name="search-via" type="radio" value="isbn" checked="checked"> 
+     <input class="search-via" name="search-via" type="radio" value="isbn" checked="checked"> 
     <label for="isbn">ISBN</label>
-    <input autocomplete="off" autofocus class="isbn" name="isbn" placeholder="Enter ISBN" type="text">
+   <input class="search-via" name="search-via" type="radio" value="title" checked="checked"> 
+    <label for="title">Title</label>
+    <input autocomplete="off" autofocus class="search-term" name="search-term" placeholder="Enter book" type="text">
     <button class="search" id="search" type="search">Validate book</button>
     </form>
 </form>
