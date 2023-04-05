@@ -10,26 +10,19 @@
 <h2>Recommend a book</h2>    
 <div class="query">
 <form action="/recommend" method="post">
-    <p>Use the form to submit a book to the database.</p>
     <li>Search via:</li>
-    <input class="search-method" name="search-method" type="radio" value="open-library" checked="checked"> 
-    <label for="open-library">Open Library</label>
-     <input class="search-via" name="search-via" type="radio" value="isbn" checked="checked"> 
+    <p>This search uses the <a href="https://www.openlibrary.org">Open Library</a> for results. There are a lot of books in the world, so the more specific you can make your search query the better your results will be. Booksanon filters out a lot of the more "obscure" results from the Open Library by ignoring any book that does not have a valid e-book available in the Open Library data.</p>
+    <p>This form submits your query to the <a href="https://openlibrary.org/developers/api">Open Library API</a> and, it will return a maximum of 10 results. On the next page you can then verify the single book you want to submit to the database.</p>
+    <input class="search-via" name="search-via" type="radio" value="isbn" checked="checked"> 
     <label for="isbn">ISBN</label>
+    <p>If you have the physical book you want to recommend in front of you then you can find the ISBN on the bar code or in the front matter. This is the easiest way to make sure you get the result you want.</p>
    <input class="search-via" name="search-via" type="radio" value="title" checked="checked"> 
     <label for="title">Title</label>
+    <p>Remember the more specific the better! "Harry Potter and the Philosopher's Stone" is a better search than just "Harry Potter".</p>
     <input autocomplete="off" autofocus class="search-term" name="search-term" placeholder="Enter book" type="text">
     <button class="search" id="search" type="search">Validate book</button>
     </form>
 </form>
 </div>
-    <!--
-    <input autocomplete="off" autofocus class="book-input" id="book-input" name="book-input" placeholder="Enter a title, author, or isbn" type="text"> 
-    <input autocomplete="off" autofocus class="title" id="book-input" name="title" placeholder="title" type="text">
-    <input autocomplete="off" autofocus class="author" id="book-input" name="author" placeholder="author" type="text">
-    <input autocomplete="off" autofocus class="pub_year" id="book-input" name="pub_year" placeholder="publication year" type="text">
-    <input autocomplete="off" autofocus class="review" id="book-input" name="review" placeholder="review" type="text">
-    --!>
-
 {% endblock %}
 

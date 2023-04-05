@@ -14,10 +14,9 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 """ sql 
 test_table - 
-title, author, year of publication, review, timestamp
+work_key, cover_id, librarything_id, title, author, pub_date, num_of_pages, searched_via, search_term, review, timestamp
 
 functions for database taken pretty much exactly from flask docs
-
 """
 
 DATABASE = 'books.db'
@@ -60,7 +59,7 @@ def index():
     """
 
     # query database for top 10 most recent book recs
-    books = query_db('SELECT title, author, pub_year, review from "test_books" ORDER BY Timestamp DESC LIMIT 10')
+    books = query_db('SELECT cover_id, title, author, pub_year, num_of_pages, review from "test_books" ORDER BY Timestamp DESC LIMIT 10')
 
     return render_template("index.html", books=books)
 
@@ -75,14 +74,15 @@ def recommend():
         # rows = [(request.form.get("title"), request.form.get("author"), request.form.get("pub_year"), request.form.get("review"))]
 
         # validate data 
-        """ to do:
+        """ 
             use api to validate real book
             parse api return to get values you want to store
             
             example string https://openlibrary.org/api/books?bibkeys=ISBN:9781785039065&format=json
         """
-        search_method = request.form['search-method']
+        search_method = "open-library"
         search_via = request.form['search-via']
+        
         search_term = request.form['search-term']
 
         if search_method == "open-library":
@@ -92,13 +92,8 @@ def recommend():
                     return render_template("recommend.html")
 
             results = open_lib_search(search_via, search_term)
-            # get biblographic data via open lib api
-            # title, author, pub_date  = open_lib_isbn(isbn)                 
             
-            # results = [{'title': title, 'author': author, 'pub_date': pub_date}]
-            # results = [(title, author, pub_date, review)]
             session['results'] = results
-            # return render_template("submit.html", results=results)
         # render submit with results
         return render_template("submit.html", results=results)
     # if get request
@@ -125,15 +120,22 @@ def submit():
             review = request.form.get("review-box")
         # submit to datbase
         # establish cursor for processing
-        cursor = get_db().cursor() 
-        cursor.execute('''INSERT into "test_books" (title, author, pub_year, review) VALUES (?, ?, ?, ?)''', (result['title'], result['author'], result['pub_date'], review))
+        cursor = get_db().cursor()
+
+        """
+        'work_key': work_key, 'title': title, 
+        'pub_date': first_publish_date, 'num_of_pages': num_of_pages,
+        'author': author, 'librarything_id': librarything_id, 
+        'cover_id': cover_id, 'searched_via': search_via,
+        'search_term': term}) 
+        """
+        cursor.execute('''INSERT into "test_books" (title, author, pub_year, num_of_pages, librarything_id, cover_id, searched_via, search_term, review) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''', (result['title'], result['author'], result['pub_date'], result['num_of_pages'], result['librarything_id'], result['cover_id'], result['searched_via'], result['search_term'], review))
 
         # commit changes to database
         db = get_db()
         db.commit()
 
         return redirect("/")
-        # print(results)
         if request.method == "GET":
             return render_template("submit.html")
 
@@ -218,7 +220,7 @@ def open_lib_search(search_via, term):
     if search_via not in search_via_options: 
         search_via = "" 
     # create url query 
-    search_url = url + "?" + search_via + "=" + term
+    search_url = url + "?" + search_via + "=" + term + "&limit=10"
 
     response = requests.get(search_url)
     response_dict = response.json()
@@ -240,9 +242,6 @@ def open_lib_search(search_via, term):
                 
                 # get basic biblographic data
                 title = response_dict['docs'][num]['title'] 
-                num_of_pages = response_dict['docs'][num]['number_of_pages_median']
-                
-                                
                 author = response_dict['docs'][num]['author_name']
                 
                 # handle multiple authors
@@ -255,9 +254,13 @@ def open_lib_search(search_via, term):
                 
                 # librarything id can be added to url like:
                 # https://www.librarything.com/work/1060
-                
+                try:
+                    num_of_pages = response_dict['docs'][num]['number_of_pages_median']
+                except KeyError:
+                    num_of_pages = 1
                 try:
                     librarything_ids = response_dict['docs'][num]['id_librarything']
+                    librarything_id = librarything_ids[0]
                     
                 except KeyError:
                     librarything_ids = "n/a"
@@ -273,7 +276,7 @@ def open_lib_search(search_via, term):
 
                 results.append({'work_key': work_key, 'title': title, 
                                 'pub_date': first_publish_date, 'num_of_pages': num_of_pages,
-                                'author': author, 'librarything_id': librarything_ids, 
+                                'author': author, 'librarything_id': librarything_id, 
                                 'cover_id': cover_id, 'searched_via': search_via,
                                 'search_term': term}) 
                 
