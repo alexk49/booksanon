@@ -22,7 +22,16 @@
     <input class="search-via" name="search-via" type="radio" value="general" checked="checked"> 
     <label for="general">General Query</label>
     <p>General query means you can just add general search terms for example Harry Potter Philosopher's Stone JK Rowling.</p>
-    <input autocomplete="off" autofocus class="search-term" name="search-term" placeholder="Enter book" type="text">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <ul class=flashes>
+    {% for category, message in messages %}
+      <li class="{{ category }}">{{ message }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+   <input autocomplete="off" autofocus class="search-term" name="search-term" placeholder="Enter book" type="text">
     <button class="search" id="search" type="search">Validate book</button>
     </form>
 </form>

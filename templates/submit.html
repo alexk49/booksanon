@@ -69,6 +69,15 @@
     <label for="yes">Yes</label> 
     <input class="review-button" id="no-review-button" name="review-button" type="radio" checked="checked" value="no" onclick="review:show_hide_review_box();">
     <label for="no">No</label></br> 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <ul class=flashes>
+    {% for category, message in messages %}
+      <li class="{{ category }}">{{ message }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
     <input autocomplete="off" class="review-box" id="review-box" name="review-box" placeholder="Enter review" type="text">
     <button class="submit-button" type="submit">Submit</button>
 </form>

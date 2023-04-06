@@ -84,6 +84,7 @@ def recommend():
             if search_via == "isbn":
                 valid = validate_isbn(search_term)
                 if not valid:
+                    flash('Invalid ISBN given. Your ISBN should start with 978 and be 10 or 13 digits long.', 'invalid-isbn')
                     return render_template("recommend.html")
 
             results = open_lib_search(search_via, search_term)
@@ -100,18 +101,19 @@ def recommend():
 def submit():
     """ validate recommendation and submit to database """
     if request.method == "POST":
+        # get passed over book info
+        results = session.get("results")
+
         try:
             # get form option turn to integer and adapt for index value
             option = int(request.form["select"])
             option = option - 1
+            # get selected index
+            result = (results[option])
         except KeyError:
-            print("give me actual data")
-            return render_template("recommend.html")
-        # get passed over book info
-        results = session.get("results")
-        # get selected index
-        result = (results[option])
-        
+            flash('You must select an book to submit!', 'select-error')
+            return render_template("submit.html", results=results)
+                
         # get review value
         if request.form["review-button"] == "no":
             review = ""
