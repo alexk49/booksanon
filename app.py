@@ -1,11 +1,10 @@
 """ web app to allow users to anonymously recommend books """
 
 import sqlite3
-import requests
-from flask import Flask, g, redirect, render_template, request, session, url_for
+from flask import Flask, flash, g, redirect, render_template, request, session, url_for
 
 from key_file import key
-from open_lib_api_calls import *
+from open_lib_api_calls import open_lib_search
 
 # Configure app
 app = Flask(__name__)
@@ -15,7 +14,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 """ sql 
 test_table - 
-work_key, cover_id, librarything_id, title, author, pub_date, num_of_pages, searched_via, search_term, review, timestamp
+work_key, cover_id, title, author, pub_date, num_of_pages, searched_via, search_term, review, timestamp
 
 functions for database taken pretty much exactly from flask docs
 """
@@ -56,8 +55,7 @@ def query_db(query, args=(), one=False):
 @app.route("/")
 def index():
     """ 
-    homepage, used for recommendations 
-    and for listing latest 
+    homepage lists latest recommendations 
     """
 
     # query database for top 10 most recent book recs
@@ -73,10 +71,9 @@ def recommend():
     """
     if request.method == "POST":
         """ 
-            use api to validate real book
-            parse api return to get values you want to store
-            
-            example string https://openlibrary.org/api/books?bibkeys=ISBN:9781785039065&format=json
+        use api to validate real book
+        parse api return to get values you want to store
+        example string https://openlibrary.org/api/books?bibkeys=ISBN:9781785039065&format=json
         """
         search_method = "open-library"
         search_via = request.form['search-via']
@@ -103,9 +100,13 @@ def recommend():
 def submit():
     """ validate recommendation and submit to database """
     if request.method == "POST":
-        # get form option turn to integer and adapt for index value
-        option = int(request.form["select"])
-        option = (option - 1)
+        try:
+            # get form option turn to integer and adapt for index value
+            option = int(request.form["select"])
+            option = option - 1
+        except KeyError:
+            print("give me actual data")
+            return render_template("recommend.html")
         # get passed over book info
         results = session.get("results")
         # get selected index
@@ -123,11 +124,10 @@ def submit():
         """
         'work_key': work_key, 'title': title, 
         'pub_date': first_publish_date, 'num_of_pages': num_of_pages,
-        'author': author, 'librarything_id': librarything_id, 
-        'cover_id': cover_id, 'searched_via': search_via,
-        'search_term': term}) 
+        'author': author, 'cover_id': cover_id, 
+        'searched_via': search_via, 'search_term': term}) 
         """
-        cursor.execute('''INSERT into "test_books" (title, author, pub_year, num_of_pages, librarything_id, cover_id, searched_via, search_term, review) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''', (result['title'], result['author'], result['pub_date'], result['num_of_pages'], result['librarything_id'], result['cover_id'], result['searched_via'], result['search_term'], review))
+        cursor.execute('''INSERT into "test_books" (title, author, pub_year, num_of_pages, cover_id, searched_via, search_term, review) VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', (result['title'], result['author'], result['pub_date'], result['num_of_pages'], result['cover_id'], result['searched_via'], result['search_term'], review))
 
         # commit changes to database
         db = get_db()
@@ -159,14 +159,19 @@ def about():
 
 """ error handling """ 
 
+@app.errorhandler(400)
+def bad_request(e):
+    return render_template('400.html', error_message=e), 400
+
+
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('404.html'), 404
+    return render_template('404.html', error_message=e), 404
 
 
 @app.errorhandler(500)
 def internal_server_error(e):
-    return render_template('500.html'), 500
+    return render_template('500.html', error_message=e), 500
 
 
 def validate_isbn(isbn):

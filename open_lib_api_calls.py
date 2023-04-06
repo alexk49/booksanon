@@ -45,9 +45,9 @@ def open_lib_search(search_via, term):
     
     search_via_options = ['title', 'isbn']
     if search_via not in search_via_options: 
-        search_via = "" 
+        search_via = "q" 
     # create url query 
-    search_url = url + "?" + search_via + "=" + term + "&limit=10"
+    search_url = url + "?" + search_via + "=" + term + "&limit=20"
 
     response = requests.get(search_url)
     response_dict = response.json()
@@ -67,44 +67,30 @@ def open_lib_search(search_via, term):
             unique_works.append(work_key)
             
             # get basic biblographic data
-            title = response_dict['docs'][num]['title'] 
-            author = response_dict['docs'][num]['author_name']
-            
-            # handle multiple authors
-            if len(author) == 1:
-                author = author[0]
-            else:
-                author = ', '.join(author)
-            
-            # handle values that caused key errors on rarer books in testing 
-            
-            # librarything id can be added to url like:
-            # https://www.librarything.com/work/1060
             try:
-                num_of_pages = response_dict['docs'][num]['number_of_pages_median']
-            except KeyError:
-                num_of_pages = 1
-            try:
-                librarything_ids = response_dict['docs'][num]['id_librarything']
-                librarything_id = librarything_ids[0]
+                title = response_dict['docs'][num]['title'] 
+                author = response_dict['docs'][num]['author_name']
+                # handle multiple authors
+                if len(author) == 1:
+                    author = author[0]
+                else:
+                    author = ', '.join(author)
                 
-            except KeyError:
-                librarything_id = "n/a"
-            try:
+                # handle values that caused key errors on rarer books in testing 
+                
+                num_of_pages = response_dict['docs'][num]['number_of_pages_median']
                 first_publish_date = response_dict['docs'][num]['first_publish_year'] 
+                # cover id can be added to url like: 
+                # https://covers.openlibrary.org/b/id/525391-S.jpg - change S to L or M for different sizes
+                cover_id_num = response_dict['docs'][num]['cover_i']
+                cover_id = f"https://covers.openlibrary.org/b/id/{cover_id_num}-S.jpg"
             except KeyError:
-                first_publish_date = "n/a"
-
-            # cover id can be added to url like: 
-            # https://covers.openlibrary.org/b/id/525391-S.jpg - change S to L or M for different sizes
-            cover_id_num = response_dict['docs'][num]['cover_i']
-            cover_id = f"https://covers.openlibrary.org/b/id/{cover_id_num}-S.jpg"
+                continue
 
             results.append({'work_key': work_key, 'title': title, 
                             'pub_date': first_publish_date, 'num_of_pages': num_of_pages,
-                            'author': author, 'librarything_id': librarything_id, 
-                            'cover_id': cover_id, 'searched_via': search_via,
-                            'search_term': term}) 
+                            'author': author, 'cover_id': cover_id, 
+                            'searched_via': search_via, 'search_term': term}) 
             
             # enforce limit on number of results 
             if len(results) == 10:
