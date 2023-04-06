@@ -1,6 +1,7 @@
 """ web app to allow users to anonymously recommend books """
 
 import sqlite3
+from better_profanity import profanity
 from flask import Flask, flash, g, redirect, render_template, request, session, url_for
 
 from key_file import key
@@ -84,14 +85,17 @@ def recommend():
             if search_via == "isbn":
                 valid = validate_isbn(search_term)
                 if not valid:
-                    flash('Invalid ISBN given. Your ISBN should start with 978 and be 10 or 13 digits long.', 'invalid-isbn')
-                    return render_template("recommend.html")
+                    error = 'Invalid ISBN given. Your ISBN should start with 978 and be 10 or 13 digits long.'
+                    return render_template("recommend.html", error=error)
 
             results = open_lib_search(search_via, search_term)
-            
             session['results'] = results
         # render submit with results
-        return render_template("submit.html", results=results)
+        if not results:
+            error = "That search query returned no results, please try again."
+            return render_template("recommend.html", error=error)
+        else:
+            return render_template("submit.html", results=results)
     # if get request
     else:
         return render_template("recommend.html")
@@ -111,14 +115,30 @@ def submit():
             # get selected index
             result = (results[option])
         except KeyError:
-            flash('You must select an book to submit!', 'select-error')
-            return render_template("submit.html", results=results)
+            error = "You must select a book to submit!"
+            # flash('You must select an book to submit!', 'select-error')
+            return render_template("submit.html", results=results, error=error)
                 
         # get review value
         if request.form["review-button"] == "no":
-            review = ""
+            review = "No review"
         else:
             review = request.form.get("review-box")
+        
+        # check review not blank
+        if not review:
+            error = "Your review is empty. Either write a review, or select no review."
+            flash("Review selected as yes, but no review given.")
+            return render_template("submit.html", results=results, error=error)
+        # check review is not too longer
+        if len(review) > 300:
+            error = "Your review is too long, try and be more concise."
+            return render_template("submit.html", results=results, error=error)
+        # check review does not contain profanity 
+        if profanity.contains_profanity(review):
+            error = "Your review contained profanity. Please be less rude and try again."
+            return render_template("submit.html", results=results, error=error)
+        
         # submit to datbase
         # establish cursor for processing
         cursor = get_db().cursor()
@@ -134,7 +154,7 @@ def submit():
         # commit changes to database
         db = get_db()
         db.commit()
-
+        flash("Your recommendation has been received, thank you!")
         return redirect("/")
     else:
         return render_template("submit.html")

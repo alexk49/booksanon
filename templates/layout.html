@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link href="/static/styles.css" rel="stylesheet">
     {% block css %}{% endblock %}
-        <script src="{{ url_for('static',filename='review.js') }}"></script>
+    {% block javascript %}{% endblock %}
     <title>booksanon {% block title %}{% endblock %}</title>
 </head>
 <body>
@@ -15,6 +15,15 @@
         <nav class="nav-item"><a class="nav-link" href="/history">History</a></nav>
         <nav class="nav-item"><a class="nav-link" href="/about">About</a></nav>
     </div>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
     <main class="main">
     {% block main %}{% endblock %}
     </main>
