@@ -182,6 +182,11 @@ def history():
     return render_template("history.html", books=books)
 
 
+@app.route("/search_history")
+def search_history():
+    return render_template("search_history.html")
+
+
 @app.route("/search")
 def search():
     """ search query for history page """
@@ -195,6 +200,7 @@ def search():
         books = []
     
     data = []
+    
     for book in books:
         json_string = json.dumps(dict(book))
         data.append(json_string)

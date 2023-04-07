@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block javascript %}
+    <script src="{{ url_for('static',filename='search.js') }}"></script>
+{% endblock %}
+
+{% block title %}
+    Search
+{% endblock %}
+
+{% block main %}
+<h2>Search</h2>
+<p>You can use the filters to sort through and view every book that has been recommended via this site.</p>
+<input class="search" id="search" autocomplete="off" autofocus placeholder="Search" type="text">
+<ul></ul>
+{% endblock %}
