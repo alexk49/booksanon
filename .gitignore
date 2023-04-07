@@ -2,6 +2,7 @@
 .stats
 notes.txt
 key_file.py
+*.log
 
 venv
 .venv
