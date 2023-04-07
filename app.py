@@ -1,10 +1,11 @@
 """ web app to allow users to anonymously recommend books """
 
+import json
 import sqlite3
 import logging
 import logging.config
 from better_profanity import profanity
-from flask import Flask, flash, g, redirect, render_template, request, session, url_for
+from flask import Flask, flash, g, jsonify, redirect, render_template, request, session, url_for
 
 from config_dict import config_dict
 from key_file import key
@@ -179,6 +180,25 @@ def history():
     # need to provide means for this to be filtered depending on user selection
 
     return render_template("history.html", books=books)
+
+
+@app.route("/search")
+def search():
+    """ search query for history page """
+    q = request.args.get("q")
+    if q:
+        query = "%" + q + "%"
+        # sql interprets individual string as if it were an array of characters 
+        # so passing the query string in a list variable solves this
+        books = query_db('SELECT * FROM "test_books" WHERE title LIKE (?) LIMIT 50', [query])
+    else:
+        books = []
+    
+    data = []
+    for book in books:
+        json_string = json.dumps(dict(book))
+        data.append(json_string)
+    return jsonify(data)    
 
 
 @app.route("/about")

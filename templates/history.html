@@ -1,4 +1,7 @@
 {% extends "layout.html" %}
+{% block javascript %}
+    <script src="{{ url_for('static',filename='search.js') }}"></script>
+{% endblock %}
 
 {% block title %}
     History
@@ -43,4 +46,6 @@
         {% endfor %}
     </tbody>
 </table>
+<input class="search" id="search" autocomplete="off" autofocus placeholder="Search" type="text">
+<ul></ul>
 {% endblock %}
