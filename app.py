@@ -15,7 +15,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 """ sql 
 test_table - 
-work_key, cover_id, title, author, pub_date, num_of_pages, searched_via, search_term, review, timestamp
+work_key, cover_id, title, author, pub_date, num_of_pages, search_term, review, timestamp
 
 functions for database taken pretty much exactly from flask docs
 """
@@ -77,18 +77,11 @@ def recommend():
         example string https://openlibrary.org/api/books?bibkeys=ISBN:9781785039065&format=json
         """
         search_method = "open-library"
-        search_via = request.form['search-via']
         
         search_term = request.form['search-term']
 
         if search_method == "open-library":
-            if search_via == "isbn":
-                valid = validate_isbn(search_term)
-                if not valid:
-                    error = 'Invalid ISBN given. Your ISBN should start with 978 and be 10 or 13 digits long.'
-                    return render_template("recommend.html", error=error)
-
-            results = open_lib_search(search_via, search_term)
+            results = open_lib_search(search_term)
             session['results'] = results
         # render submit with results
         if not results:
@@ -116,7 +109,6 @@ def submit():
             result = (results[option])
         except KeyError:
             error = "You must select a book to submit!"
-            # flash('You must select an book to submit!', 'select-error')
             return render_template("submit.html", results=results, error=error)
                 
         # get review value
@@ -131,7 +123,7 @@ def submit():
             flash("Review selected as yes, but no review given.")
             return render_template("submit.html", results=results, error=error)
         # check review is not too longer
-        if len(review) > 300:
+        if len(review) > 1000:
             error = "Your review is too long, try and be more concise."
             return render_template("submit.html", results=results, error=error)
         # check review does not contain profanity 
@@ -147,9 +139,9 @@ def submit():
         'work_key': work_key, 'title': title, 
         'pub_date': first_publish_date, 'num_of_pages': num_of_pages,
         'author': author, 'cover_id': cover_id, 
-        'searched_via': search_via, 'search_term': term}) 
+        'search_term': term}) 
         """
-        cursor.execute('''INSERT into "test_books" (work_key, title, author, pub_year, num_of_pages, cover_id, searched_via, search_term, review) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''', (result['work_key'], result['title'], result['author'], result['pub_date'], result['num_of_pages'], result['cover_id'], result['searched_via'], result['search_term'], review))
+        cursor.execute('''INSERT into "test_books" (work_key, title, author, pub_year, num_of_pages, cover_id, search_term, review) VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', (result['work_key'], result['title'], result['author'], result['pub_date'], result['num_of_pages'], result['cover_id'],  result['search_term'], review))
 
         # commit changes to database
         db = get_db()

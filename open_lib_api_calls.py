@@ -39,15 +39,12 @@ def open_lib_isbn(isbn):
     return(title, author, pub_date)
 
 
-def open_lib_search(search_via, term):
+def open_lib_search(term):
     """ get data using general open library search api """
     url = "https://openlibrary.org/search.json"
     
-    search_via_options = ['title', 'isbn']
-    if search_via not in search_via_options: 
-        search_via = "q" 
     # create url query 
-    search_url = url + "?" + search_via + "=" + term + "&limit=20"
+    search_url = url + "?q=" + term + "&limit=20"
 
     response = requests.get(search_url)
     response_dict = response.json()
@@ -90,7 +87,7 @@ def open_lib_search(search_via, term):
             results.append({'work_key': work_key, 'title': title, 
                             'pub_date': first_publish_date, 'num_of_pages': num_of_pages,
                             'author': author, 'cover_id': cover_id, 
-                            'searched_via': search_via, 'search_term': term}) 
+                            'search_term': term}) 
             
             # enforce limit on number of results 
             if len(results) == 10:

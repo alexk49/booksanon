@@ -4,7 +4,7 @@
 <link href="/static/submit.css" rel="stylesheet">
 {% endblock %}
 {% block javascript %}
-    <script src="{{ url_for('static',filename='review.js') }}"></script>
+    <script src="{{ url_for('static',filename='submit.js') }}"></script>
 {% endblock %}
 {% block title %}
     Submit
@@ -45,7 +45,7 @@
                 <img class="cover" src="{{ result["cover_id"] }}" alt="Book cover">                
             </td>
         <td>
-            <a class="open-lib-link" href="https://openlibrary.org{{ book["work_key"] }}">{{ book["title"] }}</a>
+            <a class="open-lib-link" href="https://openlibrary.org{{ result["work_key"] }}">{{ result["title"] }}</a>
         </td>
         <td>
             {{ result["author"] }}
@@ -72,8 +72,10 @@
     {% if error  %}
     <p class="error"><strong>Error:</strong> {{ error }}</p>
     {% endif %}
-    <input autocomplete="off" class="review-box" id="review-box" name="review-box" placeholder="Enter review" type="text">
-    <button class="submit-button" type="submit">Submit</button>
+    <!-- <input autocomplete="off" class="review-box" id="review-box" name="review-box" placeholder="Enter review" type="text"> !-->
+    <textarea name="review-box" class="review-box" id="review-box" rows="10" cols="75" wrap="soft" maxlength="1000" placeholder="Enter review (max 1000 characters)"></textarea>
+    <div id="counter" class="counter"></div>
+    <input id="submit-button" class="submit-button" name="submit" type="submit" value="Submit">
 </form>
     </div>
 {% endblock %}
