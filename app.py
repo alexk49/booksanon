@@ -1,14 +1,22 @@
 """ web app to allow users to anonymously recommend books """
 
 import sqlite3
+import logging
+import logging.config
 from better_profanity import profanity
 from flask import Flask, flash, g, redirect, render_template, request, session, url_for
 
+from config_dict import config_dict
 from key_file import key
 from open_lib_api_calls import open_lib_search
 
+
 # Configure app
 app = Flask(__name__)
+
+# config logs
+logging.config.dictConfig(config_dict)
+# secret key is needed for session variable
 app.secret_key = key
 # ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -77,14 +85,16 @@ def recommend():
         example string https://openlibrary.org/api/books?bibkeys=ISBN:9781785039065&format=json
         """
         search_method = "open-library"
-        
+         
         search_term = request.form['search-term']
-
+        logging.info("A user has made a search for: %s", search_term) 
         if search_method == "open-library":
             results = open_lib_search(search_term)
             session['results'] = results
+            logging.info("successful search")
         # render submit with results
         if not results:
+            logging.info("Failed search")
             error = "That search query returned no results, please try again."
             return render_template("recommend.html", error=error)
         else:
@@ -114,20 +124,24 @@ def submit():
         # get review value
         if request.form["review-button"] == "no":
             review = "No review"
+            logging.info("No review given")
         else:
             review = request.form.get("review-box")
         
         # check review not blank
         if not review:
+            logging.info("Submitted with empty review")
             error = "Your review is empty. Either write a review, or select no review."
             flash("Review selected as yes, but no review given.")
             return render_template("submit.html", results=results, error=error)
         # check review is not too longer
         if len(review) > 1000:
+            logging.info("Review rejected for exceeding character limit")
             error = "Your review is too long, try and be more concise."
             return render_template("submit.html", results=results, error=error)
         # check review does not contain profanity 
         if profanity.contains_profanity(review):
+            logging.info("Review rejected for containing profanity")
             error = "Your review contained profanity. Please be less rude and try again."
             return render_template("submit.html", results=results, error=error)
         
@@ -146,6 +160,9 @@ def submit():
         # commit changes to database
         db = get_db()
         db.commit()
+        logging.info("Book submitted to database")
+        logging.info(result)
+        logging.info(review)
         flash("Your recommendation has been received, thank you!")
         return redirect("/")
     else:
@@ -167,7 +184,6 @@ def history():
 @app.route("/about")
 def about():
     """ page for reading about how site was made """
-
     return render_template("about.html")
 
 
@@ -175,16 +191,19 @@ def about():
 
 @app.errorhandler(400)
 def bad_request(e):
+    logging.info(e)
     return render_template('400.html', error_message=e), 400
 
 
 @app.errorhandler(404)
 def page_not_found(e):
+    logging.info(e)
     return render_template('404.html', error_message=e), 404
 
 
 @app.errorhandler(500)
 def internal_server_error(e):
+    logging.info(e)
     return render_template('500.html', error_message=e), 500
 
 
@@ -204,4 +223,4 @@ def validate_isbn(isbn):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
