@@ -1,0 +1,82 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+/* center cover images */
+.cover {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+a {
+    /* Places underlines below the descenders */
+    text-underline-position: under;
+}
+
+/* enable smooth scrolling */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+        scroll-behavior: smooth;
+  }
+}
+
+/* enables a change of cursor when hovering over interactive links */
+label,
+button,
+select,
+summary,
+[type=radio],
+[type=submit],
+[type=checkbox] {
+    cursor: pointer;
+}
+
+.nav-bar ul
+{
+    background-color: #282A35;
+    overflow: hidden;
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+    top: 0px;
+    position: fixed;
+    width: 100%;
+}
+
+.nav-item
+{
+   border-right: 1px solid #282A35;
+   float: left;
+}
+
+.nav-link
+{
+    display: block;
+    text-align: center;
+    padding: 14px 16px;
+    color: #f1f1f1;
+    text-decoration: none;
+}
+
+.table
+{
+    padding: 0.5rem;
+    border-bottom-width: 1px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+}
+
+td
+{
+    text-align: center;
+    border: solid 1px;
+    word-wrap: break-word;
+}

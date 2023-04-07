@@ -35,7 +35,7 @@
         <!-- books = query_db('SELECT cover_id, title, author, pub_year, num_of_pages, searched_via, search_term, review from "test_books" ORDER BY Timestamp DESC LIMIT 10') --!>
         <tr>
         <td>
-            <img src="{{ book["cover_id"] }}" alt="Book cover"> 
+            <img class="cover" src="{{ book["cover_id"] }}" alt="Book cover"> 
         </td>
         <td>
             {{ book["title"] }}
