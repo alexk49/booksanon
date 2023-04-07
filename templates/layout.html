@@ -3,15 +3,24 @@
 <head>
     <meta name="viewport" content="initial-scale=1.0, width=device-width" charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- https://favicon.io/emoji-favicons/books --!>
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+    <link href="/static/favicon.ico" rel="icon">
+    <link rel="manifest" href="/static/site.webmanifest">
     <link href="/static/styles.css" rel="stylesheet">
     {% block css %}{% endblock %}
     {% block javascript %}{% endblock %}
-    <title>booksanon {% block title %}{% endblock %}</title>
+    <title>BooksAnon: {% block title %}{% endblock %}</title>
 </head>
 <body>
         <nav class="nav-bar" id="nav-bar">
+        <div class="navbar-brand">
+        </div>
             <ul>
-                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <div class="navbar-brand">
+                <li class="navbrand-item"><a class="navbrand-link" href="/"><strong>BooksAnon</strong></a></li></div>
                 <li class="nav-item"><a class="nav-link" href="/recommend">Recommend</a></li>
                 <li class="nav-item"><a class="nav-link" href="/history">History</a></li>
                 <li class="nav-item"><a class="nav-link" href="/about">About</a></li>

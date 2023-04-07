@@ -51,16 +51,26 @@ summary,
     cursor: pointer;
 }
 
-a {
-    /* Places underlines below the descenders */
+.open-lib-link {
+    color: #3874a2;
     text-underline-position: under;
 }
 
-.open-lib-link {
-    color: #3874a2;
+/* nav bar */
+
+.navbar-brand
+{
+    font-size: xx-large;
+    float: left;
 }
 
-/* nav bar */
+.navbrand-link
+{
+   display: block;
+   text-align: center;
+   color: #282A35;
+   font-family: "Lucida Handwriting", cursive;
+}
 
 .nav-bar ul
 {
@@ -104,7 +114,6 @@ a {
 }
 
 .table-header {
-  position: sticky;
   top: 48px; 
   background: white;
   box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
