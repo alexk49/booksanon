@@ -16,7 +16,7 @@
 <div class="submit">
 <form action="/submit" method="post" >
 <table class="table">
-    <thead>
+    <thead class="table-header">
         <tr>
             <th>
                 Cover
@@ -45,7 +45,7 @@
                 <img class="cover" src="{{ result["cover_id"] }}" alt="Book cover">                
             </td>
         <td>
-            {{ result["title"] }}
+            <a class="open-lib-link" href="https://openlibrary.org{{ book["work_key"] }}">{{ book["title"] }}</a>
         </td>
         <td>
             {{ result["author"] }}

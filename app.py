@@ -60,7 +60,7 @@ def index():
     """
 
     # query database for top 10 most recent book recs
-    books = query_db('SELECT cover_id, title, author, pub_year, num_of_pages, review from "test_books" ORDER BY Timestamp DESC LIMIT 10')
+    books = query_db('SELECT work_key, cover_id, title, author, pub_year, num_of_pages, review from "test_books" ORDER BY Timestamp DESC LIMIT 10')
 
     return render_template("index.html", books=books)
 
@@ -149,7 +149,7 @@ def submit():
         'author': author, 'cover_id': cover_id, 
         'searched_via': search_via, 'search_term': term}) 
         """
-        cursor.execute('''INSERT into "test_books" (title, author, pub_year, num_of_pages, cover_id, searched_via, search_term, review) VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', (result['title'], result['author'], result['pub_date'], result['num_of_pages'], result['cover_id'], result['searched_via'], result['search_term'], review))
+        cursor.execute('''INSERT into "test_books" (work_key, title, author, pub_year, num_of_pages, cover_id, searched_via, search_term, review) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''', (result['work_key'], result['title'], result['author'], result['pub_date'], result['num_of_pages'], result['cover_id'], result['searched_via'], result['search_term'], review))
 
         # commit changes to database
         db = get_db()

@@ -4,6 +4,21 @@
     box-sizing: border-box;
 }
 
+/* fonts and background */
+
+html {
+    font-family: sans-serif;
+    line-height: 1.15;
+}
+
+body {
+    background-color: #e9e9e7;
+    color: #494746;
+    font-size: 1rem;
+}
+
+/* images */
+
 img {
     display: block;
     max-width: 100%;
@@ -13,19 +28,17 @@ img {
 .cover {
     margin-left: auto;
     margin-right: auto;
-}
-
-a {
-    /* Places underlines below the descenders */
-    text-underline-position: under;
+    border: 0px;
 }
 
 /* enable smooth scrolling */
 @media (prefers-reduced-motion: no-preference) {
   html {
-        scroll-behavior: smooth;
+      scroll-behavior: smooth;
   }
 }
+
+/* links */
 
 /* enables a change of cursor when hovering over interactive links */
 label,
@@ -38,44 +51,70 @@ summary,
     cursor: pointer;
 }
 
+a {
+    /* Places underlines below the descenders */
+    text-underline-position: under;
+}
+
+.open-lib-link {
+    color: #3874a2;
+}
+
+/* nav bar */
+
 .nav-bar ul
 {
-    background-color: #282A35;
+    background-color: white;
     overflow: hidden;
     list-style-type: none;
-    margin: 0px;
-    padding: 0px;
-    top: 0px;
+    margin: 0;
+    padding: 0;
+    top: 0;
     position: fixed;
     width: 100%;
 }
 
 .nav-item
 {
-   border-right: 1px solid #282A35;
+   /*border-right: 1px solid #282A35;*/
    float: left;
 }
 
 .nav-link
 {
     display: block;
+    display: inline-block;
     text-align: center;
     padding: 14px 16px;
-    color: #f1f1f1;
+    color: #282A35;
     text-decoration: none;
 }
+
+/* tables */
 
 .table
 {
     padding: 0.5rem;
     border-bottom-width: 1px;
     border-collapse: collapse;
-    table-layout: fixed;
-    width: 100%;
+    table-layout: auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-td
-{
+.table-header {
+  position: sticky;
+  top: 48px; 
+  background: white;
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+  border: 1px solid #282A35;
+}
+
+tr:nth-child(even) {
+  background-color: white;
+}
+
+td {
     text-align: center;
     border: solid 1px;
     word-wrap: break-word;

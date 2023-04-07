@@ -8,7 +8,7 @@
 <h2>Latest Recommendations</h2>
 <table class="table">
     <!-- title, author, pub_year, review --!>
-    <thead>
+    <thead class="table-header">
         <tr>
         <th>
             Cover
@@ -38,7 +38,7 @@
             <img class="cover" src="{{ book["cover_id"] }}" alt="Book cover"> 
         </td>
         <td>
-            {{ book["title"] }}
+            <a class="open-lib-link" href="https://openlibrary.org{{ book["work_key"] }}">{{ book["title"] }}</a>
         </td>
         <td>
             {{ book["author"] }}
