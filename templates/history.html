@@ -12,9 +12,11 @@
 <p>You can use the available filters to sort through and view books that have been recommended via this site. The default view is the current top ten most recommended titles.</p>
 <form action="/history" method="post">
     <select name="filter">
-        <option disabled selected>Filters</option> 
+        <option value="{{ current_selection }}">{{ current_selection }}</option>
         {% for filter in filters %}
-        <option value="{{ filter }}">{{ filter }}</option>
+            {% if filter != current_selection %}
+            <option value="{{ filter }}">{{ filter }}</option>
+            {% endif %}
         {% endfor %}
     </select>
     <button type="submit">Submit</button>
@@ -22,6 +24,9 @@
 <table class="table">
     <thead>
         <tr>
+            <th>
+                Cover
+            </th>
             <th>
                 Title
             </th>
@@ -31,14 +36,19 @@
             <th>
                 Publication date
             </th>
-            <th>
-                Review
-            </th>
+               {% if books[0].review is defined %}
+                <th>Review</th>
+               {% else %}
+                <th>Count</th>
+               {% endif %}
         </tr>
     </thead>
     <tbody>
         {% for book in books %}
         <tr>
+            <td>
+                <img class="cover" src="{{ book["cover_id"] }}" alt="Book cover">                
+            </td>
         <td>
             <a class="open-lib-link" href="https://openlibrary.org{{ book["work_key"] }}">{{ book["title"] }}</a>
         </td>
@@ -48,9 +58,11 @@
         <td>
             {{ book["pub_year"] }}
         </td>
-        <td>
-            {{ book["review"] }}
-        </td>
+           {% if book.review is defined %}
+           <td>{{ book["review"] }}</td>
+           {% else %}
+           <td>{{ book["count(title)"] }}</td>
+           {% endif %}        
         </tr>
         {% endfor %}
     </tbody>

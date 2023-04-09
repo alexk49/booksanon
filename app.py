@@ -174,10 +174,10 @@ def submit():
 def history():
     """ page for viewing recommendation history """
     # default view is top 10 
-    top_ten = query_db('SELECT title, author, pub_year, count(title) FROM "test_books" GROUP BY title ORDER by count(title) DESC LIMIT 10')
+    top_ten = query_db('SELECT work_key, cover_id, title, author, pub_year, count(title) FROM "test_books" GROUP BY title ORDER by count(title) DESC LIMIT 10')
     
     # need to provide means for this to be filtered depending on user selection
-    filters = ["Top Ten", "Top Recommendations", "All Books"]
+    filters = ["All Books", "Recommendations Ordered by Count", "Top Ten"]
     
     if request.method == "POST": 
         selected_filter = request.form.get('filter')
@@ -186,26 +186,31 @@ def history():
         if selected_filter not in filters:
             flash("Please select a valid filter")
             books = top_ten
-            return render_template("history.html")
+            current_selection = "Top Ten"
+            return render_template("history.html", books=books, filters=filters, current_selection=current_selection)
         
         # return selected filters
         if selected_filter == "All Books":
-            all_books = query_db('SELECT title, author, pub_year, review from "test_books" ORDER BY Timestamp DESC')
+            current_selection = selected_filter
+            all_books = query_db('SELECT work_key, cover_id, title, author, pub_year, review from "test_books" ORDER BY Timestamp DESC')
             books = all_books
         
         # all top recommendations
-        if selected_filter == "Top Recommendations":
-            top_recs = query_db('SELECT title, author, pub_year, count(title) FROM "test_books" GROUP BY title ORDER by count(title) DESC')
+        if selected_filter == "Recommendations Ordered by Count":
+            current_selection = selected_filter
+            top_recs = query_db('SELECT work_key, cover_id, title, author, pub_year, count(title) FROM "test_books" GROUP BY title ORDER by count(title) DESC')
             books = top_recs
         # top ten
         if selected_filter == "Top Ten":
+            current_selection = selected_filter
             books = top_ten
 
-        return render_template("history.html", books=books, filters=filters)
+        return render_template("history.html", books=books, filters=filters, current_selection=current_selection)
     # if get request return default view
     else:
+        current_selection = "Top Ten"
         books = top_ten
-        return render_template("history.html", books=books, filters=filters)
+        return render_template("history.html", books=books, filters=filters, current_selection=current_selection)
 
 
 @app.route("/search_history")
