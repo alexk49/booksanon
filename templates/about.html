@@ -6,15 +6,15 @@
 
 {% block main %}
 <h2>About</h2>
-<p>This site was made as part of the cs50 final project. It took me a while. Before CS50 I had used html and xml at my work. And, had worked through Automate the Boring Stuff and the Jose Portilla udemy course. I had done a few little projects myself but these were mainly fairly straight forward utility scripts or automating something boring at work.</p>
-<h3>Ubuntu</h3>
-<p>I had dabbled briefly with the Odin Project to get the basics of html and, as recommended, I had a set up an Ubuntu Virtual Machine. I created this site on that machine. My main experience with Linux commands had been through using git bash on windows, and using whichever commands still work through Windows Powershell so this was sometimes tricky. </p>
-<h3>Vim</h3>
-<p>As I use Vim, I must talk about Vim. It takes far longer than I would like to start messing around with the vimrc. But, once you've got something basic you can generally leave it. I mainly used the inbuilt vimtutor to get comfortable with the keybindings, and whilst there was a learning curve, I got comfortable using this surprisingly quickly.</p>
-<h3>CSS</h3>
-<p>CSS is cascading style sheets, these are used to "style" the site. I deliberately did not use any css frameworks for this, as I wanted to actually practise vanilla css.</p>
-<h3>Flask</h3>
-<p>Flask is a python framework for controlling how a web app works. This is where the majority of the code for this was written.</p>
-<h3>Sqlite</h3>
-<p>SQL is a database query language. The database stores every book recommendation that is made and these can be searched through and filtered via the history page.</p>
+<p>Books Anon serves as a place to recommend a book and look for book recommendations. Books are submitted to the database by users, and the application asks for no personal data from the user. The site was made as my final project for the <a href="">CS50 course.</a> It is an Open Source Application and, if you wish, you can review the code on <a href="https://github.com/alex-k-9/booksanon">github</a>.</p>
+<p>The book data is collected from the <a href="https://openlibrary.org/">Open Library</a> API. As biblographical data can be a little tricky, results are filtered so you will only get results in your search if it has a value for:</p>
+<ul>
+    <li>Title - as in the book title</li>
+    <li>Author - as in a valid book author</li>
+    <li>A median number of pages for all editions associated with a work</li>
+    <li>A first publish date - as in the first year of publication</li>
+    <li>A cover image - as in a cover image of the book</li>
+</ul>
+<p>If your query is vague or just returns a lot of results then, the only the first ten valid books will be returned. You then select the one that you would like to submit to the database. You can leave a review of the book but only if you want to.</p>
+<p>Any bugs, or enhancement requests can be submitted via the <a href="https://github.com/alex-k-9/booksanon">github page</a>.</p>
 {% endblock %}
