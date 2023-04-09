@@ -9,7 +9,16 @@
 
 {% block main %}
 <h2>History</h2>
-<p>You can use the filters to sort through and view every book that has been recommended via this site.</p>
+<p>You can use the available filters to sort through and view books that have been recommended via this site. The default view is the current top ten most recommended titles.</p>
+<form action="/history" method="post">
+    <select name="filter">
+        <option disabled selected>Filters</option> 
+        {% for filter in filters %}
+        <option value="{{ filter }}">{{ filter }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Submit</button>
+</form>
 <table class="table">
     <thead>
         <tr>

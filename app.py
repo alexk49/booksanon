@@ -170,16 +170,42 @@ def submit():
         return render_template("submit.html")
 
 
-@app.route("/history")
+@app.route("/history", methods=["GET", "POST"])
 def history():
     """ page for viewing recommendation history """
-    
-    # default view is all books 
-    books = query_db('SELECT title, author, pub_year, review from "test_books" ORDER BY Timestamp DESC')
+    # default view is top 10 
+    top_ten = query_db('SELECT title, author, pub_year, count(title) FROM "test_books" GROUP BY title ORDER by count(title) DESC LIMIT 10')
     
     # need to provide means for this to be filtered depending on user selection
+    filters = ["Top Ten", "Top Recommendations", "All Books"]
+    
+    if request.method == "POST": 
+        selected_filter = request.form.get('filter')
+    
+        # check for valid filter
+        if selected_filter not in filters:
+            flash("Please select a valid filter")
+            books = top_ten
+            return render_template("history.html")
+        
+        # return selected filters
+        if selected_filter == "All Books":
+            all_books = query_db('SELECT title, author, pub_year, review from "test_books" ORDER BY Timestamp DESC')
+            books = all_books
+        
+        # all top recommendations
+        if selected_filter == "Top Recommendations":
+            top_recs = query_db('SELECT title, author, pub_year, count(title) FROM "test_books" GROUP BY title ORDER by count(title) DESC')
+            books = top_recs
+        # top ten
+        if selected_filter == "Top Ten":
+            books = top_ten
 
-    return render_template("history.html", books=books)
+        return render_template("history.html", books=books, filters=filters)
+    # if get request return default view
+    else:
+        books = top_ten
+        return render_template("history.html", books=books, filters=filters)
 
 
 @app.route("/search_history")
