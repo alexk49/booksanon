@@ -6,8 +6,9 @@
 
 {% block main %}
 <h2>Latest Recommendations</h2>
+<p>BooksAnon is a place to recommend books you like to strangers on the internet. Below are the latest recommendations we have received.</p>
+<p>Add a book to our site via the <a href="/recommend">Recommend page</a> or look through the previous recommendations via the <a href="/history">History page.</a></p>
 <table class="table">
-    <!-- title, author, pub_year, review --!>
     <thead class="table-header">
         <tr>
         <th>
@@ -32,7 +33,6 @@
     </thead>
     <tbody>
         {% for book in books %}
-        <!-- books = query_db('SELECT cover_id, title, author, pub_year, num_of_pages, searched_via, search_term, review from "test_books" ORDER BY Timestamp DESC LIMIT 10') --!>
         <tr>
         <td>
             <img class="cover" src="{{ book["cover_id"] }}" alt="Book cover"> 

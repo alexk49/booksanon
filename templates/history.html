@@ -4,15 +4,14 @@
 {% endblock %}
 {% block css %}
     <link href="/static/history.css" rel="stylesheet">
-{% block css %}
+{% endblock %}
 {% block title %}
     History
 {% endblock %}
-
 {% block main %}
 <h2>History</h2>
-<p>You can use the available filters to sort through and view books that have been recommended via this site. The default view is the current top ten most recommended titles.</p>
-<form action="/history" method="post">
+<p>You can use the available filters to sort through and view books that have been recommended via this site. The default view is the current top ten most recommended titles. To search for a particular book you may want to use the <a href="/search_history">search history page</a>.</p>
+<form class="filter-form" action="/history" method="post">
     <select name="filter">
         <option value="{{ current_selection }}">{{ current_selection }}</option>
         {% for filter in filters %}

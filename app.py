@@ -138,7 +138,7 @@ def submit():
             flash("Review selected as yes, but no review given.")
             return render_template("submit.html", results=results, error=error)
         # check review is not too longer
-        if len(review) > 1000:
+        if len(review) > 500:
             logging.info("Review rejected for exceeding character limit")
             error = "Your review is too long, try and be more concise."
             return render_template("submit.html", results=results, error=error)
