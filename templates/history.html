@@ -2,7 +2,9 @@
 {% block javascript %}
     <script src="{{ url_for('static',filename='search.js') }}"></script>
 {% endblock %}
-
+{% block css %}
+    <link href="/static/history.css" rel="stylesheet">
+{% block css %}
 {% block title %}
     History
 {% endblock %}
@@ -22,7 +24,7 @@
     <button type="submit">Submit</button>
 </form>
 <table class="table">
-    <thead>
+    <thead class="table-header">
         <tr>
             <th>
                 Cover

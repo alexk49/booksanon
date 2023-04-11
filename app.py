@@ -4,6 +4,7 @@ import json
 import sqlite3
 import logging
 import logging.config
+
 from better_profanity import profanity
 from flask import Flask, flash, g, jsonify, redirect, render_template, request, session, url_for
 
@@ -21,6 +22,7 @@ logging.config.dictConfig(config_dict)
 app.secret_key = key
 # ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+
 
 """ sql 
 test_table - 
@@ -147,15 +149,10 @@ def submit():
             return render_template("submit.html", results=results, error=error)
         
         # submit to datbase
+        
         # establish cursor for processing
         cursor = get_db().cursor()
 
-        """
-        'work_key': work_key, 'title': title, 
-        'pub_date': first_publish_date, 'num_of_pages': num_of_pages,
-        'author': author, 'cover_id': cover_id, 
-        'search_term': term}) 
-        """
         cursor.execute('''INSERT into "test_books" (work_key, title, author, pub_year, num_of_pages, cover_id, search_term, review) VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', (result['work_key'], result['title'], result['author'], result['pub_date'], result['num_of_pages'], result['cover_id'],  result['search_term'], review))
 
         # commit changes to database

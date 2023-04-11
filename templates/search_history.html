@@ -11,5 +11,27 @@
 <h2>Search</h2>
 <p>You can use the filters to sort through and view every book that has been recommended via this site.</p>
 <input class="search" id="search" autocomplete="off" autofocus placeholder="Search" type="text">
-<ul></ul>
+<!-- <ul id="results" class="results"></ul> --!>
+<table class="table">
+    <thead class="search-history">
+        <tr>
+        <th id="cover">
+        </th>
+    <th id="title">
+
+    </th>
+    <th id="author">
+
+    </th>
+    <th id="date">
+
+    </th>
+    <th id="review">
+
+    </th>
+</tr>
+</thead>
+<tbody id="results">
+</tbody>
+</table>
 {% endblock %}
