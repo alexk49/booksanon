@@ -29,6 +29,21 @@ test_table -
 work_key, cover_id, title, author, pub_date, num_of_pages, search_term, review, timestamp
 
 functions for database taken pretty much exactly from flask docs
+
+book table 
+work_key, cover_id, title, author, pub_date, num_of_pages, search_term, review, timestamp
+
+CREATE TABLE books(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+work_key TEXT NOT NULL,
+cover_id TEXT NOT NULL,
+title TEXT NOT NULL,
+author TEXT NOT NULL,
+pub_year NUMERIC,
+num_of_pages NUMERIC,
+search_term TEXT,
+review TEXT,
+Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);
+
 """
 
 DATABASE = 'books.db'
