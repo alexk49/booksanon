@@ -1,44 +1,5 @@
 import requests
 
-def open_lib_isbn(isbn):
-    """ get data back from open library api via isbn """
-    # add isbn into url
-    url = f"https://openlibrary.org/isbn/{isbn}.json"
-    
-    # get response as json
-    response = requests.get(url)
-    response_dict = response.json()
-
-    # get title and edition pub date
-    title = response_dict['title']
-    pub_date = response_dict['publish_date']
-    
-    # authors goes via different page
-    authors = response_dict['authors']
-
-    if len(authors) == 1:
-        author_key = authors[0]['key']
-        author_url = "https://openlibrary.org" + author_key + ".json"
-        
-        response = requests.get(author_url)
-        response_dict = response.json()
-        author = response_dict['name']
-    else:
-        authors = ""
-
-        for count, author in enumerate(authors):
-            author_key = authors[count]['authors']
-
-            author_url = "https://openlibrary.org" + author_key + ".json" 
-            response = requests.get(author_url)
-            response_dict = response.json()
-            author = response_dict['name']
-            authors = authors + ", " + author
-        # reset numerous authors as one author value
-        author = authors
-    return(title, author, pub_date)
-
-
 def open_lib_search(term):
     """ get data using general open library search api """
     url = "https://openlibrary.org/search.json"
