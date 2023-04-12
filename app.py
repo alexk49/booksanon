@@ -223,7 +223,8 @@ def search():
         query = "%" + q + "%"
         # sql interprets individual string as if it were an array of characters 
         # so passing the query string in a list variable solves this
-        books = query_db('SELECT * FROM "test_books" WHERE title LIKE (?) LIMIT 50', [query])
+        books = query_db('SELECT * FROM "test_books" WHERE (title LIKE (?)) OR (author LIKE (?)) OR (review LIKE (?)) LIMIT 50', (query, query, query))
+        # books = query_db('SELECT * FROM "test_books" WHERE title LIKE (?) LIMIT 50', [query])
     else:
         books = []
     

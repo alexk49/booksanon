@@ -2,31 +2,46 @@
 {% block javascript %}
     <script src="{{ url_for('static',filename='search.js') }}"></script>
 {% endblock %}
-
+{% block css %}
+    <link href="/static/search.css" rel="stylesheet">
+    <link href="/static/recommend.css" rel="stylesheet">
+{% endblock %}
 {% block title %}
     Search
 {% endblock %}
 
 {% block main %}
 <h2>Search</h2>
-<p>You can search via title for any book in the database.</p>
-<input class="search" id="search" autocomplete="off" autofocus placeholder="Search" type="text">
-<table class="table">
-    <thead class="search-history">
-        <tr>
-        <th id="cover">
-        </th>
+<p>You can search via title, author or for a specifc term in a review for any book in the database.</p>
+<div class="search-field">
+    <input class="search-term" id="search" autocomplete="off" autofocus placeholder="Search" type="text">
+<div class="example">
+    <li>title, author, or review. </li>
+</div>
+</div>
+<div id="results-table">
+    <table class="table">
+    <thead class="table-header">
+    <tr>
+    <th id="cover">
+        Cover
+    </th>
     <th id="title">
+        Title
     </th>
     <th id="author">
+        Author
     </th>
     <th id="date">
+        Publication date
     </th>
     <th id="review">
+        Review
     </th>
 </tr>
 </thead>
 <tbody id="results">
 </tbody>
 </table>
+</div>
 {% endblock %}
