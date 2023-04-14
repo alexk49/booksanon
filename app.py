@@ -102,23 +102,31 @@ def recommend():
         parse api return to get values you want to store
         example string https://openlibrary.org/api/books?bibkeys=ISBN:9781785039065&format=json
         """
-        search_method = "open-library"
+
+        # eventually provide way to search different ways
+        search_method = "open_library"
          
         search_term = request.form['search-term']
         logging.info("A user has made a search for: %s", search_term) 
-        if search_method == "open-library":
+       
+        # search for query
+        if search_method == "open_library":
             results = open_lib_search(search_term)
             session['results'] = results
             logging.info("successful search")
-        # render submit with results
+
+        # if no results
         if not results:
             logging.info("Failed search")
             error = "That search query returned no results, please try again."
             return render_template("recommend.html", error=error)
+
+        # send user to submit page with results of query passed on
         else:
             return render_template("submit.html", results=results)
-    # if get request
+    
     else:
+        # if get request just teturn template
         return render_template("recommend.html")
 
 
@@ -239,7 +247,6 @@ def search():
         # sql interprets individual string as if it were an array of characters 
         # so passing the query string in a list variable solves this
         books = query_db('SELECT * FROM "test_books" WHERE (title LIKE (?)) OR (author LIKE (?)) OR (review LIKE (?)) LIMIT 50', (query, query, query))
-        # books = query_db('SELECT * FROM "test_books" WHERE title LIKE (?) LIMIT 50', [query])
     else:
         books = []
     
@@ -275,21 +282,6 @@ def page_not_found(e):
 def internal_server_error(e):
     logging.info(e)
     return render_template('500.html', error_message=e), 500
-
-
-def validate_isbn(isbn):
-    """ test for valid isbn """
-
-    # remove white space and dashes
-    isbn = isbn.replace("-", "")
-    isbn = isbn.replace(" ", "")
-    check = isbn.isdigit()
-    if check:
-        length = len(isbn)
-        if length == 10 or length == 13:
-            return True
-    else:
-        return False
 
 
 if __name__ == "__main__":

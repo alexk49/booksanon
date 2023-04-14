@@ -16,14 +16,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
         if (results) {
             // show table
             results_table.style.display = 'block';
-            // define headers 
-           /* 
-            document.getElementById("cover").innerHTML = "Cover";
-            document.getElementById("title").innerHTML = "Title";
-            document.getElementById("author").innerHTML = "Author";
-            document.getElementById("date").innerHTML = "Publication Date";
-            document.getElementById("review").innerHTML = "Review";
-            */
             // add data
             document.getElementById("results").innerHTML = results;
         } else {
