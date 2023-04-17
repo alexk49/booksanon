@@ -100,6 +100,19 @@ summary,
     text-decoration: none;
 }
 
+.nav-border
+{
+  height: 2px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: black;
+  box-shadow: 0 -1px 0 black;
+E4B4B;
+  z-index: 1904;
+}
+
 /* tables */
 
 .table
