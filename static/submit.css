@@ -1,17 +1,15 @@
 .review-box {
-    display: none;
-    padding: 10px;
-    margin: 10px;
+  display: none;
+  padding: 10px;
+  margin: 10px;
 }
 
-.submit-button { 
-    padding: 10px;
-    margin-bottom: 20px;
-    margin-left: 10px;
+.submit-button {
+  padding: 10px;
+  margin-bottom: 20px;
+  margin-left: 10px;
 }
 
 .counter {
-    padding: 10px;
+  padding: 10px;
 }
-
-
