@@ -1,5 +1,9 @@
+*.db
+data
 *.swp
 .stats
+todo.txt
+done.txt
 notes.txt
 key_file.py
 *.log
