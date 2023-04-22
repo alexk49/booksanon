@@ -42,22 +42,25 @@ functions for database taken pretty much exactly from flask docs
 
 book table 
 work_key, cover_id, title, author, pub_date, num_of_pages, search_term, review, timestamp
+"""
 
-CREATE TABLE books(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
-work_key TEXT NOT NULL,
-cover_id TEXT NOT NULL,
-title TEXT NOT NULL,
-author TEXT NOT NULL,
-pub_year NUMERIC,
-num_of_pages NUMERIC,
-search_term TEXT,
-review TEXT,
-Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);
+""" 
+The render persistant storage using a render disk. This can't be stored in the root project directory. 
+
+Consequently, the local path that should be used for testing is:
+
+DATABASE = "data/books.db"
+
+The live database is hosted on the render server.
+
+This uses the path: 
+
+DATABASE = "/opt/var/booksanon/data/books.db"
+
+This is the path that must be used when deploying to render. 
 
 """
 
-# local DATABASE = "data/books.db"
-# render disk database:
 DATABASE = "/opt/var/booksanon/data/books.db"
 
 OPEN_LIB_URL = "https://openlibrary.org"
