@@ -70,6 +70,11 @@ summary,
   font-family: "Lucida Handwriting", cursive;
 }
 
+.nav-bar {
+  position: sticky;
+  padding-bottom: 25px;
+}
+
 .nav-bar ul {
   background-color: white;
   overflow: hidden;
@@ -104,6 +109,52 @@ summary,
   background-color: black;
   box-shadow: 0 -1px 0 black;
   z-index: 1904;
+}
+
+.navbar-toggle {
+  /* set display to none for toggle unless screen < 600px (see @media screen block) */
+  display: none;
+  border: none;
+  background-color: transparent;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  float: right;
+  padding-right: 25px;
+}
+
+/* When the screen is less than 600 pixels wide, hide all nav items except branding */
+@media screen and (max-width: 600px) {
+  .nav-item {
+    display: none;
+  }
+  .navbar-toggle {
+    display: flex;
+  }
+}
+
+/* sets the menu toggle bars */
+.icon-bar {
+  display: block;
+  width: 25px;
+  height: 4px;
+  margin: 2px;
+  background-color: #282a35;
+}
+
+/* The "responsive" class is added to the navbar with JavaScript when the user clicks on the icon. This class makes the navbar look good on small screens (display the links vertically instead of horizontally) */
+@media screen and (max-width: 600px) {
+  .nav-bar.responsive {
+    position: relative;
+  }
+  .nav-item.responsive {
+    float: none;
+    display: block;
+    text-align: left;
+    width: 50px;
+  }
 }
 
 /* tables */
