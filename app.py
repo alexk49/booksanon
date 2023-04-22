@@ -56,7 +56,9 @@ Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);
 
 """
 
-DATABASE = "data/books.db"
+# local DATABASE = "data/books.db"
+# render disk database:
+DATABASE = "/opt/var/booksanon/data/books.db"
 
 OPEN_LIB_URL = "https://openlibrary.org"
 
