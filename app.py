@@ -56,7 +56,7 @@ Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);
 
 """
 
-DATABASE = "./data/books.db"
+DATABASE = "data/books.db"
 
 OPEN_LIB_URL = "https://openlibrary.org"
 
