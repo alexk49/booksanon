@@ -5,7 +5,7 @@ Books Anon is a web app made in flask, where users can recommend a book to datab
 
 The biblographical data is obtained via the [Open Library API](https://openlibrary.org/dev/docs/api/books). Every submitted book recommendation is then stored in an sqlite3 database.
 
-I've tried to use standard libraries where possible. I deliberately did not use any css frameworks for this, as I wanted to actually practise vanilla css - I might revist this particular one in the future. I have used standard python library for sqlite3. The external libraries used are:
+I've tried to use standard libraries where possible. I deliberately did not use any css frameworks for this, as I wanted to actually practise vanilla css - I might revist this particular one in the future. I have used the standard python library for sqlite3. The external libraries used are:
 * [flask](https://github.com/pallets/flask) - to make the whole application work
 * [better-profanity](https://github.com/snguyenthanh/better_profanity) - to ensure user reviews don't contain bad language
 * [requests](https://github.com/psf/requests) - to get the biblographical data from the Open Library API
