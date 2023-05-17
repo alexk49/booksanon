@@ -14,4 +14,4 @@ I've tried to use standard libraries where possible. I deliberately did not use 
 This was made as my "final project" for the [CS50](https://cs50.harvard.edu/x/2023/) course. Prior to CS50 I had a bit of experience with html and xml, and had the [Jose Portilla python udemy course](https://www.udemy.com/course/complete-python-bootcamp/), as well as a few of my own [small projects](https://github.com/alexk49). Mainly straight forward utility scripts. Basically, I am new to this, and will welcome any comments or suggested improvements to the code. 
 
 ## Testing
-The app has been hosted on [Render](https://render.com/). Because of the way Render handles persistant storage, you must swap the database file path for local testing. This different options are noted in app.py. 
+The app has been hosted on [Render](https://render.com/). Because of the way Render handles persistant storage, you must swap the database file path for local testing. The different options are noted as comments in app.py. 
