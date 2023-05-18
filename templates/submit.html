@@ -18,7 +18,10 @@
 <table class="table">
     <thead class="table-header">
         <tr>
-            <th>
+           <th>
+                Select
+           </th>
+           <th>
                 Cover
             </th>
             <th>
@@ -33,15 +36,16 @@
             <th>
                 Number of pages
             </th>
-            <th>
-                Select
-            </th>
         </tr>
     </thead>
  <tbody>
         {% for result in results %}
         <tr>
-            <td>
+         <td>
+            <input class="select" name="select" type="radio" value="{{ loop.index }}"> 
+            <label for="{{ loop.index }}">Option {{ loop.index }}</label>
+        </td>
+        <td>
                 <img class="cover" src="{{ result["cover_id"] }}" alt="Book cover">                
             </td>
         <td>
@@ -56,11 +60,7 @@
         <td>
             {{ result["num_of_pages"] }}
         </td>
-        <td>
-            <input class="select" name="select" type="radio" value="{{ loop.index }}"> 
-         <label for="{{ loop.index }}">Option {{ loop.index }}</label>
-        </td>
-        </tr>
+               </tr>
         {% endfor %}
     </tbody>
 </table>
