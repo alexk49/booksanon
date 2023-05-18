@@ -122,7 +122,7 @@ summary,
   justify-content: center;
   flex-direction: column;
   float: right;
-  padding-right: 25px;
+  padding-right: 10%;
 }
 
 /* When the screen is less than 600 pixels wide, hide all nav items except branding */
