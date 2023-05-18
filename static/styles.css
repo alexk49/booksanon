@@ -118,11 +118,9 @@ summary,
   background-color: transparent;
   width: 40px;
   height: 40px;
-  align-self: flex-end;
   flex-direction: column;
   justify-content: center;
-  margin-left: auto;
-  padding-right: 50px;
+  padding-left: 20px;
 }
 
 /* When the screen is less than 600 pixels wide, hide all nav items except branding */
