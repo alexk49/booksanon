@@ -82,12 +82,14 @@ summary,
   margin: 0;
   padding: 0;
   top: 0;
+  left: 0;
+  right: 0;
   position: fixed;
   width: 100%;
 }
 
 .nav-item {
-  /*border-right: 1px solid #282A35;*/
+  border-right: 1px solid #282a35;
   float: left;
 }
 
@@ -120,7 +122,10 @@ summary,
   height: 40px;
   flex-direction: column;
   justify-content: center;
-  padding-left: 20px;
+  align-self: flex-end;
+  margin-left: auto;
+  padding-right: 50px;
+  /*padding-left: 20px;*/
 }
 
 /* When the screen is less than 600 pixels wide, hide all nav items except branding */
@@ -156,6 +161,10 @@ summary,
 }
 
 /* tables */
+
+.table-container {
+  overflow-x: auto;
+}
 
 .table {
   padding: 0.5rem;
