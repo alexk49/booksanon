@@ -132,6 +132,8 @@ summary,
 @media screen and (max-width: 600px) {
   .nav-item {
     display: none;
+    /* disable set border */
+    border-right: none;
   }
   .navbar-toggle {
     display: flex;
