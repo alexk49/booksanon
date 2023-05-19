@@ -15,6 +15,7 @@
 <p>These are your results from your query, please verify which one you would like to submit.</p>
 <div class="submit">
 <form action="/submit" method="post" >
+<div class="table-container">
 <table class="table">
     <thead class="table-header">
         <tr>
@@ -64,6 +65,7 @@
         {% endfor %}
     </tbody>
 </table>
+</div>
     <p>Would you like to leave a review?</p>
     <input class="review-button" id="yes-review-button" name="review-button" type="radio" value="yes" onclick="review:show_hide_review_box();"> 
     <label for="yes">Yes</label> 
