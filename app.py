@@ -61,6 +61,7 @@ This is the path that must be used when deploying to render.
 
 """
 
+# DATABASE = "data/books.db"
 DATABASE = "/opt/var/booksanon/data/books.db"
 
 OPEN_LIB_URL = "https://openlibrary.org"
