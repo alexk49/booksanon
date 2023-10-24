@@ -1,8 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %}
-    Recommendations
-{% endblock %}
+{% block title %}Recommendations{% endblock %}
 
 {% block main %}
 <h2>Latest Recommendations</h2>
@@ -36,7 +34,7 @@
         {% for book in books %}
         <tr>
         <td>
-            <img class="cover" src="{{ book["cover_id"] }}" alt="Book cover"> 
+            <img class="cover" src="{{ book["cover_id"] }}" alt="Book cover">
         </td>
         <td>
             <a class="open-lib-link" href="https://openlibrary.org{{ book["work_key"] }}">{{ book["title"] }}</a>
