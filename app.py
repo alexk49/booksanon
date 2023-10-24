@@ -65,7 +65,8 @@ if exists(PRODUCTION_DATABASE):
     DATABASE = PRODUCTION_DATABASE
 else:
     # test db path
-    DATABASE = join("data", "books.db")
+    TEST_DATABASE = join("data", "books.db")
+    DATABASE = TEST_DATABASE
 
 
 OPEN_LIB_URL = "https://openlibrary.org"
