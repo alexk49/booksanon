@@ -1,7 +1,7 @@
 *.swp
 .stats
 todo.txt
-done.txt
+*.bak
 notes.txt
 key_file.py
 *.log
@@ -12,5 +12,3 @@ venv
 __pycache__
 
 node_modules
-package.json
-package-lock.json
