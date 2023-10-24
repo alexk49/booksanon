@@ -4,6 +4,7 @@ todo.txt
 *.bak
 notes.txt
 key_file.py
+logs
 *.log
 
 venv
