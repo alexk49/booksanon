@@ -9,6 +9,7 @@ logs
 
 venv
 .venv
+.dev-venv
 
 __pycache__
 
