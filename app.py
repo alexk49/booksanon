@@ -4,6 +4,7 @@ import json
 import sqlite3
 import logging
 import logging.config
+from os.path import exists, join
 
 from better_profanity import profanity
 from flask import (
@@ -15,7 +16,6 @@ from flask import (
     render_template,
     request,
     session,
-    url_for,
 )
 
 from config_dict import config_dict
@@ -38,14 +38,13 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 test_table - 
 work_key, cover_id, title, author, pub_date, num_of_pages, search_term, review, timestamp
 
-functions for database taken pretty much exactly from flask docs
-
 book table 
 work_key, cover_id, title, author, pub_date, num_of_pages, search_term, review, timestamp
 """
 
-""" 
-The render persistant storage using a render disk. This can't be stored in the root project directory. 
+"""
+The render persistant storage requires a render disk.
+This can't be stored in the root project directory.
 
 Consequently, the local path that should be used for testing is:
 
@@ -53,16 +52,21 @@ DATABASE = "data/books.db"
 
 The live database is hosted on the render server.
 
-This uses the path: 
+This uses the path:
 
 DATABASE = "/opt/var/booksanon/data/books.db"
-
-This is the path that must be used when deploying to render. 
 
 """
 
 # DATABASE = "data/books.db"
-DATABASE = "/opt/var/booksanon/data/books.db"
+PRODUCTION_DATABASE = join("opt", "var", "booksanon", "data", "books.db")
+
+if exists(PRODUCTION_DATABASE):
+    DATABASE = PRODUCTION_DATABASE
+else:
+    # test db path
+    DATABASE = join("data", "books.db")
+
 
 OPEN_LIB_URL = "https://openlibrary.org"
 
