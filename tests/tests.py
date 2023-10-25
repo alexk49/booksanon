@@ -70,6 +70,21 @@ class TestAboutPage(TestWebPage):
         print("testing about page title is correct")
         self.assertEqual(self.soup.head.title.text, "BooksAnon: About")
 
+    def test_links_in_about(self):
+        print("testing links on about page")
+
+        about_page_links = [
+            "https://cs50.harvard.edu/",
+            "https://github.com/alexk49/booksanon",
+            "https://openlibrary.org/",
+        ]
+
+        main = self.soup.find("main")
+        html_links = main.find_all("a")
+
+        for link in html_links:
+            assert link["href"] in about_page_links
+
 
 class TestRecommendPage(TestWebPage):
     def setUp(self):
@@ -81,6 +96,17 @@ class TestRecommendPage(TestWebPage):
     def test_recommend_title(self):
         print(f"testing about {self.page} title is correct")
         self.assertEqual(self.soup.head.title.text, "BooksAnon: Recommend")
+
+    def test_empty_post_method(self):
+        response = self.client.post(self.page, data={"search-term": ""})
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.data, "html.parser")
+
+        error_message = soup.find("p", {"class": "error"})
+        self.assertEqual(
+            error_message.text,
+            "Error: That search query returned no results, please try again.",
+        )
 
 
 class TestHistoryPage(TestWebPage):
