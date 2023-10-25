@@ -2,9 +2,7 @@
 {% block css %}
     <link href="/static/history.css" rel="stylesheet">
 {% endblock %}
-{% block title %}
-    History
-{% endblock %}
+{% block title %}History{% endblock %}
 {% block main %}
 <h2>History</h2>
 <p>You can use the available filters to sort through and view books that have been recommended via this site. The default view is the current top ten most recommended titles. To search for a particular book you may want to use the <a href="/search_history">search history page</a>.</p>
@@ -46,7 +44,7 @@
         {% for book in books %}
         <tr>
             <td>
-                <img class="cover" src="{{ book["cover_id"] }}" alt="Book cover">                
+                <img class="cover" src="{{ book["cover_id"] }}" alt="Book cover">
             </td>
         <td>
             <a class="open-lib-link" href="https://openlibrary.org{{ book["work_key"] }}">{{ book["title"] }}</a>
@@ -61,7 +59,7 @@
            <td>{{ book["review"] }}</td>
            {% else %}
            <td>{{ book["count(title)"] }}</td>
-           {% endif %}        
+           {% endif %}
         </tr>
         {% endfor %}
     </tbody>

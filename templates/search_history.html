@@ -1,9 +1,11 @@
 {% extends "layout.html" %} {% block javascript %}
 <script src="{{ url_for('static',filename='search.js') }}"></script>
-{% endblock %} {% block css %}
+{% endblock %}
+{% block css %}
 <link href="/static/search.css" rel="stylesheet" />
 <link href="/static/recommend.css" rel="stylesheet" />
-{% endblock %} {% block title %} Search {% endblock %} {% block main %}
+{% endblock %} {% block title %}Search{% endblock %}
+{% block main %}
 <h2>Search</h2>
 <p>
   You can search via title, author or for a specifc term in a review for any
