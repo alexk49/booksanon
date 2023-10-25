@@ -16,4 +16,4 @@ clean:
 	# build venv
 	# update venv if requirements is changed
 	python3 -m venv .dev-venv
-	./.dev-venv/bin/pip install -r requirements.txt
+	./.dev-venv/bin/pip install -r dev-requirements.txt
