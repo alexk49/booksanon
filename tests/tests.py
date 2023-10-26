@@ -2,7 +2,7 @@ import unittest
 
 from bs4 import BeautifulSoup
 
-from app import app, TEST_DATABASE
+from app import app, query_db, TEST_DATABASE
 
 
 class TestWebPage(unittest.TestCase):
@@ -120,6 +120,60 @@ class TestHistoryPage(TestWebPage):
         print(f"testing about {self.page} title is correct")
         self.assertEqual(self.soup.head.title.text, "BooksAnon: History")
 
+    def test_top_ten_filter(self):
+        response = self.client.post(self.page, data={"selected_filter": "Top Ten"})
+        soup = BeautifulSoup(response.data, "html.parser")
+        number_of_books = len(self.soup.find_all("tr"))
+
+        # if database has loaded correctly
+        # then there will be at least 2 table rows
+        # one for header and one for a book from db
+        print("testing some books from database have loaded")
+        self.assertGreater(number_of_books, 2)
+
+        print("testing correct number of books is showing")
+        # table should have 11 rows max
+        # 10 books listed and one header
+        self.assertLessEqual(number_of_books, 11)
+
+        print("testing count header has been added")
+        count_header = soup.find("th", text="Count")
+        self.assertEqual(str(count_header), "<th>Count</th>")
+
+    def test_all_books_filter(self):
+        response = self.client.post(self.page, data={"selected_filter": "All Books"})
+        soup = BeautifulSoup(response.data, "html.parser")
+
+        all_books = query_db('SELECT title FROM "books"')
+
+        for row in all_books:
+            title = row["title"]
+            self.assertEqual(title, soup.find(text=title))
+
+    def test_recommendations_ordered_by_count(self):
+        response = self.client.post(
+            self.page, data={"selected_filter": "Recommendations Ordered by Count"}
+        )
+        soup = BeautifulSoup(response.data, "html.parser")
+        all_books = query_db('SELECT title FROM "books"')
+
+        for row in all_books:
+            title = row["title"]
+            self.assertEqual(title, soup.find(text=title))
+
+        print("testing count header has been added")
+        count_header = soup.find("th", text="Count")
+        self.assertEqual(str(count_header), "<th>Count</th>")
+
+    def test_invalid_filter(self):
+        response = self.client.post(
+            self.page, data={"selected_filter": "INVALID FILTER"}
+        )
+        soup = BeautifulSoup(response.data, "html.parser")
+
+        flash_message = soup.find("ul", {"class": "flashes"})
+        self.assertEqual(flash_message.find("li").text, "Please select a valid filter")
+
 
 class TestSearchPage(TestWebPage):
     def setUp(self):
@@ -131,6 +185,38 @@ class TestSearchPage(TestWebPage):
     def test_recommend_title(self):
         print(f"testing about {self.page} title is correct")
         self.assertEqual(self.soup.head.title.text, "BooksAnon: Search")
+
+
+class TestSubmitPage(TestWebPage):
+    def setUp(self):
+        super().setUp()
+        self.test_results = [
+            {
+                "work_key": "/books/OL7962789M",
+                "title": "Jonathan Strange and Mr. Norrell",
+                "pub_date": "September 5, 2005",
+                "number_of_pages": 1024,
+                "author": "Susanna Clarke",
+                "cover_id": "https://covers.openlibrary.org/b/id/525391-S.jpg",
+                "search_term": "Jonath Strange and Mr Norrell",
+            }
+        ]
+        self.page = "/submit"
+        self.response = self.client.get(self.page)
+        self.soup = BeautifulSoup(self.response.data, "html.parser")
+
+    def test_webpage_response(self):
+        """Testing webpage response code"""
+        print(f"Testing {self.page} rejects get requests")
+        # submit page is only accessible through POST request
+        # meaning expected result is 405
+        response = self.client.get(self.page)
+        self.assertEqual(response.status_code, 405)
+
+    def test_navbar_has_loaded(self):
+        print(f"testing navbar has is not viewable loaded on {self.page}")
+        nav_links = self.soup.find_all("a", {"class": "nav-link"})
+        self.assertEqual([], nav_links)
 
 
 if __name__ == "__main__":
