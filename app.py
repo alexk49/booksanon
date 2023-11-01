@@ -1,5 +1,4 @@
 """ web app to allow users to anonymously recommend books """
-
 import json
 import sqlite3
 import logging
@@ -34,27 +33,19 @@ app.secret_key = key
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 
-""" sql 
-test_table - 
-work_key, cover_id, title, author, pub_date, num_of_pages, search_term, review, timestamp
-
-book table 
-work_key, cover_id, title, author, pub_date, num_of_pages, search_term, review, timestamp
-"""
-
 """
 The render persistant storage requires a render disk.
 This can't be stored in the root project directory.
 
-Consequently, the local path that should be used for testing is:
+Consequently, the local path used for testing is:
 
-DATABASE = "data/books.db"
+"data/books.db"
 
 The live database is hosted on the render server.
 
 This uses the path:
 
-DATABASE = "/opt/var/booksanon/data/books.db"
+"/opt/var/booksanon/data/books.db"
 
 """
 
@@ -67,9 +58,6 @@ else:
     # test db path
     TEST_DATABASE = join("data", "books.db")
     DATABASE = TEST_DATABASE
-
-
-OPEN_LIB_URL = "https://openlibrary.org"
 
 
 def get_db():
@@ -96,6 +84,35 @@ def query_db(query, args=(), one=False):
     rv = cur.fetchall()
     cur.close()
     return (rv[0] if rv else None) if one else rv
+
+
+def submit_to_db(result, review):
+    """Used to submit recommendations to database.
+    This is only called by the /submit route"""
+    # establish cursor for processing
+    cursor = get_db().cursor()
+
+    cursor.execute(
+        """INSERT into "books" (work_key, title, author, pub_year, num_of_pages, cover_id, search_term, review) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+        (
+            result["work_key"],
+            result["title"],
+            result["author"],
+            result["pub_date"],
+            result["num_of_pages"],
+            result["cover_id"],
+            result["search_term"],
+            review,
+        ),
+    )
+
+    # commit changes to database
+    db = get_db()
+    db.commit()
+    logging.info("Book submitted to database")
+    logging.info(result)
+    logging.info(review)
+    return True
 
 
 """ Web pages """
@@ -149,7 +166,6 @@ def recommend():
         return render_template("submit.html", results=results)
 
     else:
-        # if get request just teturn template
         return render_template("recommend.html")
 
 
@@ -197,32 +213,9 @@ def submit():
             return render_template("submit.html", results=results, error=error)
 
         # submit to datbase
-
-        # establish cursor for processing
-        cursor = get_db().cursor()
-
-        cursor.execute(
-            """INSERT into "books" (work_key, title, author, pub_year, num_of_pages, cover_id, search_term, review) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-            (
-                result["work_key"],
-                result["title"],
-                result["author"],
-                result["pub_date"],
-                result["num_of_pages"],
-                result["cover_id"],
-                result["search_term"],
-                review,
-            ),
-        )
-
-        # commit changes to database
-        db = get_db()
-        db.commit()
-        logging.info("Book submitted to database")
-        logging.info(result)
-        logging.info(review)
-        flash("Your recommendation has been received, thank you!")
-        return redirect("/")
+        if submit_to_db(result, review):
+            flash("Your recommendation has been received, thank you!")
+            return redirect("/")
     else:
         return render_template("recommend.html")
 
