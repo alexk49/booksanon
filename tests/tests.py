@@ -190,17 +190,6 @@ class TestSearchPage(TestWebPage):
 class TestSubmitPage(TestWebPage):
     def setUp(self):
         super().setUp()
-        self.test_results = [
-            {
-                "work_key": "/books/OL7962789M",
-                "title": "Jonathan Strange and Mr. Norrell",
-                "pub_date": "September 5, 2005",
-                "number_of_pages": 1024,
-                "author": "Susanna Clarke",
-                "cover_id": "https://covers.openlibrary.org/b/id/525391-S.jpg",
-                "search_term": "Jonath Strange and Mr Norrell",
-            }
-        ]
         self.page = "/submit"
         self.response = self.client.get(self.page)
         self.soup = BeautifulSoup(self.response.data, "html.parser")
