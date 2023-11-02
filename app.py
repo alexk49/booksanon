@@ -50,7 +50,7 @@ This uses the path:
 """
 
 # DATABASE = "data/books.db"
-PRODUCTION_DATABASE = join("opt", "var", "booksanon", "data", "books.db")
+PRODUCTION_DATABASE = "/opt/var/booksanon/data/books.db"
 
 if exists(PRODUCTION_DATABASE):
     DATABASE = PRODUCTION_DATABASE
