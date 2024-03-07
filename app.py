@@ -6,6 +6,7 @@ import logging.config
 from os.path import exists, join
 
 from better_profanity import profanity
+from dotenv import load_dotenv
 from flask import (
     Flask,
     flash,
@@ -18,9 +19,10 @@ from flask import (
 )
 
 from config_dict import config_dict
-from key_file import key
 from open_lib_api_calls import open_lib_search
 
+# load .env variables
+load_dotenv()
 
 # Configure app
 app = Flask(__name__)
@@ -28,10 +30,9 @@ app = Flask(__name__)
 # config logs
 logging.config.dictConfig(config_dict)
 # secret key is needed for session variable
-app.secret_key = key
+app.secret_key = os.environ["KEY"]
 # ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
-
 
 """
 The render persistant storage requires a render disk.
@@ -42,18 +43,10 @@ Consequently, the local path used for testing is:
 "data/books.db"
 
 The live database is hosted on the render server.
-
-This uses the path:
-
-"/opt/var/booksanon/data/books.db"
-
 """
 
-# DATABASE = "data/books.db"
-PRODUCTION_DATABASE = "/opt/var/booksanon/data/books.db"
-
-if exists(PRODUCTION_DATABASE):
-    DATABASE = PRODUCTION_DATABASE
+if exists(os.environ["PRODUCTION_DATABASE"]):
+    DATABASE = os.environ["PRODUCTION_DATABASE"]
 else:
     # test db path
     TEST_DATABASE = join("data", "books.db")
@@ -207,9 +200,7 @@ def submit():
         # check review does not contain profanity
         if profanity.contains_profanity(review):
             logging.info("Review rejected for containing profanity")
-            error = (
-                "Your review contained profanity. Please be less rude and try again."
-            )
+            error = "Your review contained profanity. Please be less rude and try again."
             return render_template("submit.html", results=results, error=error)
 
         # submit to datbase
