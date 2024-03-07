@@ -1,7 +1,7 @@
-# Books Anon
+# BooksAnon
 
 ## About
-Books Anon is a web app made in flask, where users can recommend a book to a database without entering any of their own personal data. This is a no strings attached book recommendation and exists for people who just want to share something they've read with others.
+BooksAnon is a web app made in flask, where users can recommend a book to a database without entering any of their own personal data. This is a no strings attached book recommendation and exists for people who just want to share something they've read with others.
 
 The biblographical data is obtained via the [Open Library API](https://openlibrary.org/dev/docs/api/books). Every submitted book recommendation is then stored in an sqlite3 database.
 
