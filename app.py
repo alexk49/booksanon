@@ -3,6 +3,7 @@ import json
 import sqlite3
 import logging
 import logging.config
+from os import environ
 from os.path import exists, join
 
 from better_profanity import profanity
@@ -30,7 +31,7 @@ app = Flask(__name__)
 # config logs
 logging.config.dictConfig(config_dict)
 # secret key is needed for session variable
-app.secret_key = os.environ["KEY"]
+app.secret_key = environ["KEY"]
 # ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
@@ -45,8 +46,8 @@ Consequently, the local path used for testing is:
 The live database is hosted on the render server.
 """
 
-if exists(os.environ["PRODUCTION_DATABASE"]):
-    DATABASE = os.environ["PRODUCTION_DATABASE"]
+if exists(environ["PRODUCTION_DATABASE"]):
+    DATABASE = environ["PRODUCTION_DATABASE"]
 else:
     # test db path
     TEST_DATABASE = join("data", "books.db")
