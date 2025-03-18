@@ -68,9 +68,30 @@ class OpenLibCalls(APIClient):
         print(f"created search url as {url}")
         return url
 
-    def get_query_url(self, title="", author="", limit=""):
-        url = self.root_url + f"?title={title}" + f"&author={author}" + "&limit=20"
-        print(f"search url created as {url}")
+    def get_complex_query_url(self, **kwargs) -> str:
+        """
+        Used for searches with specific parameters
+
+        allowed_parms checks valid queries for open api lib
+
+        >>> get_complex_query_url(title="Oliver Twist", author="Charles Dickens")
+        >>> "https://openlibrary.org/search.json?title=Oliver Twist&author=Charles Dickens&limit=20"
+        """
+        allowed_params = ["title", "author", "limit"]
+
+        url = self.root_url + "?"
+        
+        for key, value in kwargs.items():
+            if key not in allowed_params:
+                raise ValueError(f"Invalid parameter: {key}")
+
+            if value:
+                url += f"{key}={value}&"
+        
+        # Remove trailing "&" if it exists
+        url = url.rstrip("&")
+
+        print(f"Search URL created as: {url}")
         return url
 
 
@@ -115,7 +136,7 @@ async def main():
     if search_query:
         search_url = client.get_general_query_url(search_query, limit="20")
     else:
-        search_url = client.get_query_url(title=title, author=author, limit="20")
+        search_url = client.get_complex_query_url(title=title, author=author, limit="20")
 
     await client.create_session()
 
