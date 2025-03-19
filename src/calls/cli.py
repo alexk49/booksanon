@@ -34,6 +34,12 @@ def set_arg_parser():
         type=str,
         help="Search query for book results.",
     )
+    parser.add_argument(
+        "-olwi",
+        "--open-lib-work-id",
+        type=str,
+        help="Pass openlib workid and return response.",
+    )
     return parser
 
 
@@ -46,25 +52,38 @@ async def main():
         parser.print_help()
         sys.exit(1)
 
-    search_query = args.search
-    title = args.title
-    author = args.author
-
-    client = Client(email=EMAIL_ADDRESS)
-
-    if search_query:
-        search_url = openlib.get_general_query_url(search_query, limit="20")
+    if args.open_lib_work_id is not None:
+        work_id = args.open_lib_work_id
+        url = openlib.get_work_id_url(work_id)
     else:
-        search_url = openlib.get_complex_query_url(title=title, author=author, limit="20")
+        search_query = args.search
+        title = args.title
+        author = args.author
+
+        if search_query:
+            url = openlib.get_general_query_url(search_query, limit="20")
+        elif title or author:
+            url = openlib.get_complex_query_url(title=title, author=author, limit="20")
+
+    """
+    client = Client(email=EMAIL_ADDRESS)
 
     await client.create_session()
 
-    results = await client.fetch_results(search_url)
+    results = await client.fetch_results(url)
 
     print("results:")
     print(results)
 
+    # work_keys = openlib.get_unique_work_keys(results)
+    # print(work_keys)
+
     await client.close_session()
+    """
+    async with Client(email=EMAIL_ADDRESS) as client:
+        results = await client.fetch_results(url)
+        print(results)
+
 
 
 asyncio.run(main())

@@ -26,6 +26,13 @@ class Client:
             await self.session.close()
             self.session = None
 
+    async def __aenter__(self):
+        self.session = aiohttp.ClientSession()
+        return self
+
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        await self.session.close()
+
     async def fetch_results(self, url):
         """Fetch results from the given URL with retry logic."""
         print(f"making request to {url}")
