@@ -1,0 +1,47 @@
+"""
+Client for making async API calls
+"""
+import aiohttp
+import asyncio
+
+
+class Client:
+    """
+    Async api client for making requests
+    """
+    def __init__(self, max_concurrent_requests=3, max_retries=3, retry_delay=3) -> None:
+        self.max_retries = max_retries
+        self.retry_delay = retry_delay
+        self.semaphore = asyncio.Semaphore(max_concurrent_requests)
+        self.session = None
+
+    async def create_session(self, email=""):
+        if self.session is None:
+            headers = {"User-Agent": f"booksanon {email}"}
+            self.session = aiohttp.ClientSession(headers=headers)
+
+    async def close_session(self):
+        if self.session:
+            await self.session.close()
+            self.session = None
+
+    async def fetch_results(self, url):
+        """Fetch results from the given URL with retry logic."""
+        print(f"making request to {url}")
+        for attempt in range(1, self.max_retries + 1):
+            try:
+                async with self.semaphore:
+                    async with self.session.get(url, timeout=10) as response:
+                        if response.status == 200:
+                            return await response.json()
+                        print(f"Attempt {attempt}: Received status {response.status}")
+            except aiohttp.ClientError as e:
+                print(f"Attempt {attempt}: Error - {e}")
+
+            if attempt < self.max_retries:
+                await asyncio.sleep(self.retry_delay)
+
+        print("Failed to fetch data after retries.")
+        return None
+
+
