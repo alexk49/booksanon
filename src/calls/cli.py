@@ -50,7 +50,7 @@ async def main():
     title = args.title
     author = args.author
 
-    client = Client()
+    client = Client(email=EMAIL_ADDRESS)
 
     if search_query:
         search_url = openlib.get_general_query_url(search_query, limit="20")
