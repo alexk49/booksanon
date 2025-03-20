@@ -2,6 +2,7 @@
 import asyncio
 import argparse
 import os
+import pprint
 import sys
 
 from dotenv import load_dotenv
@@ -29,6 +30,19 @@ def set_arg_parser():
         help="Book author for search",
     )
     parser.add_argument(
+        "-editions",
+        "--editions",
+        type=str,
+        help="Pass openlib work id and return filtered response from editions API.",
+    )
+    parser.add_argument(
+        "-l",
+        "--limit",
+        default=5,
+        type=int,
+        help="Limit number of results that come back",
+    )
+    parser.add_argument(
         "-s",
         "--search",
         type=str,
@@ -38,9 +52,28 @@ def set_arg_parser():
         "-olwi",
         "--open-lib-work-id",
         type=str,
-        help="Pass openlib workid and return response.",
+        help="Pass openlib work id and return response.",
     )
     return parser
+
+
+async def get_work_id_results_only(work_id):
+    url = openlib.get_work_id_url(work_id)
+
+    async with Client(email=EMAIL_ADDRESS) as client:
+        response = await client.fetch_results(url)
+        pprint.pp(response)
+        print(type(response))
+        book = openlib.parse_work_id_page(response)
+        pprint.pp(book)
+
+
+async def get_editions_only(work_id):
+    url = openlib.get_work_id_url(work_id, editions=True)
+
+    async with Client(email=EMAIL_ADDRESS) as client:
+        response = await client.fetch_results(url)
+        pprint.pp(response)
 
 
 async def main():
@@ -53,37 +86,41 @@ async def main():
         sys.exit(1)
 
     if args.open_lib_work_id is not None:
-        work_id = args.open_lib_work_id
-        url = openlib.get_work_id_url(work_id)
+        await get_work_id_results_only(args.open_lib_work_id)
+        sys.exit()
+
+    if args.editions is not None:
+        await get_editions_only(args.editions)
+        sys.exit()
+
+    limit = str(args.limit)
+
+    if args.search:
+        url = openlib.get_general_query_url(args.search, limit=limit)
     else:
-        search_query = args.search
         title = args.title
         author = args.author
+        url = openlib.get_complex_query_url(title=title, author=author, limit=limit)
 
-        if search_query:
-            url = openlib.get_general_query_url(search_query, limit="20")
-        elif title or author:
-            url = openlib.get_complex_query_url(title=title, author=author, limit="20")
-
-    """
-    client = Client(email=EMAIL_ADDRESS)
-
-    await client.create_session()
-
-    results = await client.fetch_results(url)
-
-    print("results:")
-    print(results)
-
-    # work_keys = openlib.get_unique_work_keys(results)
-    # print(work_keys)
-
-    await client.close_session()
-    """
     async with Client(email=EMAIL_ADDRESS) as client:
         results = await client.fetch_results(url)
-        print(results)
 
+        pprint.pp(results)
+
+        clean_results = openlib.process_books_search_results(results) 
+
+        pprint.pp(clean_results)
+
+        complete_books = []
+
+        for book in clean_results:
+            work_id = book["openlib_work_key"]
+            url = openlib.get_work_id_url(work_id)
+            response = await client.fetch_results(url)
+
+            complete_books.append(openlib.parse_work_id_page(response, book=book))
+
+        pprint.pp(complete_books)
 
 
 asyncio.run(main())

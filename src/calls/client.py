@@ -8,7 +8,20 @@ import asyncio
 class Client:
     """
     Async api client for making requests
+
+    Can either be used with manual open/close session:
+    >>> client = Client(email=EMAIL_ADDRESS)
+    >>> await client.create_session()
+    >>> results = await client.fetch_results(url)
+    >>> print(results)
+    >>> await client.close_session()
+
+    Or with context manager:
+    >>> async with Client(email=EMAIL_ADDRESS) as client:
+    >>>    results = await client.fetch_results(url)
+    >>>    print(results)
     """
+
     def __init__(self, max_concurrent_requests=3, max_retries=3, retry_delay=3, email="") -> None:
         self.max_retries = max_retries
         self.retry_delay = retry_delay
