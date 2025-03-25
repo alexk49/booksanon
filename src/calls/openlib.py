@@ -25,9 +25,10 @@ SEARCH_URL = f"{ROOT_URL}/search.json"
 
 """ Create URLs """
 
-def get_general_query_url(search_query, limit: None | str=None) -> str:
+def get_general_query_url(search_query: str, limit: str = "1") -> str:
     """
-    Limit has to be a digit but should be passed as str
+    Limit has to be a digit but should be passed as str,
+    this does not limit actual results but limits pages of results so default is 1
     """
     if limit and type(limit) is int:
         url = f"{SEARCH_URL}?q={search_query}&limit={limit}"
@@ -64,7 +65,7 @@ def get_complex_query_url(**kwargs) -> str:
     return url
 
 
-def get_work_id_url(work_id: str, editions=False):
+def get_work_id_url(work_id: str):
     """
     Work ids should look like below,
     as this is taken straight from ol api:
@@ -75,26 +76,59 @@ def get_work_id_url(work_id: str, editions=False):
 
     This allows construction of the work_id url, like:
     https://openlibrary.org/works/OL45804W.json
-
-    Editions switch can be used to get editions URL:
-    https://openlibrary.org/works/OL45804W/editions.json
     """
     if work_id.startswith("/works/"):
-        base_url = f"{ROOT_URL}{work_id}"
+        return f"{ROOT_URL}{work_id}.json"
     elif work_id.startswith("OL"):
         work_id = f"/works/{work_id}"
-        base_url = f"{ROOT_URL}/{work_id}"
+        return f"{ROOT_URL}/{work_id}.json"
+
     else:
         print("invalid work id")
         return None
 
-    if editions:
-        return f"{base_url}/editions.json"
-    else:
-        return f"{base_url}.json"
+
+def get_editions_url(work_id):
+    return get_work_id_url(work_id).replace(".json", "/editions.json")
+
 
 
 """ Parse response """
+
+def parse_editions_response(response: Dict[str, Any], book: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+def parse_workid_page(response: Dict[str, Any], book: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    if book is None:
+        book = {}
+
+    known_isbns = set()
+    known_publishers = set()
+
+    for entry in response["entries"]:
+        try:
+            for isbn in entry["isbn_13"]:
+                known_isbns.add(isbn)
+        except KeyError:
+            pass
+
+        try:
+            for isbn_10 in entry["isbn_10"]:
+                known_isbns.add(isbn_10)
+        except KeyError:
+            pass
+
+        try:
+            for publisher in entry["publishers"]:
+                known_publishers.add(publisher)
+        except KeyError:
+            pass
+
+        book.update({
+            "known_isbns": known_isbns,
+            "known_publishsers": known_publishers, })
+        return book
+
 
 def get_num_of_books_in_response(response: dict):
     num_of_results = (len(response["docs"]))
@@ -115,10 +149,13 @@ def get_unique_work_keys(response: dict):
     return work_keys
 
 
-def process_books_search_results(response: dict) -> List[Dict[str, Any]]:
+def process_books_search_results(response: dict, limit: int | None = None) -> List[Dict[str, Any]]:
     processed_books: list = []
     
-    num_of_results: int = (len(response["docs"]))
+    if limit:
+        num_of_results: int = (len(response["docs"][0:limit]))
+    else:
+        num_of_results: int = (len(response["docs"]))
 
     for num in range(num_of_results):
         book: dict = response["docs"][num]
@@ -134,7 +171,7 @@ def process_books_search_results(response: dict) -> List[Dict[str, Any]]:
     return processed_books
 
 
-def parse_workid_page(response: Dict[str, Any], book: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def parse_work_id_page(response: Dict[str, Any], book: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     This is used to parse the work id urls, to get complete metadata for each book.
 
@@ -177,9 +214,9 @@ def parse_workid_page(response: Dict[str, Any], book: Optional[Dict[str, Any]] =
         "covers": response.get("covers", []),
         "number_of_pages_median": response.get("number_of_pages_median", 0),
         "subjects": response.get("subjects", []),
-        "subject_people": response.get("subject_people", []),
-        "subject_places": response.get("subject_places", []),
-        "excerpts": response.get("excerpts", []),
+        # "subject_people": response.get("subject_people", []),
+        # "subject_places": response.get("subject_places", []),
+        # "excerpts": response.get("excerpts", []),
     })
     
     return book

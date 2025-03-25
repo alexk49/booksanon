@@ -57,23 +57,75 @@ def set_arg_parser():
     return parser
 
 
-async def get_work_id_results_only(work_id):
+async def get_work_id_results_only(work_id: str):
     url = openlib.get_work_id_url(work_id)
 
     async with Client(email=EMAIL_ADDRESS) as client:
         response = await client.fetch_results(url)
-        pprint.pp(response)
-        print(type(response))
         book = openlib.parse_work_id_page(response)
         pprint.pp(book)
+        return response
 
 
-async def get_editions_only(work_id):
-    url = openlib.get_work_id_url(work_id, editions=True)
+async def get_editions_only(work_id: str):
+    url = openlib.get_editions_url(work_id)
 
     async with Client(email=EMAIL_ADDRESS) as client:
         response = await client.fetch_results(url)
         pprint.pp(response)
+        return response
+
+
+async def make_complex_query_search(args) -> list:
+    """ Complex queries specify each parameter in order to get better results. The results are limited by the URL parameter """
+    title = args.title
+    author = args.author
+    limit = args.limit
+
+    url = openlib.get_complex_query_url(title=title, author=author, limit=limit)
+
+    async with Client(email=EMAIL_ADDRESS) as client:
+        results = await client.fetch_results(url)
+
+        clean_results = openlib.process_books_search_results(results) 
+
+        complete_books = []
+
+        for book in clean_results:
+            complete_books.append(await get_complete_book_data(client, book))
+
+        pprint.pp(complete_books)
+        return complete_books
+
+
+async def make_general_query_search(search_query, limit) -> list:
+    """ General query searches can't be limited with results, so the results returned are sliced with the limit """
+    url = openlib.get_general_query_url(search_query, limit=1)
+
+    async with Client(email=EMAIL_ADDRESS) as client:
+        results = await client.fetch_results(url)
+        clean_results = openlib.process_books_search_results(results, limit=limit) 
+
+        complete_books = []
+
+        for book in clean_results:
+            complete_books.append(await get_complete_book_data(client, book))
+
+        pprint.pp(complete_books)
+        return complete_books
+
+
+async def get_complete_book_data(client: Client, book: dict) -> dict:
+    """ helper function to be used inside a loop """
+    work_id = book["openlib_work_key"]
+    url = openlib.get_work_id_url(work_id)
+
+    response = await client.fetch_results(url)
+
+    book = (openlib.parse_work_id_page(response, book=book))
+    url = openlib.get_editions_url(work_id)
+    response = await client.fetch_results(url)
+    return openlib.parse_editions_response(response=response, book=book)
 
 
 async def main():
@@ -93,34 +145,11 @@ async def main():
         await get_editions_only(args.editions)
         sys.exit()
 
-    limit = str(args.limit)
-
     if args.search:
-        url = openlib.get_general_query_url(args.search, limit=limit)
+        await make_general_query_search(args.search, limit=args.limit)
+        sys.exit()
     else:
-        title = args.title
-        author = args.author
-        url = openlib.get_complex_query_url(title=title, author=author, limit=limit)
-
-    async with Client(email=EMAIL_ADDRESS) as client:
-        results = await client.fetch_results(url)
-
-        pprint.pp(results)
-
-        clean_results = openlib.process_books_search_results(results) 
-
-        pprint.pp(clean_results)
-
-        complete_books = []
-
-        for book in clean_results:
-            work_id = book["openlib_work_key"]
-            url = openlib.get_work_id_url(work_id)
-            response = await client.fetch_results(url)
-
-            complete_books.append(openlib.parse_work_id_page(response, book=book))
-
-        pprint.pp(complete_books)
+        await make_complex_query_search(args)
 
 
 asyncio.run(main())
