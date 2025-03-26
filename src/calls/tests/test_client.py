@@ -130,14 +130,14 @@ class TestClient(unittest.IsolatedAsyncioTestCase):
         # Setup clean client with no session
         self.client.session = None
         self.client.email = "test@example.com"
-        
+
         # Mock ClientSession
         mock_session_instance = MagicMock()
         mock_client_session.return_value = mock_session_instance
-        
+
         # Call create_session
         await self.client.create_session()
-        
+
         # Verify session was created with correct headers
         mock_client_session.assert_called_once_with(
             headers={"User-Agent": "booksanon test@example.com"}
@@ -149,9 +149,9 @@ class TestClient(unittest.IsolatedAsyncioTestCase):
         """Test that create_session doesn't recreate an existing session."""
         existing_session = MagicMock()
         self.client.session = existing_session
-        
+
         await self.client.create_session()
-        
+
         mock_client_session.assert_not_called()
         self.assertEqual(self.client.session, existing_session)
 
@@ -161,18 +161,18 @@ class TestClient(unittest.IsolatedAsyncioTestCase):
         mock_session.close = MagicMock(return_value=asyncio.Future())
         mock_session.close.return_value.set_result(None)
         self.client.session = mock_session
-        
+
         await self.client.close_session()
-        
+
         mock_session.close.assert_called_once()
         self.assertIsNone(self.client.session)
 
     async def test_close_session_when_none(self):
         """Test that close_session handles a None session gracefully."""
         self.client.session = None
-        
+
         await self.client.close_session()
-        
+
         self.assertIsNone(self.client.session)
 
     async def test_init_parameters(self):
@@ -181,9 +181,9 @@ class TestClient(unittest.IsolatedAsyncioTestCase):
             max_concurrent_requests=5,
             max_retries=4,
             retry_delay=2,
-            email="user@example.com"
+            email="user@example.com",
         )
-        
+
         # Verify parameters were stored
         self.assertEqual(client.max_retries, 4)
         self.assertEqual(client.retry_delay, 2)
