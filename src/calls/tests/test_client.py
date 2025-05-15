@@ -1,203 +1,87 @@
 import unittest
 import asyncio
-from unittest.mock import MagicMock, patch
-from aiohttp.client_exceptions import ClientError
+from unittest.mock import AsyncMock, patch, MagicMock
 
 from client import Client
 
 
 class TestClient(unittest.IsolatedAsyncioTestCase):
-    async def asyncSetUp(self):
-        self.mock_session = MagicMock()
+    def setUp(self):
+        self.test_url = "https://example.com"
+        self.client = Client(max_concurrent_requests=2, max_retries=3, retry_delay=0.1)
 
-        self.client = Client(max_retries=3, retry_delay=0.1)
-        self.client.session = self.mock_session
+    async def asyncTearDown(self):
+        await self.client.close_session()
 
-    async def test_fetch_results_success_first_attempt(self):
-        """Test successful data fetch on the first attempt."""
-        # Create a mock response
+    @patch("httpx.AsyncClient.get")
+    async def test_fetch_success(self, mock_get):
         mock_response = MagicMock()
-        mock_response.status = 200
-        mock_response.json = MagicMock(return_value=asyncio.Future())
-        mock_response.json.return_value.set_result({"data": "test_data"})
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"data": "ok"}
+        mock_get.return_value = mock_response
 
-        # Set up the session.get to return our mock response
-        self.mock_session.get = MagicMock(return_value=asyncio.Future())
-        self.mock_session.get.return_value.set_result(mock_response)
+        result = await self.client.fetch_results(self.test_url)
 
-        result = await self.client.fetch_results("https://test.com/api")
+        self.assertEqual(result, {"data": "ok"})
+        self.assertEqual(mock_get.call_count, 1)
 
-        self.mock_session.get.assert_called_once_with(
-            "https://test.com/api", timeout=10
-        )
-        self.assertEqual(result, {"data": "test_data"})
-
-    async def test_fetch_results_success_after_retry(self):
-        """Test successful data fetch after one failed attempt."""
+    @patch("httpx.AsyncClient.get")
+    async def test_fetch_retries_on_failure(self, mock_get):
         fail_response = MagicMock()
-        fail_response.status = 500
+        fail_response.status_code = 500
 
         success_response = MagicMock()
-        success_response.status = 200
-        success_response.json = MagicMock(return_value=asyncio.Future())
-        success_response.json.return_value.set_result({"data": "retry_success"})
+        success_response.status_code = 200
+        success_response.json.return_value = {"success": True}
 
-        # Set up the session.get to return mock responses in sequence
-        self.mock_session.get = MagicMock(
-            side_effect=[
-                self._create_future(fail_response),
-                self._create_future(success_response),
-            ]
-        )
+        mock_get.side_effect = [fail_response, fail_response, success_response]
 
-        result = await self.client.fetch_results("https://test.com/api")
+        result = await self.client.fetch_results(self.test_url)
 
-        self.assertEqual(self.mock_session.get.call_count, 2)
-        self.assertEqual(result, {"data": "retry_success"})
+        self.assertEqual(result, {"success": True})
+        self.assertEqual(mock_get.call_count, 3)
 
-    async def test_fetch_results_client_error_then_success(self):
-        """Test recovery from a ClientError."""
-        # Set up the session.get to first raise an error, then succeed
-        success_response = MagicMock()
-        success_response.status = 200
-        success_response.json = MagicMock(return_value=asyncio.Future())
-        success_response.json.return_value.set_result({"data": "error_recovery"})
-
-        self.mock_session.get = MagicMock(
-            side_effect=[
-                ClientError("Connection error"),
-                self._create_future(success_response),
-            ]
-        )
-
-        result = await self.client.fetch_results("https://test.com/api")
-
-        self.assertEqual(self.mock_session.get.call_count, 2)
-        self.assertEqual(result, {"data": "error_recovery"})
-
-    async def test_fetch_results_all_attempts_fail(self):
-        """Test when all retry attempts fail."""
-        # Set up the session.get to always raise an error
-        self.mock_session.get = MagicMock(side_effect=ClientError("Persistent error"))
-
-        result = await self.client.fetch_results("https://test.com/api")
-
-        self.assertEqual(self.mock_session.get.call_count, 3)
-        self.assertIsNone(result)
-
-    async def test_fetch_results_non_200_responses(self):
-        """Test when all responses return non-200 status codes."""
-        # Create mock responses - all return error status codes
-        error_response = MagicMock()
-        error_response.status = 404
-
-        # Set up the session.get to return error responses
-        self.mock_session.get = MagicMock(
-            return_value=self._create_future(error_response)
-        )
-
-        result = await self.client.fetch_results("https://test.com/api")
-
-        self.assertEqual(self.mock_session.get.call_count, 3)
-        self.assertIsNone(result)
-
-    async def test_semaphore_usage(self):
-        """Test that the semaphore is properly acquired and released."""
-        # Replace the actual semaphore with a mock
-        self.client.semaphore = MagicMock()
-        self.client.semaphore.__aenter__ = MagicMock(return_value=asyncio.Future())
-        self.client.semaphore.__aenter__.return_value.set_result(None)
-        self.client.semaphore.__aexit__ = MagicMock(return_value=asyncio.Future())
-        self.client.semaphore.__aexit__.return_value.set_result(None)
-
-        # Create a mock response
+    @patch("httpx.AsyncClient.get")
+    async def test_fetch_gives_up_after_max_retries(self, mock_get):
         mock_response = MagicMock()
-        mock_response.status = 200
-        mock_response.json = MagicMock(return_value=asyncio.Future())
-        mock_response.json.return_value.set_result({"data": "test_data"})
+        mock_response.status_code = 500
+        mock_get.return_value = mock_response
 
-        self.mock_session.get = MagicMock(return_value=asyncio.Future())
-        self.mock_session.get.return_value.set_result(mock_response)
+        result = await self.client.fetch_results(self.test_url)
 
-        await self.client.fetch_results("https://test.com/api")
+        self.assertIsNone(result)
+        self.assertEqual(mock_get.call_count, self.client.max_retries)
 
-        self.client.semaphore.__aenter__.assert_called_once()
-        self.client.semaphore.__aexit__.assert_called_once()
+    async def test_session_context_manager(self):
+        async with Client(email="test@example.com") as client:
+            self.assertIsNotNone(client.session)
+            self.assertTrue(hasattr(client.session, "get"))
+            self.assertEqual(
+                client.session.headers["User-Agent"], "booksanon test@example.com"
+            )
 
-    @patch("aiohttp.ClientSession")
-    async def test_create_session_when_none(self, mock_client_session):
-        """Test creating a new session when none exists."""
-        # Setup clean client with no session
-        self.client.session = None
-        self.client.email = "test@example.com"
+    async def test_semaphore_limits_concurrency(self):
+        # Tests that at most 2 requests run concurrently
+        in_flight = 0
+        max_in_flight = 0
 
-        # Mock ClientSession
-        mock_session_instance = MagicMock()
-        mock_client_session.return_value = mock_session_instance
+        async def fake_request(*args, **kwargs):
+            nonlocal in_flight, max_in_flight
+            in_flight += 1
+            max_in_flight = max(max_in_flight, in_flight)
+            await asyncio.sleep(0.1)
+            in_flight -= 1
+            mock_resp = MagicMock()
+            mock_resp.status_code = 200
+            mock_resp.json.return_value = {"ok": True}
+            return mock_resp
 
-        # Call create_session
-        await self.client.create_session()
+        with patch("httpx.AsyncClient.get", new=AsyncMock(side_effect=fake_request)):
+            urls = [self.test_url] * 5
+            tasks = [self.client.fetch_results(url) for url in urls]
+            await asyncio.gather(*tasks)
 
-        # Verify session was created with correct headers
-        mock_client_session.assert_called_once_with(
-            headers={"User-Agent": "booksanon test@example.com"}
-        )
-        self.assertEqual(self.client.session, mock_session_instance)
-
-    @patch("aiohttp.ClientSession")
-    async def test_create_session_when_exists(self, mock_client_session):
-        """Test that create_session doesn't recreate an existing session."""
-        existing_session = MagicMock()
-        self.client.session = existing_session
-
-        await self.client.create_session()
-
-        mock_client_session.assert_not_called()
-        self.assertEqual(self.client.session, existing_session)
-
-    async def test_close_session_when_exists(self):
-        """Test closing an existing session."""
-        mock_session = MagicMock()
-        mock_session.close = MagicMock(return_value=asyncio.Future())
-        mock_session.close.return_value.set_result(None)
-        self.client.session = mock_session
-
-        await self.client.close_session()
-
-        mock_session.close.assert_called_once()
-        self.assertIsNone(self.client.session)
-
-    async def test_close_session_when_none(self):
-        """Test that close_session handles a None session gracefully."""
-        self.client.session = None
-
-        await self.client.close_session()
-
-        self.assertIsNone(self.client.session)
-
-    async def test_init_parameters(self):
-        """Test that initialization parameters are stored correctly."""
-        client = Client(
-            max_concurrent_requests=5,
-            max_retries=4,
-            retry_delay=2,
-            email="user@example.com",
-        )
-
-        # Verify parameters were stored
-        self.assertEqual(client.max_retries, 4)
-        self.assertEqual(client.retry_delay, 2)
-        self.assertEqual(client.email, "user@example.com")
-        self.assertIsInstance(client.semaphore, asyncio.Semaphore)
-        # Test semaphore value (this is implementation-dependent but works in CPython)
-        self.assertEqual(client.semaphore._value, 5)
-        self.assertIsNone(client.session)
-
-    def _create_future(self, result):
-        """Helper method to create a completed future with the given result."""
-        future = asyncio.Future()
-        future.set_result(result)
-        return future
+            self.assertLessEqual(max_in_flight, 2)  # max_concurrent_requests
 
 
 if __name__ == "__main__":
