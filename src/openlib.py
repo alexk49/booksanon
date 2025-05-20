@@ -101,9 +101,20 @@ class OpenLibCaller:
         complete_authors = []
 
         for book in clean_results:
-            complete_book, complete_author = await self._get_complete_book_data(book)
+            complete_book = await self._get_complete_book_data(book)
             complete_books.append(complete_book)
-            complete_authors.append(complete_author)
+
+        authors_response_keys = []
+
+        for book in complete_books:
+            authors_key_list: list = book['author_keys']
+
+            for author_key in authors_key_list:
+                authors_response_keys.append(author_key)
+
+        for author_key in authors_response_keys:
+            author = await self.get_author_results(author_key)
+            complete_authors.append(author)
 
         if self.pprint:
             pprint.pp(complete_books)
@@ -119,16 +130,6 @@ class OpenLibCaller:
         work_url = self.get_work_id_url(work_id)
         work_response = await self.client.fetch_results(work_url)
 
-        authors = {}
-        authors_response = work_response["authors"]
-
-        for author_res in authors_response:
-            author_id = author_res.get("author", {}).get("key")
-
-            if author_id:
-                author = await self.get_author_results(author_id)
-                authors.update(author)
-
         book = OpenLibCaller.parse_work_id_page(work_response, book=book)
 
         editions_url = self.get_editions_url(work_id)
@@ -136,7 +137,7 @@ class OpenLibCaller:
 
         book = OpenLibCaller.parse_editions_response(response=editions_response, book=book)
 
-        return book, authors
+        return book
 
     """ Methods for constructing URLs """
 
@@ -243,16 +244,17 @@ class OpenLibCaller:
         """
         book = book or {}
 
-        known_isbns: Set[str] = set()
+        isbns_13: Set[str] = set()
+        isbns_10: Set[str] = set()
         known_publishers: Set[str] = set()
 
         for entry in response.get("entries", []):
-            known_isbns.update(entry.get("isbn_13", []))
-            known_isbns.update(entry.get("isbn_10", []))
+            isbns_13.update(entry.get("isbn_13", []))
+            isbns_10.update(entry.get("isbn_10", []))
 
             known_publishers.update(entry.get("publishers", []))
 
-        book.update({"known_isbns": known_isbns, "known_publishers": known_publishers})
+        book.update({"isbns_13": isbns_13, "isbns_10": isbns_10, "known_publishers": known_publishers})
         return book
 
     @staticmethod
@@ -275,8 +277,8 @@ class OpenLibCaller:
             books.append(
                 {
                     "title": book.get("title", "Unknown"),
-                    "author_name": book.get("author_name", []),
-                    "author_key": book.get("author_key", []),
+                    "author_names": book.get("author_name", []),
+                    "author_keys": book.get("author_key", []),
                     "first_publish_year": book.get("first_publish_year", "Unknown"),
                     "openlib_work_key": book.get("key", "Unknown"),
                     "cover_id": [book.get("cover_i")],
@@ -296,7 +298,6 @@ class OpenLibCaller:
                 "death_date": response.get("death_date", ""),
                 "birth_date": response.get("birth_date", ""),
                 "key": response.get("key", ""),
-                "bio": response.get("bio", {}).get("value"),
                 "remote_ids": response.get("remote_ids", {}),
             }
         )
@@ -330,6 +331,8 @@ class OpenLibCaller:
          'isbns': [],
          # got from search url page
          first_year_publish
+
+         author_name and author_key is returned on the book search search results, but authors returns on works
         """
         if book is None:
             book = {}
@@ -337,17 +340,11 @@ class OpenLibCaller:
         book.update(
             {
                 "title": response.get("title", ""),
-                # "author": response.get("author_name", []),
-                # "author_key": response.get("author_key", []),
-                "authors": response.get("authors", []),
+                # "authors": response.get("authors", []),
                 "description": response.get("description", {}),
                 "openlib_work_key": response.get("key", "Unknown"),
                 "covers": response.get("covers", []),
                 "number_of_pages_median": response.get("number_of_pages_median", 0),
-                # "subjects": response.get("subjects", []),
-                # "subject_people": response.get("subject_people", []),
-                # "subject_places": response.get("subject_places", []),
-                # "excerpts": response.get("excerpts", []),
             }
         )
 
