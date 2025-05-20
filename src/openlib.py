@@ -52,12 +52,23 @@ class OpenLibCaller:
 
         return response
 
+    async def get_author_results(self, author_id: str):
+        url = self.get_author_url(author_id)
+        response = await self.client.fetch_results(url)
+
+        author = self.parse_author_id_page(response)
+
+        if self.pprint:
+            pprint.pp(author)
+        return author
+
     async def search_books(
         self,
         title: Optional[str] = None,
         author: Optional[str] = None,
         search_query: Optional[str] = None,
         limit: int = 10,
+        lang: str = "en",
     ) -> List[Dict[str, Any]]:
         """
         Limit is used as str in search URLs, but is used as int to index on parsers.
@@ -67,14 +78,18 @@ class OpenLibCaller:
 
         if title or author:
             url = self.get_complex_query_url(
-                title=title, author=author, limit=str(limit)
+                title=title,
+                author=author,
+                limit=str(limit),
+                lang=lang,
             )
         elif search_query:
-            url = self.get_general_query_url(search_query, limit=str(limit))
+            url = self.get_general_query_url(search_query, limit=str(limit), lang=lang)
         else:
             raise ValueError("Must provide either title/author or general search_query")
 
         results = await self.client.fetch_results(url)
+
         clean_results = OpenLibCaller.parse_books_search_results(results, limit)
 
         if self.pprint:
@@ -83,14 +98,19 @@ class OpenLibCaller:
 
     async def get_complete_books_data(self, clean_results: list[dict]):
         complete_books = []
+        complete_authors = []
 
         for book in clean_results:
-            complete_book = await self._get_complete_book_data(book)
+            complete_book, complete_author = await self._get_complete_book_data(book)
             complete_books.append(complete_book)
+            complete_authors.append(complete_author)
 
         if self.pprint:
             pprint.pp(complete_books)
-        return complete_books
+
+        if self.pprint:
+            pprint.pp(complete_authors)
+        return complete_books, complete_authors
 
     async def _get_complete_book_data(self, book: dict) -> dict:
         """Internal method to get complete book data"""
@@ -98,24 +118,35 @@ class OpenLibCaller:
 
         work_url = self.get_work_id_url(work_id)
         work_response = await self.client.fetch_results(work_url)
+
+        authors = {}
+        authors_response = work_response["authors"]
+
+        for author_res in authors_response:
+            author_id = author_res.get("author", {}).get("key")
+
+            if author_id:
+                author = await self.get_author_results(author_id)
+                authors.update(author)
+
         book = OpenLibCaller.parse_work_id_page(work_response, book=book)
 
         editions_url = self.get_editions_url(work_id)
         editions_response = await self.client.fetch_results(editions_url)
 
-        return OpenLibCaller.parse_editions_response(
-            response=editions_response, book=book
-        )
+        book = OpenLibCaller.parse_editions_response(response=editions_response, book=book)
+
+        return book, authors
 
     """ Methods for constructing URLs """
 
-    def get_general_query_url(self, search_query: str, limit: str = "1") -> str:
+    def get_general_query_url(self, search_query: str, limit: str = "1", lang: str = "en") -> str:
         """
         Limit has to be a digit but should be passed as str,
         this does not limit actual results but limits pages of results so default is 1
         """
         if limit and type(limit) is int:
-            url = f"{self.search_url}?q={search_query}&limit={limit}"
+            url = f"{self.search_url}?q={search_query}&limit={limit}&lang={lang}"
         else:
             url = f"{self.search_url}?q={search_query}"
         print(f"created search url as {url}")
@@ -138,6 +169,7 @@ class OpenLibCaller:
             "publisher",
             "publish_year",
             "limit",
+            "lang",
         ]
 
         url = f"{self.search_url}?"
@@ -155,6 +187,22 @@ class OpenLibCaller:
         print(f"Search URL created as: {url}")
         return url
 
+    def get_author_url(self, author_id: str):
+        """
+        Author IDs will look like OL1A, or OL2644841A.
+
+        Then these can be used for the author pages like:
+        http://openlibrary.org/authors/OL1A.json
+        """
+        if author_id.startswith("/authors/"):
+            return f"{self.root_url}{author_id}.json"
+        elif author_id.startswith("OL"):
+            author_id = f"/authors/{author_id}"
+            return f"{self.root_url}{author_id}.json"
+        else:
+            print("invalid author id passed")
+            return None
+
     def get_work_id_url(self, work_id: str):
         """
         Work ids should look like below,
@@ -171,7 +219,7 @@ class OpenLibCaller:
             return f"{self.root_url}{work_id}.json"
         elif work_id.startswith("OL"):
             work_id = f"/works/{work_id}"
-            return f"{self.root_url}/{work_id}.json"
+            return f"{self.root_url}{work_id}.json"
         else:
             print("invalid work id")
             return None
@@ -182,9 +230,7 @@ class OpenLibCaller:
     """ Methods for parsing api responses """
 
     @staticmethod
-    def parse_editions_response(
-        response: Dict[str, Any], book: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+    def parse_editions_response(response: Dict[str, Any], book: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Parse book information from a response, extracting unique ISBNs and publishers.
 
@@ -216,9 +262,7 @@ class OpenLibCaller:
         return num_of_results
 
     @staticmethod
-    def parse_books_search_results(
-        response: dict, limit: int | None = None
-    ) -> List[Dict[str, Any]]:
+    def parse_books_search_results(response: dict, limit: int | None = None) -> List[Dict[str, Any]]:
         books: list = []
 
         if limit:
@@ -242,9 +286,25 @@ class OpenLibCaller:
         return books
 
     @staticmethod
-    def parse_work_id_page(
-        response: Dict[str, Any], book: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+    def parse_author_id_page(response: Dict[str, Any], author: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        if author is None:
+            author = {}
+
+        author.update(
+            {
+                "name": response.get("name", ""),
+                "death_date": response.get("death_date", ""),
+                "birth_date": response.get("birth_date", ""),
+                "key": response.get("key", ""),
+                "bio": response.get("bio", {}).get("value"),
+                "remote_ids": response.get("remote_ids", {}),
+            }
+        )
+
+        return author
+
+    @staticmethod
+    def parse_work_id_page(response: Dict[str, Any], book: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         This is used to parse the work id urls, to get complete metadata for each book.
 
@@ -280,10 +340,10 @@ class OpenLibCaller:
                 # "author": response.get("author_name", []),
                 # "author_key": response.get("author_key", []),
                 "authors": response.get("authors", []),
-                # "description": response.get("description", {}),
+                "description": response.get("description", {}),
                 "openlib_work_key": response.get("key", "Unknown"),
                 "covers": response.get("covers", []),
-                # "number_of_pages_median": response.get("number_of_pages_median", 0),
+                "number_of_pages_median": response.get("number_of_pages_median", 0),
                 # "subjects": response.get("subjects", []),
                 # "subject_people": response.get("subject_people", []),
                 # "subject_places": response.get("subject_places", []),

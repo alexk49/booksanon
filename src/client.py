@@ -22,10 +22,12 @@ class Client:
 
         self.session = None
         self.email = email
-        self.headers = {"User-Agent": f"booksanon {self.email}"}
+        self.headers = {}
+        # self.headers = {"User-Agent": f"booksanon {self.email}"}
 
     async def start_session(self) -> None:
-        self.session = httpx.AsyncClient(headers=self.headers, timeout=self.timeout)
+        if self.session is None:
+            self.session = httpx.AsyncClient(headers=self.headers, timeout=self.timeout)
 
     async def close_session(self) -> None:
         if self.session:
@@ -39,25 +41,24 @@ class Client:
     async def __aexit__(self, exc_type, exc_value, traceback):
         await self.session.aclose()
 
-    async def fetch_results(self, url: str):
+    async def fetch_results(self, url: str, params: dict = {}):
         await self.start_session()
 
-        print(f"making request to {url}")
+        print(f"making request to {url}, with {params}")
         for attempt in range(1, self.max_retries + 1):
             try:
                 async with self.semaphore:
-                    response = await self.session.get(url)
+                    if params != {}:
+                        response = await self.session.get(url, params=params)
+                    else:
+                        response = await self.session.get(url)
 
                     if response.status_code == 200:
                         return response.json()
 
                     print(f"Attempt {attempt}: Received status {response.status_code}")
             except httpx.HTTPError as exc:
-                print(
-                    f"HTTP Exception on attempt: {attempt} for {exc.request.url} - {
-                        exc
-                    }"
-                )
+                print(f"HTTP Exception on attempt: {attempt} for {exc.request.url} - {exc}")
 
             if attempt < self.max_retries:
                 await asyncio.sleep(self.retry_delay)

@@ -1,0 +1,31 @@
+[project]
+name = "booksanon"
+readme = "README.md"
+description = "Web app for recommending books anonymously"
+license = "MIT"
+license-files = ["LICENSE"]
+version = "0.0.1"
+dependencies = [
+    "httpx==0.28.1",
+    "python-dotenv==1.1.0",
+]
+[project.scripts]
+books = "cli:main"
+[project.optional-dependencies]
+lint = [
+    "ruff==0.9.6",
+    "mypy==1.15.0",
+]
+test = [
+]
+[tool.ruff]
+line-length = 120
+indent-width = 4
+[tool.ruff.lint]
+# Avoid enforcing line-length violations (`E501`)
+ignore = ["E501"]
+[tool.mypy]
+ignore_missing_imports = true
+[build-system]
+requires = ["setuptools >= 64"]
+build-backend = "setuptools.build_meta"
