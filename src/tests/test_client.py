@@ -2,7 +2,7 @@ import unittest
 import asyncio
 from unittest.mock import AsyncMock, patch, MagicMock
 
-from client import Client
+from calls.client import Client
 
 
 class TestClient(unittest.IsolatedAsyncioTestCase):

@@ -20,7 +20,7 @@ Cover Ids can be read into URLs with:
 import pprint
 from typing import Any, Dict, List, Optional, Set
 
-from client import Client
+from calls.client import Client
 
 
 class OpenLibCaller:

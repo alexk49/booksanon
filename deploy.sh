@@ -1,9 +1,17 @@
 #!/bin/bash
 
+
 deploy_db_container_local () {
+        if [[ "$(docker ps -a | grep booksanon-db)" ]]; then 
+                echo "removing existing container"
+                docker stop "booksanon-db";
+                docker rm "booksanon-db"
+        fi;
+
         echo "deploying container locally"
         docker run --name booksanon-db \
                 -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+                -e POSTGRES_DB=booksanon \
                 -p 5432:5432 -v data:/var/lib/postgresql/data \
                 -d postgres
 }
