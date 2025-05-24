@@ -56,9 +56,7 @@ class TestClient(unittest.IsolatedAsyncioTestCase):
         async with Client(email="test@example.com") as client:
             self.assertIsNotNone(client.session)
             self.assertTrue(hasattr(client.session, "get"))
-            self.assertEqual(
-                client.session.headers["User-Agent"], "booksanon test@example.com"
-            )
+            self.assertEqual(client.session.headers["User-Agent"], "booksanon test@example.com")
 
     async def test_semaphore_limits_concurrency(self):
         # Tests that at most 2 requests run concurrently

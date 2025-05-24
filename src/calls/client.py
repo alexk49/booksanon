@@ -5,6 +5,8 @@ httpx client for making async api calls
 import asyncio
 import httpx
 
+from typing import Optional
+
 
 class Client:
     def __init__(
@@ -19,15 +21,14 @@ class Client:
         self.retry_delay = retry_delay
         self.semaphore = asyncio.Semaphore(max_concurrent_requests)
         self.timeout = httpx.Timeout(timeout, connect=5.0, read=5.0, write=5.0)
-
-        self.session = None
+        self.session: Optional[httpx.AsyncClient] = None
         self.email = email
-        self.headers = {}
-        # self.headers = {"User-Agent": f"booksanon {self.email}"}
+        self.headers = {"User-Agent": f"booksanon {self.email}"}
 
-    async def start_session(self) -> None:
+    async def start_session(self) -> httpx.AsyncClient:
         if self.session is None:
             self.session = httpx.AsyncClient(headers=self.headers, timeout=self.timeout)
+        return self.session
 
     async def close_session(self) -> None:
         if self.session:
@@ -42,7 +43,7 @@ class Client:
         await self.session.aclose()
 
     async def fetch_results(self, url: str, params: dict = {}):
-        await self.start_session()
+        self.session = await self.start_session()
 
         print(f"making request to {url}, with {params}")
         for attempt in range(1, self.max_retries + 1):

@@ -15,6 +15,7 @@ class APIClient:
     """
     Async api client for making requests
     """
+
     def __init__(self, max_concurrent_requests=3, max_retries=3, retry_delay=3, email_address=EMAIL_ADDRESS) -> None:
         self.max_retries = max_retries
         self.retry_delay = retry_delay
@@ -57,7 +58,7 @@ class OpenLibCalls(APIClient):
     def __init__(self):
         super().__init__()
 
-    def get_general_query_url(self, search_query, limit: None | str=None) -> str:
+    def get_general_query_url(self, search_query, limit: None | str = None) -> str:
         """
         Limit has to be a digit but should be passed as str
         """
@@ -80,14 +81,14 @@ class OpenLibCalls(APIClient):
         allowed_params = ["title", "author", "limit"]
 
         url = self.root_url + "?"
-        
+
         for key, value in kwargs.items():
             if key not in allowed_params:
                 raise ValueError(f"Invalid parameter: {key}")
 
             if value:
                 url += f"{key}={value}&"
-        
+
         # Remove trailing "&" if it exists
         url = url.rstrip("&")
 

@@ -12,7 +12,7 @@ deploy_db_container_local () {
         docker run --name booksanon-db \
                 -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
                 -e POSTGRES_DB=booksanon \
-                -p 5432:5432 -v data:/var/lib/postgresql/data \
+                -p 5432:5432 -v "$POSTGRES_VOLUME_PATH":/var/lib/postgresql/data \
                 -d postgres
 }
 
@@ -46,6 +46,7 @@ else
         echo "no .env file found, exiting"
         exit
 fi
+
 
 while [[ -n "$1" ]]; do
         case "$1" in

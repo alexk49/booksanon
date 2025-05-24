@@ -1,5 +1,4 @@
 import pprint
-from typing import Any, Dict, List, Optional, Set
 
 from calls.client import Client
 
@@ -10,9 +9,7 @@ class GoogleBooksCaller:
         self.pprint: bool = pprint_results
         self.base_url = "https://www.googleapis.com/books/v1/volumes"
 
-    async def search_books(
-        self, search_query=None, title=None, author=None, isbn=None, limit=5
-    ):
+    async def search_books(self, search_query=None, title=None, author=None, isbn=None, limit=5):
         params = {
             "maxResults": limit,
             "printType": "books",
@@ -31,9 +28,7 @@ class GoogleBooksCaller:
             query_terms.append(f"isbn:{isbn}")
 
         if not query_terms:
-            print(
-                "Please provide a search query, title, author, or ISBN for Google Books."
-            )
+            print("Please provide a search query, title, author, or ISBN for Google Books.")
             return []
 
         params["q"] = "+".join(query_terms)
@@ -51,11 +46,7 @@ class GoogleBooksCaller:
             authors = volume_info.get("authors", [])
             if authors:
                 print(f"Author(s): {', '.join(authors)}")
-            print(
-                f"First Publish Year: {
-                    volume_info.get('publishedDate', '').split('-')[0]
-                }"
-            )
+            print(f"First Publish Year: {volume_info.get('publishedDate', '').split('-')[0]}")
             industry_identifiers = volume_info.get("industryIdentifiers", [])
             isbns = [
                 id_data["identifier"]

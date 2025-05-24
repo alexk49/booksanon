@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Set, Optional, Dict
+from typing import Set, Optional
 
 # https://openlibrary.org/search/howto
 
@@ -20,12 +20,12 @@ class Author:
     @classmethod
     def from_dict(cls, author_dict: dict) -> "Author":
         return cls(
-            name=author_dict['name'],
+            name=author_dict["name"],
             death_date=author_dict.get("death_date", None),
             birth_date=author_dict.get("birth_date", None),
             author_openlib_id=author_dict["key"],
             remote_ids=author_dict.get("remote_ids", {}),
-            )
+        )
 
 
 @dataclass
@@ -45,20 +45,18 @@ class Book:
     @classmethod
     def from_dict(cls, book_dict: dict) -> "Book":
         return cls(
-            title=book_dict['title'],
-            author_names=book_dict['author_names'],
-            author_keys=book_dict['author_keys'],
-            first_publish_year=book_dict['first_publish_year'],
-            openlib_work_key=book_dict['openlib_work_key'],
-            openlib_cover_ids=book_dict.get('covers', []),
-            description=book_dict.get('description'),
-            number_of_pages_median=book_dict.get('number_of_pages_median', 0),
-            isbns_13=book_dict.get('isbns_13', set()),
-            isbns_10=book_dict.get('isbns_10', set()),
-            known_publishers=book_dict.get('known_publishers', set())
-            )
-
-
+            title=book_dict["title"],
+            author_names=book_dict["author_names"],
+            author_keys=book_dict["author_keys"],
+            first_publish_year=book_dict["first_publish_year"],
+            openlib_work_key=book_dict["openlib_work_key"],
+            openlib_cover_ids=book_dict.get("covers", []),
+            description=book_dict.get("description"),
+            number_of_pages_median=book_dict.get("number_of_pages_median", 0),
+            isbns_13=book_dict.get("isbns_13", set()),
+            isbns_10=book_dict.get("isbns_10", set()),
+            known_publishers=book_dict.get("known_publishers", set()),
+        )
 
 
 """

@@ -107,7 +107,7 @@ class OpenLibCaller:
         authors_response_keys = []
 
         for book in complete_books:
-            authors_key_list: list = book['author_keys']
+            authors_key_list: list = book["author_keys"]
 
             for author_key in authors_key_list:
                 authors_response_keys.append(author_key)

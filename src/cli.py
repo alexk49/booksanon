@@ -2,12 +2,14 @@
 import asyncio
 import argparse
 import os
+import subprocess
 import sys
 
 from dotenv import load_dotenv
 
 from calls.cli import define_call_args, call_open_lib, call_google_books
-from db.cli import define_db_args, create_schema
+from db import DataBase
+from db.cli import define_db_args
 
 
 def set_arg_parser():
@@ -20,7 +22,28 @@ def set_arg_parser():
     db_parser = subparsers.add_parser("db", help="db queries")
     define_db_args(db_parser)
 
+    subparsers.add_parser("lint", help="Run project linters")
+
+    subparsers.add_parser("test", help="Run project tests")
+
     return parser
+
+
+def run_command(command, check=True):
+    try:
+        print(f"Running: {' '.join(command)}")
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed: {' '.join(command)}: {e}")
+        sys.exit(e.returncode)
+
+
+def run_py_linters():
+    run_command(["ruff", "check", ".", "--fix"])
+
+    run_command(["ruff", "format", "."])
+
+    run_command(["mypy", "."])
 
 
 async def async_main():
@@ -46,12 +69,19 @@ async def async_main():
             await call_google_books(args)
 
     if args.command == "db":
-        POSTGRES_USERNAME = os.environ.get("POSTGRES_USERNAME", "")
-        POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "")
-        POSTGRES_URL = os.environ.get("POSTGRES_URL", "")
+        POSTGRES_USERNAME = os.environ.get("POSTGRES_USERNAME")
+        POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
+        POSTGRES_URL = os.environ.get("POSTGRES_URL")
 
-        if args.create_schema:
-            await create_schema(user=POSTGRES_USERNAME, password=POSTGRES_PASSWORD, url=POSTGRES_URL)
+        async with DataBase(user=POSTGRES_USERNAME, password=POSTGRES_PASSWORD, url=POSTGRES_URL) as db:
+            if args.create_schema:
+                await db.create_schema()
+
+    if args.command == "lint":
+        run_py_linters()
+
+    if args.command == "test":
+        run_command([sys.executable, "-m", "unittest", "discover", "-v"])
 
 
 def main():

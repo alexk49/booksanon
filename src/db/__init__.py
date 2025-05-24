@@ -1,1 +1,3 @@
-from .db import get_conn, load_queries
+from .db import DataBase
+
+__all__ = ["DataBase"]
