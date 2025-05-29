@@ -1,4 +1,5 @@
-from dataclasses import dataclass, field
+import json
+from dataclasses import asdict, dataclass, field
 from typing import Set, Optional
 
 # https://openlibrary.org/search/howto
@@ -7,6 +8,16 @@ from typing import Set, Optional
 # https://openlibrary.org/works/OL45804W.json
 # editions url
 # https://openlibrary.org/works/OL45804W/editions.json
+
+
+def convert_nested_dict_to_json(db_dict: dict):
+    # convert all dicts to json
+    for key, value in db_dict.items():
+        if isinstance(value, dict):
+            db_dict[key] = json.dumps(value)
+        elif isinstance(value, list) and all(isinstance(item, dict) for item in value):
+            db_dict[key] = json.dumps(value)
+    return db_dict
 
 
 @dataclass
@@ -26,6 +37,10 @@ class Author:
             author_openlib_id=author_dict["key"],
             remote_ids=author_dict.get("remote_ids", {}),
         )
+
+    def to_db_dict(self) -> dict:
+        db_dict = asdict(self)
+        return convert_nested_dict_to_json(db_dict)
 
 
 @dataclass
@@ -57,6 +72,10 @@ class Book:
             isbns_10=book_dict.get("isbns_10", set()),
             known_publishers=book_dict.get("known_publishers", set()),
         )
+
+    def to_db_dict(self) -> dict:
+        db_dict = asdict(self)
+        return convert_nested_dict_to_json(db_dict)
 
 
 """

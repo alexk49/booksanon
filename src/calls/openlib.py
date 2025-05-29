@@ -18,6 +18,7 @@ Cover Ids can be read into URLs with:
 """
 
 import pprint
+from statistics import median
 from typing import Any, Dict, List, Optional, Set
 
 from calls.client import Client
@@ -37,6 +38,9 @@ class OpenLibCaller:
         url = self.get_work_id_url(work_id)
         response = await self.client.fetch_results(url)
 
+        if not response:
+            return None
+
         book = OpenLibCaller.parse_work_id_page(response)
 
         if self.pprint:
@@ -47,6 +51,9 @@ class OpenLibCaller:
         url = self.get_editions_url(work_id)
         response = await self.client.fetch_results(url)
 
+        if not response:
+            return None
+
         if self.pprint:
             pprint.pp(response)
 
@@ -55,6 +62,9 @@ class OpenLibCaller:
     async def get_author_results(self, author_id: str):
         url = self.get_author_url(author_id)
         response = await self.client.fetch_results(url)
+
+        if not response:
+            return None
 
         author = self.parse_author_id_page(response)
 
@@ -90,6 +100,9 @@ class OpenLibCaller:
 
         results = await self.client.fetch_results(url)
 
+        if not results:
+            return None
+
         clean_results = OpenLibCaller.parse_books_search_results(results, limit)
 
         if self.pprint:
@@ -123,21 +136,70 @@ class OpenLibCaller:
             pprint.pp(complete_authors)
         return complete_books, complete_authors
 
-    async def _get_complete_book_data(self, book: dict) -> dict:
-        """Internal method to get complete book data"""
-        work_id = book["openlib_work_key"]
+    async def _get_complete_book_data(self, book: dict = {}, work_id: str = "") -> dict:
+        """
+        Collect data for single book
+        """
+        if not book and not work_id:
+            print("either book or work id must be passed")
+            return None
 
-        work_url = self.get_work_id_url(work_id)
-        work_response = await self.client.fetch_results(work_url)
+        if not work_id:
+            work_id = book["openlib_work_key"]
 
-        book = OpenLibCaller.parse_work_id_page(work_response, book=book)
+        book = await self.get_work_id_results(work_id)
+
+        if not book:
+            return None
 
         editions_url = self.get_editions_url(work_id)
         editions_response = await self.client.fetch_results(editions_url)
 
+        if not editions_response:
+            return None
+
         book = OpenLibCaller.parse_editions_response(response=editions_response, book=book)
 
         return book
+
+    async def get_book_data_for_db(self, work_id: str) -> tuple[dict, list]:
+        """
+        This parses work id and edition pages, and updates book to match the usual search result response.
+
+        Full author data is also collected to match book and author in models.
+        """
+        book = await self._get_complete_book_data(work_id=work_id)
+
+        if not book:
+            print(f"unable to get book data for {work_id}")
+            return None
+
+        authors_data = book.get("authors", [])
+
+        if not authors_data:
+            print(f"unable to get author data for {work_id}")
+            return None
+
+        author_keys = []
+        author_names = []
+        complete_authors = []
+
+        for author_data in authors_data:
+            author_key = author_data["author"]["key"]
+            author_keys.append(author_key)
+
+            author = await self.get_author_results(author_key)
+            complete_authors.append(author)
+
+            author_names.append(author["name"])
+
+        book.update({"author_names": author_names, "author_keys": author_keys})
+
+        if self.pprint:
+            pprint.pp(book)
+            for author in complete_authors:
+                pprint.pp(author)
+        return book, complete_authors
 
     """ Methods for constructing URLs """
 
@@ -247,12 +309,32 @@ class OpenLibCaller:
         isbns_13: Set[str] = set()
         isbns_10: Set[str] = set()
         known_publishers: Set[str] = set()
+        edition_dates: list = []
+        edition_pages: list[int] = []
 
         for entry in response.get("entries", []):
             isbns_13.update(entry.get("isbn_13", []))
             isbns_10.update(entry.get("isbn_10", []))
+            edition_date = entry.get("publish_date")
+            page_numbers = entry.get("number_of_pages")
+
+            if edition_date:
+                edition_dates.append(edition_date)
+
+            if page_numbers:
+                edition_pages.append(page_numbers)
 
             known_publishers.update(entry.get("publishers", []))
+
+        if book.get("first_publish_year", "") == "":
+            first_edition_date = sorted(edition_dates)[0]
+            book.update({"first_publish_year": first_edition_date})
+
+        pages = book.get("number_of_pages_median")
+
+        if not pages or pages == 0:
+            num_pages = median(edition_pages)
+            book.update({"number_of_pages_median": num_pages})
 
         book.update({"isbns_13": isbns_13, "isbns_10": isbns_10, "known_publishers": known_publishers})
         return book
@@ -340,7 +422,7 @@ class OpenLibCaller:
         book.update(
             {
                 "title": response.get("title", ""),
-                # "authors": response.get("authors", []),
+                "authors": response.get("authors", []),
                 "description": response.get("description", {}),
                 "openlib_work_key": response.get("key", "Unknown"),
                 "covers": response.get("covers", []),

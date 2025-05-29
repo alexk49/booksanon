@@ -2,6 +2,8 @@ from pathlib import Path
 import aiosql
 import asyncpg
 
+from db.models import Author
+
 
 class DataBase:
     def __init__(self, user: str, password: str, url: str):
@@ -34,3 +36,15 @@ class DataBase:
         async with self.pool.acquire() as conn:
             print("setting up db schema")
             await self.queries.create_schema(conn)
+
+    async def insert_author(self, author: Author):
+        async with self.pool.acquire() as conn:
+            print("checking if author exists")
+            existing_author = await self.queries.get_author_by_openlib_id(
+                conn, author_openlib_id=author.author_openlib_id
+            )
+
+            if existing_author:
+                print("author already exists")
+                return
+            return await self.queries.insert_author(conn, **author.to_db_dict())

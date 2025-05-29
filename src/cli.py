@@ -8,8 +8,7 @@ import sys
 from dotenv import load_dotenv
 
 from calls.cli import define_call_args, call_open_lib, call_google_books
-from db import DataBase
-from db.cli import define_db_args
+from db.cli import define_db_args, handle_db_args
 
 
 def set_arg_parser():
@@ -69,14 +68,7 @@ async def async_main():
             await call_google_books(args)
 
     if args.command == "db":
-        POSTGRES_USERNAME = os.environ.get("POSTGRES_USERNAME")
-        POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
-        POSTGRES_URL = os.environ.get("POSTGRES_URL")
-
-        async with DataBase(user=POSTGRES_USERNAME, password=POSTGRES_PASSWORD, url=POSTGRES_URL) as db:
-            if args.create_schema:
-                await db.create_schema()
-
+        await handle_db_args(args)
     if args.command == "lint":
         run_py_linters()
 

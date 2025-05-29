@@ -57,7 +57,7 @@ class Client:
                     if response.status_code == 200:
                         return response.json()
 
-                    print(f"Attempt {attempt}: Received status {response.status_code}")
+                    print(f"Attempt {attempt}: Received status {response.status_code}, {response}")
             except httpx.HTTPError as exc:
                 print(f"HTTP Exception on attempt: {attempt} for {exc.request.url} - {exc}")
 

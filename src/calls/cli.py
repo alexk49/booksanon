@@ -45,6 +45,12 @@ def define_call_args(call_parser):
         action="store_true",
         help="If passed then the full book data will be returned for search results",
     )
+    call_parser.add_argument(
+        "-db",
+        "--db",
+        type=str,
+        help="Must pass work id, then will collect complete book and author data for database.",
+    )
     # mutual exclusive args, generally for single purpose
     group = call_parser.add_mutually_exclusive_group()
 
@@ -80,8 +86,7 @@ async def call_open_lib(args, email_address):
     caller = OpenLibCaller(client=client)
 
     if args.open_lib_work_id is not None:
-        await caller.get_work_id_results(args.open_lib_work_id)
-        await client.close_session()
+        results = await caller.get_work_id_results(args.open_lib_work_id)
         sys.exit()
 
     if args.author_only is not None:
@@ -98,10 +103,13 @@ async def call_open_lib(args, email_address):
         results = await caller.search_books(search_query=args.search, limit=args.limit)
 
     if args.title or args.author:
-        await caller.search_books(title=args.title, author=args.author, limit=args.limit)
+        results = await caller.search_books(title=args.title, author=args.author, limit=args.limit)
 
     if args.complete:
         complete_books, complete_authors = await caller.get_complete_books_data(results)
+
+    if args.db:
+        book, complete_authors = await caller.get_book_data_for_db(work_id=args.db)
 
     await client.close_session()
 
