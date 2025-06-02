@@ -20,10 +20,37 @@ def convert_nested_dict_to_json(db_dict: dict):
     return db_dict
 
 
+def map_types_for_db(db_dict: dict) -> dict:
+    def clean_value(value):
+        if isinstance(value, set):
+            return [clean_value(v) for v in value]
+        elif isinstance(value, list):
+            # if it's a list of dicts, serialize the whole list
+            if all(isinstance(v, dict) for v in value):
+                return json.dumps(value)
+            else:
+                return [clean_value(v) for v in value]
+        elif isinstance(value, dict):
+            return json.dumps({k: clean_value(v) for k, v in value.items()})
+        else:
+            return value
+
+    cleaned = {}
+
+    for key, value in db_dict.items():
+        # ensure openlib_cover_ids is list of str
+        if key == "openlib_cover_ids":
+            cleaned[key] = [str(v) for v in value]
+        else:
+            cleaned[key] = clean_value(value)
+
+    return cleaned
+
+
 @dataclass
 class Author:
     name: str
-    author_openlib_id: str  # "/authors/OL34184A"
+    openlib_id: str  # "/authors/OL34184A"
     remote_ids: dict[str, str] = field(default_factory=dict)
     birth_date: Optional[str] = None
     death_date: Optional[str] = None
@@ -34,13 +61,13 @@ class Author:
             name=author_dict["name"],
             death_date=author_dict.get("death_date", None),
             birth_date=author_dict.get("birth_date", None),
-            author_openlib_id=author_dict["key"],
+            openlib_id=author_dict["key"],
             remote_ids=author_dict.get("remote_ids", {}),
         )
 
     def to_db_dict(self) -> dict:
         db_dict = asdict(self)
-        return convert_nested_dict_to_json(db_dict)
+        return map_types_for_db(db_dict)
 
 
 @dataclass
@@ -54,11 +81,15 @@ class Book:
     isbns_10: Set[str] = field(default_factory=set)
     openlib_cover_ids: Set[str] = field(default_factory=set)
     number_of_pages_median: Optional[int] = None
-    description: Optional[dict[str, str]] = None
+    openlib_description: Optional[str | None] = None
+    openlib_tags: Optional[Set[str]] = field(default_factory=set)
+    remote_links: Optional[dict[str, str]] = None
     first_publish_year: Optional[int] = None
 
     @classmethod
     def from_dict(cls, book_dict: dict) -> "Book":
+        description = cls.get_description(book_dict.get("description", None))
+
         return cls(
             title=book_dict["title"],
             author_names=book_dict["author_names"],
@@ -66,7 +97,9 @@ class Book:
             first_publish_year=book_dict["first_publish_year"],
             openlib_work_key=book_dict["openlib_work_key"],
             openlib_cover_ids=book_dict.get("covers", []),
-            description=book_dict.get("description"),
+            openlib_description=description,
+            openlib_tags=book_dict.get("subjects"),
+            remote_links=book_dict.get("links"),
             number_of_pages_median=book_dict.get("number_of_pages_median", 0),
             isbns_13=book_dict.get("isbns_13", set()),
             isbns_10=book_dict.get("isbns_10", set()),
@@ -75,7 +108,19 @@ class Book:
 
     def to_db_dict(self) -> dict:
         db_dict = asdict(self)
-        return convert_nested_dict_to_json(db_dict)
+        print(db_dict)
+        print(type(db_dict["openlib_cover_ids"]))
+        return map_types_for_db(db_dict)
+
+    @staticmethod
+    def get_description(description_raw: dict | str):
+        if isinstance(description_raw, dict):
+            description = description_raw.get("value")
+        elif isinstance(description_raw, str):
+            description = description_raw
+        else:
+            description = None
+        return description
 
 
 """

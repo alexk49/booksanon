@@ -79,7 +79,7 @@ class OpenLibCaller:
         search_query: Optional[str] = None,
         limit: int = 10,
         lang: str = "en",
-    ) -> List[Dict[str, Any]]:
+    ) -> List[Dict[str, Any]] | None:
         """
         Limit is used as str in search URLs, but is used as int to index on parsers.
 
@@ -115,7 +115,13 @@ class OpenLibCaller:
 
         for book in clean_results:
             complete_book = await self._get_complete_book_data(book)
-            complete_books.append(complete_book)
+
+            if complete_book:
+                complete_books.append(complete_book)
+
+        if not complete_books:
+            print("error getting book data")
+            return None
 
         authors_response_keys = []
 
@@ -136,7 +142,7 @@ class OpenLibCaller:
             pprint.pp(complete_authors)
         return complete_books, complete_authors
 
-    async def _get_complete_book_data(self, book: dict = {}, work_id: str = "") -> dict:
+    async def _get_complete_book_data(self, book: dict = {}, work_id: str = "") -> dict | None:
         """
         Collect data for single book
         """
@@ -162,7 +168,7 @@ class OpenLibCaller:
 
         return book
 
-    async def get_book_data_for_db(self, work_id: str) -> tuple[dict, list]:
+    async def get_book_data_for_db(self, work_id: str) -> tuple[dict, list] | None:
         """
         This parses work id and edition pages, and updates book to match the usual search result response.
 
@@ -328,7 +334,7 @@ class OpenLibCaller:
 
         if book.get("first_publish_year", "") == "":
             first_edition_date = sorted(edition_dates)[0]
-            book.update({"first_publish_year": first_edition_date})
+            book.update({"first_publish_year": int(first_edition_date)})
 
         pages = book.get("number_of_pages_median")
 
@@ -423,8 +429,10 @@ class OpenLibCaller:
             {
                 "title": response.get("title", ""),
                 "authors": response.get("authors", []),
-                "description": response.get("description", {}),
-                "openlib_work_key": response.get("key", "Unknown"),
+                "description": response.get("description", ""),
+                "subjects": response.get("subjects", []),
+                "links": response.get("links", []),
+                "openlib_work_key": response.get("key", ""),
                 "covers": response.get("covers", []),
                 "number_of_pages_median": response.get("number_of_pages_median", 0),
             }

@@ -45,6 +45,9 @@ async def handle_db_args(args):
 
             pprint.pp(book)
 
+            print("inserting book")
+            await db.insert_book(book)
+
             for author_data in complete_authors:
                 author = Author.from_dict(author_data)
 
