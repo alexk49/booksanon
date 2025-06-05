@@ -2,6 +2,8 @@ import json
 from dataclasses import asdict, dataclass, field
 from typing import Set, Optional
 
+from asyncpg import Record
+
 # https://openlibrary.org/search/howto
 
 # works url
@@ -85,6 +87,26 @@ class Book:
     openlib_tags: Optional[Set[str]] = field(default_factory=set)
     remote_links: Optional[dict[str, str]] = None
     first_publish_year: Optional[int] = None
+    created_at: Optional[str] = None
+
+    @classmethod
+    def from_db_record(cls, record: Record) -> "Book":
+        return cls(
+            title=record["title"],
+            author_names=record["author_names"],
+            author_keys=record["author_keys"],
+            openlib_work_key=record["openlib_work_key"],
+            known_publishers=set(record.get("known_publishers", [])),
+            isbns_13=set(record.get("isbns_13", [])),
+            isbns_10=set(record.get("isbns_10", [])),
+            openlib_cover_ids=set(record.get("openlib_cover_ids", [])),
+            number_of_pages_median=record.get("number_of_pages_median"),
+            openlib_description=record.get("openlib_description"),
+            openlib_tags=set(record.get("openlib_tags", [])),
+            remote_links=record.get("remote_links", {}),
+            first_publish_year=record.get("first_publish_year"),
+            created_at=record.get("created_at"),
+        )
 
     @classmethod
     def from_dict(cls, book_dict: dict) -> "Book":
@@ -121,6 +143,46 @@ class Book:
         else:
             description = None
         return description
+    
+    @staticmethod
+    def get_remote_links(remote_links_raw: dict | str):
+        if remote_links_raw:
+            try:
+                remote_links = json.loads(remote_links_raw)
+            except json.JSONDecodeError as err:
+                print("error converrtitng")
+                print(err)
+                remote_links = []
+        else:
+            remote_links = []
+        return remote_links
+
+    @property
+    def author_display(self) -> str:
+        return ", ".join(self.author_names) if self.author_names else "Unknown"
+
+    @property
+    def tags_display(self) -> str:
+        return ", ".join(sorted(self.openlib_tags)) if self.openlib_tags else "No tags"
+
+    @property
+    def publishers_display(self) -> str:
+        return ", ".join(sorted(self.known_publishers)) if self.known_publishers else "Unknown publisher"
+
+    @property
+    def link_outs(self) -> list[dict[str, str]]:
+        print(self.remote_links)
+        print(type(self.remote_links))
+        if self.remote_links:
+            rl = self.get_remote_links(self.remote_links)
+            print(rl)
+            print(type(rl))
+            return [
+                {"text": link.get("title"), "url": link.get("url")}
+                for link in rl 
+                if link.get("title") and link.get("url")
+            ]
+        return []
 
 
 """

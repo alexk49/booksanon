@@ -65,3 +65,17 @@ class DataBase:
                 print("book already exists")
                 return
             return await self.queries.insert_book(conn, **book.to_db_dict())
+
+    async def run_query(self, query_name, **kwargs):
+        """
+        Can be used for most straight forward queries,
+        will have to have matching sql file set.
+
+        Example usage, from application:
+        >>> latest_book_records = await resources.db.run_query("get_most_recent_books")
+        """
+        self.queries = await self.set_queries()
+
+        async with self.pool.acquire() as conn:
+            query_method = getattr(self.queries, query_name)
+            return await query_method(conn, **kwargs)

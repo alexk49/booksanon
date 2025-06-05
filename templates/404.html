@@ -1,9 +1,0 @@
-{% extends "layout.html" %} {% block title %} Page not found {% endblock %} {%
-block main %}
-<h1>Page not found</h1>
-<p id="error-message" class="error-message">{{ error_message }}</p>
-<p>
-  Either go back in your browser or go back
-  <a href="{{ url_for('index') }}">home</a>
-</p>
-{% endblock %}

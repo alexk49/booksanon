@@ -1,59 +1,18 @@
 {% extends "layout.html" %}
-
-{% block title %}Recommendations{% endblock %}
-
 {% block main %}
-<h2>Latest Recommendations</h2>
-<p>BooksAnon is a place to recommend books you like to strangers on the internet. Below are the latest recommendations we have received.</p>
-<p>Add a book to our site via the <a href="/recommend">Recommend page</a> or look through the previous recommendations via the <a href="/history">History page.</a></p>
-<div class="table-container">
-<table class="table">
-    <thead class="table-header">
-        <tr>
-        <th>
-            Cover
-        </th>
-            <th>
-                Title
-            </th>
-            <th>
-                Author
-            </th>
-            <th>
-                Publication date
-            </th>
-            <th>
-                Number of pages
-            </th>
-            <th>
-                Review
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for book in books %}
-        <tr>
-        <td>
-            <img class="cover" src="{{ book["cover_id"] }}" alt="Book cover">
-        </td>
-        <td>
-            <a class="open-lib-link" href="https://openlibrary.org{{ book["work_key"] }}">{{ book["title"] }}</a>
-        </td>
-        <td>
-            {{ book["author"] }}
-        </td>
-        <td>
-            {{ book["pub_year"] }}
-        </td>
-        <td>
-            {{ book["num_of_pages"] }}
-        </td>
-        <td>
-            {{ book["review"] }}
-        </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-</div>
+    {% for book in books %}
+      <div>
+        <h3>{{ book.title }} by {{ book.author_display }}<h3>
+        <p>{{ book.openlib_description }}</p>
+        <div>First published: {{ book.first_publish_year }}</div>
+        <div>Pages: {{ book.number_of_pages_median }}</div>
+        <div>Published by: {{ book.publishers_display }}</div>
+        <div>Tags: {{ book.tags_display }}</div>
+        <div>Link outs:
+          {% for link in book.link_outs %}
+            <a href="{{ link.url }}">{{ link.text }}</a>
+          {% endfor %}
+        </div>
+        <div>First added: {{ book.created_at }}</div>
+    {% endfor %}
 {% endblock %}

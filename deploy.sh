@@ -16,6 +16,13 @@ deploy_db_container_local () {
                 -d postgres
 }
 
+deploy_app_local () {
+    echo "running app locally"
+    source .venv/bin/activate
+    uvicorn src.server.app:app --reload
+}
+
+
 help () {
 
 cat << _EOF_
@@ -52,6 +59,10 @@ while [[ -n "$1" ]]; do
         case "$1" in
             -dbl | --db-local)
                 deploy_db_container_local
+                exit
+                ;;
+            -l | --local)
+                deploy_app_local
                 exit
                 ;;
             -h | --help)

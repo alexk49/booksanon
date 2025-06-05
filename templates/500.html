@@ -1,9 +1,0 @@
-{% extends "layout.html" %} {% block title %} Internal Server Error {% endblock
-%} {% block main %}
-<h1>An unexpected error has occured</h1>
-<p id="error-message" class="error-message">{{ error_message }}</p>
-<p>
-  Go back back in your browser or go back
-  <a href="{{ url_for('index') }}">home</a>.
-</p>
-{% endblock %}
