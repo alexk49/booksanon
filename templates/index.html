@@ -1,18 +1,72 @@
 {% extends "layout.html" %}
+
 {% block main %}
+  <h1>BooksAnon</h1>
+
+  <h2>Latest books</h2>
     {% for book in books %}
-      <div>
-        <h3>{{ book.title }} by {{ book.author_display }}<h3>
-        <p>{{ book.openlib_description }}</p>
-        <div>First published: {{ book.first_publish_year }}</div>
-        <div>Pages: {{ book.number_of_pages_median }}</div>
-        <div>Published by: {{ book.publishers_display }}</div>
-        <div>Tags: {{ book.tags_display }}</div>
-        <div>Link outs:
-          {% for link in book.link_outs %}
-            <a href="{{ link.url }}">{{ link.text }}</a>
-          {% endfor %}
+    <article class="book">
+      <header>
+        <h3>{{ book.title }} by {{ book.author_display }}</h3>
+      </header>
+      <section>
+      <p><strong>OpenLib description:</strong> {{ book.openlib_description }}</p>
+      <dl>
+        <div class="meta-items">
+          <div class="meta-item">
+            <dt><strong>First published:</strong></dt>
+            <dd>{{ book.first_publish_year }}</dd>
+          </div>
+
+          <div class="meta-item">
+            <dt><strong>Pages:</strong></dt>
+            <dd>{{ book.number_of_pages_median }}</dd>
+          </div>
         </div>
-        <div>First added: {{ book.created_at }}</div>
+
+     <dt><strong>Publishers:</strong></dt>
+     <dd class="meta-list">
+         {% set pubs = book.publishers_display %}
+         {% if pubs|length > 5 %}
+             {{ pubs[:5]|join(', ') }}
+             <details class="inline-details">
+                 <summary>see more</summary>
+                 {{ pubs[5:]|join(', ') }}
+             </details>
+         {% elif pubs %}
+             {{ pubs|join(', ') }}
+         {% else %}
+             Unknown publisher
+         {% endif %}
+    </dd>
+
+  <dt><strong>OpenLib Tags:</strong></dt>
+  <dd class="meta-list">
+     {% set tags = book.tags_display %}
+         {% if tags|length > 5 %}
+             {{ tags[:5]|join(', ') }}
+             <details class="inline-details">
+                 <summary>see more</summary>
+                 {{ tags[5:]|join(', ') }}
+             </details>
+         {% elif tags %}
+             {{ tags|join(', ') }}
+         {% else %}
+             No tags
+         {% endif %}
+    </dd>
+
+      <dt><strong>Link outs:</strong></dt>
+      <dd>
+        {% for link in book.link_outs %}
+          <a href="{{ link.url }}">{{ link.text }}</a>
+        {% endfor %}
+      </dd>
+      </dl>
+      </section>
+      <footer>
+        <small>First added: {{ book.created_at }}</small>
+      </footer>
+    </article>
     {% endfor %}
 {% endblock %}

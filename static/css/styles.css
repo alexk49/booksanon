@@ -7,14 +7,54 @@
 /* fonts and background */
 
 html {
-  font-family: sans-serif;
-  line-height: 1.15;
+  font-family: "Helvetica", "Arial", sans-serif, system-ui;
 }
 
 body {
-  background-color: #e9e9e7;
-  color: #494746;
-  font-size: 1rem;
+  margin: 0 auto;
+  max-width: 70em;
+  line-height: 1.5;
+  padding: 0.25em 0.25em;
+  min-height: 100vh;
+  font-size: 1em;
+}
+
+.book {
+  display: flex;
+  flex-direction: column;
+}
+
+.meta-items, .meta-item {
+  display: flex;
+  gap: 0.25rem;
+  align-items: baseline;
+}
+
+.meta-items {
+  gap: 1rem;
+}
+
+.meta-item dt,
+.meta-item dd {
+  margin: 0;
+}
+
+.meta-list {
+  font-size: 0.75em;
+}
+
+.hidden {
+  display: none;
+}
+
+.toggle-button {
+  background: none;
+  border: none;
+  color: #0056b3;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+  text-decoration: underline;
 }
 
 /* images */

@@ -163,11 +163,19 @@ class Book:
 
     @property
     def tags_display(self) -> str:
-        return ", ".join(sorted(self.openlib_tags)) if self.openlib_tags else "No tags"
+        if not self.openlib_tags:
+            return []
+        return sorted(self.openlib_tags)
 
     @property
-    def publishers_display(self) -> str:
-        return ", ".join(sorted(self.known_publishers)) if self.known_publishers else "Unknown publisher"
+    def publishers_display(self) -> list[str]:
+        """
+        Returns the set of known publishers as a sorted list,
+        ready for display and slicing in a template.
+        """
+        if not self.known_publishers:
+            return []
+        return sorted(self.known_publishers)
 
     @property
     def link_outs(self) -> list[dict[str, str]]:
