@@ -1,9 +1,7 @@
 import os
 import pprint
-from pathlib import Path
-import aiosql
-import asyncpg
 
+from repositories import repositories
 from calls.client import Client
 from calls.openlib import OpenLibCaller
 from db import DataBase
@@ -33,7 +31,7 @@ async def handle_db_args(args):
 
     async with DataBase(user=POSTGRES_USERNAME, password=POSTGRES_PASSWORD, url=POSTGRES_URL) as db:
         if args.create_schema:
-            await db.create_schema()
+            await repositories.create_schema(db)
 
         if args.add_book:
             client = Client(email=os.environ.get("EMAIL_ADDRESS"))
@@ -46,7 +44,7 @@ async def handle_db_args(args):
             pprint.pp(book)
 
             print("inserting book")
-            await db.insert_book(book)
+            await repositories.insert_book(db, book)
 
             for author_data in complete_authors:
                 author = Author.from_dict(author_data)
@@ -54,25 +52,4 @@ async def handle_db_args(args):
                 pprint.pp(author)
 
                 print("inserting author")
-                await db.insert_author(author)
-
-
-async def create_schema(user, password, url):
-    conn = await get_conn(user, password, url)
-    queries = await load_queries()
-    await queries.create_schema(conn)
-    await conn.close()
-
-
-async def get_conn(user: str, password: str, url: str):
-    if not user or not password or not url:
-        print("unable to connect, invalid credentials")
-        return None
-
-    return await asyncpg.connect(f"postgresql://{user}:{password}@{url}")
-
-
-async def load_queries():
-    dir_path = Path(__file__).parent
-    queries = aiosql.from_path(dir_path / "sql", driver_adapter="asyncpg")
-    return queries
+                await repositories.insert_author(db, author)

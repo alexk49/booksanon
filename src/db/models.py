@@ -85,7 +85,7 @@ class Book:
     number_of_pages_median: Optional[int] = None
     openlib_description: Optional[str | None] = None
     openlib_tags: Optional[Set[str]] = field(default_factory=set)
-    remote_links: Optional[dict[str, str]] = None
+    remote_links: Optional[list[dict[str, str]]] = None
     first_publish_year: Optional[int] = None
     created_at: Optional[str] = None
 
@@ -109,6 +109,13 @@ class Book:
         )
 
     @classmethod
+    def from_db_records(cls, records: list[Record]) -> list["Book"]:
+        """
+        Converts an iterable of database records into a list of Book objects.
+        """
+        return [cls.from_db_record(r) for r in records]
+
+    @classmethod
     def from_dict(cls, book_dict: dict) -> "Book":
         description = cls.get_description(book_dict.get("description", None))
 
@@ -130,8 +137,6 @@ class Book:
 
     def to_db_dict(self) -> dict:
         db_dict = asdict(self)
-        print(db_dict)
-        print(type(db_dict["openlib_cover_ids"]))
         return map_types_for_db(db_dict)
 
     @staticmethod
@@ -143,15 +148,14 @@ class Book:
         else:
             description = None
         return description
-    
+
     @staticmethod
-    def get_remote_links(remote_links_raw: dict | str):
+    def get_remote_links(remote_links_raw: str) -> list[dict[str, str]]:
         if remote_links_raw:
             try:
                 remote_links = json.loads(remote_links_raw)
             except json.JSONDecodeError as err:
-                print("error converrtitng")
-                print(err)
+                print(f"error converting: {err}")
                 remote_links = []
         else:
             remote_links = []
@@ -162,7 +166,7 @@ class Book:
         return ", ".join(self.author_names) if self.author_names else "Unknown"
 
     @property
-    def tags_display(self) -> str:
+    def tags_display(self) -> list[str]:
         if not self.openlib_tags:
             return []
         return sorted(self.openlib_tags)
@@ -178,16 +182,15 @@ class Book:
         return sorted(self.known_publishers)
 
     @property
-    def link_outs(self) -> list[dict[str, str]]:
-        print(self.remote_links)
-        print(type(self.remote_links))
+    def link_outs(self) -> list[dict[str, str | None]]:
         if self.remote_links:
-            rl = self.get_remote_links(self.remote_links)
-            print(rl)
-            print(type(rl))
+            if isinstance(self.remote_links, str):
+                rl: list = self.get_remote_links(self.remote_links)
+            else:
+                rl = self.remote_links
             return [
                 {"text": link.get("title"), "url": link.get("url")}
-                for link in rl 
+                for link in rl
                 if link.get("title") and link.get("url")
             ]
         return []
