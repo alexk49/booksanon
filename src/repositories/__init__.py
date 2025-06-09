@@ -1,3 +1,3 @@
-from repositories import repositories
+from .book_repository import BookRepository
 
-__all__ = ["repositories"]
+__all__ = ["BookRepository"]

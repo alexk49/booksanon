@@ -6,6 +6,6 @@ static = StaticFiles(directory=str(settings.STATIC_DIR))
 
 routes = [
     Route("/", views.home, name="home"),
-    Route("/addbooks", views.add_books, name="add_books"),
+    Route("/addbook", views.add_book, name="add_book"),
     Mount("/static", static, name="static"),
 ]

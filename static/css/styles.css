@@ -39,7 +39,7 @@ body {
   margin: 0;
 }
 
-.meta-list {
+.meta-list, .tooltip {
   font-size: 0.75em;
 }
 
@@ -234,4 +234,10 @@ td {
   border: solid 1px;
   word-wrap: break-word;
   padding: 5px;
+}
+
+.submit-button {
+  padding: 10px;
+  margin-bottom: 20px;
+  margin-left: 10px;
 }

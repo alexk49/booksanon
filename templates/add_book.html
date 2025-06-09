@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+  {% block title %} - Add book{% endblock %}
+
+{% block main %}
+    <h1>Add a book to the site</h1>
+      <p>
+      This search uses the
+      <a href="https://www.openlibrary.org">Open Library</a> for results. There
+      are a lot of books in the world, so the more specific you can make your
+      search query the better your results will be. "Harry Potter and the Philosopher's
+      Stone Rowling" is a better search than just "Harry Potter".
+    </p>
+    <p>
+      This form submits your query to the
+      <a href="https://openlibrary.org/developers/api">Open Library API</a> and,
+      it will return a maximum of 10 results. Then you can then
+      verify the single book you want to submit to the site, and write your review for it.
+    </p>
+  <form id="search-form" method="post" action="/search_book">
+    <div class="search-field">
+      <input
+        autocomplete="off"
+        autofocus
+        id="search-term"
+        name="search-term"
+        placeholder="Enter book"
+        type="text"
+      />
+      <input type="submit" name="Search" value="Search" />
+      <div class="tooltip">
+        title, author, ISBN etc.
+      </div>
+  </form>
+{% endblock %}

@@ -20,6 +20,7 @@ class DataBase:
     async def start_up(self):
         self.pool = await asyncpg.create_pool(dsn=self.dsn)
         self.queries = await self.set_queries()
+        await self.create_schema()
 
     async def set_queries(self):
         if self.queries is None:
@@ -36,11 +37,14 @@ class DataBase:
         Can be used for most straight forward queries,
         will have to have matching sql file set.
 
-        Example usage, from application:
-        >>> latest_book_records = await resources.db.run_query("get_most_recent_books")
+        Expectation is to be called from repositories modules
         """
         self.queries = await self.set_queries()
 
         async with self.pool.acquire() as conn:
             query_method = getattr(self.queries, query_name)
             return await query_method(conn, **kwargs)
+
+    async def create_schema(self):
+        print("setting up db schema")
+        await self.run_query("create_schema")
