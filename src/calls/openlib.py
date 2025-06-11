@@ -98,12 +98,12 @@ class OpenLibCaller:
         else:
             raise ValueError("Must provide either title/author or general search_query")
 
-        results = await self.client.fetch_results(url)
+        response = await self.client.fetch_results(url)
 
-        if not results:
+        if not response:
             return None
 
-        clean_results = OpenLibCaller.parse_books_search_results(results, limit)
+        clean_results = self.parse_books_search_results(response=response, limit=limit)
 
         if self.pprint:
             pprint.pp(clean_results)
@@ -351,27 +351,43 @@ class OpenLibCaller:
         print(f"showing {num_of_results}")
         return num_of_results
 
-    @staticmethod
-    def parse_books_search_results(response: dict, limit: int | None = None) -> List[Dict[str, Any]]:
+    def parse_books_search_results(self, response: dict, limit: int | None = None) -> List[Dict[str, Any]]:
         books: list = []
 
-        if limit:
-            num_of_results: int = len(response["docs"][0:limit])
-        else:
-            num_of_results = len(response["docs"])
+        print(f"response: {response}")
+        num_of_results: int = response.get("num_found")
 
-        for num in range(num_of_results):
+        if not num_of_results:
+            num_of_results: int = len(response["docs"][0:limit])
+
+        if limit and (limit > num_of_results):
+            counter = limit
+        else:
+            counter = num_of_results
+
+        for num in range(counter):
             book: dict = response["docs"][num]
-            books.append(
-                {
-                    "title": book.get("title", "Unknown"),
-                    "author_names": book.get("author_name", []),
-                    "author_keys": book.get("author_key", []),
-                    "first_publish_year": book.get("first_publish_year", "Unknown"),
-                    "openlib_work_key": book.get("key", "Unknown"),
-                    "cover_id": [book.get("cover_i")],
-                }
-            )
+
+            title = book.get("title", "Unknown")
+            first_publish_year = book.get("first_publish_year", "Unknown")
+            openlib_work_key = book.get("key")
+
+            if not openlib_work_key:
+                continue
+
+            if self.validate_book(title, first_publish_year, books):
+
+                books.append(
+                    {
+                        "title": title,
+                        "author_names": book.get("author_name", []),
+                        "author_keys": book.get("author_key", []),
+                        "first_publish_year": first_publish_year,
+                        "number_of_pages": book.get("number_of_pages_median", 0),
+                        "openlib_work_key": book.get("key", "Unknown"),
+                        "cover_id": [book.get("cover_i")],
+                    }
+                )
 
         return books
 
@@ -439,3 +455,16 @@ class OpenLibCaller:
         )
 
         return book
+
+    @staticmethod
+    def validate_book(title: str, first_publish_year: str | int, books: list[dict]) -> bool:
+        """
+        Used to help filter results. If book already exists in given books list, then older publish year is prefered.
+        """
+        for book in books:
+            try:
+                if (book["title"] == title) and (int(book["first_publish_year"]) <= int(first_publish_year)):
+                    return False
+            except Exception as err:
+                print(f"error filter books. Current book: {book}, checking title: {title}, checking year: {first_publish_year}: error: {err}")
+        return True

@@ -16,13 +16,13 @@
       it will return a maximum of 10 results. Then you can then
       verify the single book you want to submit to the site, and write your review for it.
     </p>
-  <form id="search-form" method="post" action="/search_book">
+  <form id="search-form" method="post" action="/search_books">
     <div class="search-field">
       <input
         autocomplete="off"
         autofocus
-        id="search-term"
-        name="search-term"
+        id="search-query"
+        name="search-query"
         placeholder="Enter book"
         type="text"
       />
@@ -30,5 +30,6 @@
       <div class="tooltip">
         title, author, ISBN etc.
       </div>
+      <div id="results"></div>
   </form>
 {% endblock %}
