@@ -44,7 +44,7 @@ body {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .toggle-button {
@@ -57,14 +57,8 @@ body {
   text-decoration: underline;
 }
 
-/* images */
-
-img {
-  display: block;
-  max-width: 100%;
-}
-
 /* center cover images */
+
 .cover {
   margin-left: auto;
   margin-right: auto;
@@ -240,4 +234,62 @@ td {
   padding: 10px;
   margin-bottom: 20px;
   margin-left: 10px;
+}
+
+
+/* book display on search results */
+
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.book-card p, .book-card h3 {
+  line-height: 1;
+  padding: 0.2rem;
+  margin: 0 auto;
+}
+
+.book-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: flex;
+  text-align: center;
+  justify-content:  center;
+  padding: 1rem;
+  max-width: 100%;
+  flex-wrap: wrap;
+  padding: 1rem;
+}
+
+.book-meta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 60%;
+  gap: 0.2rem;
+}
+
+.img-wrapper {
+  flex: 0 0 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 40%;
+}
+
+.img-wrapper img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.book-card button {
+  align-self: center;
+  width: auto;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
 }

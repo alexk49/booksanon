@@ -30,6 +30,16 @@
       <div class="tooltip">
         title, author, ISBN etc.
       </div>
-      <div id="results"></div>
+    </div>
   </form>
+  <div id="results" class="book-grid"></div>
+  <div id="review-form" class="hidden">
+  <button id="back-btn">← Back</button>
+    <div id="review-card-container" class="book-grid"></div>
+    <h2 id="review-title">Review</h2>
+    <form id="submit-form" method="post" action="/submit_book">
+      <textarea name="review" rows="6" cols="50" placeholder="Write your review here..."></textarea><br>
+      <button type="submit">Submit Review</button>
+    </form>
+  </div>
 {% endblock %}
