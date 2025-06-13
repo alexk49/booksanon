@@ -48,13 +48,14 @@ function switchToResultsView(resultsDivEl, formEl) {
 }
 
 function switchToReviewView(
-  { resultsDivEl, reviewCardContainerEl, reviewFormEl },
+  { resultsDivEl, reviewCardContainerEl, reviewFormEl, reviewHiddenIdEl },
   card,
 ) {
   resultsDivEl.classList.add("hidden");
   reviewCardContainerEl.innerHTML = "";
   reviewCardContainerEl.appendChild(card);
   reviewFormEl.classList.remove("hidden");
+  reviewHiddenIdEl.textContent = card.getElementById("openlib_id").innerText;
 }
 
 function setUpSelectBtn(card, selectBtnEl, ui) {
@@ -107,6 +108,9 @@ function createBookCardEl(book, ui) {
 
   const openLibLink = getOpenLibLink(book.openlib_work_key);
   bookMetaEl.appendChild(createOpenLibLinkEl(openLibLink));
+
+  const hiddenIdEl = createHiddenIdEl(book.openlib_work_key);
+  bookMetaEl.appendChild(hiddenIdEl);
 
   const selectBtnEl = createSelectBtnEl();
   setUpSelectBtn(card, selectBtnEl, ui);
@@ -182,6 +186,13 @@ function createPageNumEl(pageNum) {
   }
 }
 
+function createHiddenIdEl(openLibWorkKey) {
+  const hiddenIdEl = createElWithClass("div", "hidden")
+  hiddenIdEl.innerText = openLibWorkKey;
+  hiddenIdEl.id = "openlib_id";
+  return hiddenIdEl
+}
+
 function createCardViewController() {
   let previousCardParent = null;
   let previousCardNextSibling = null;
@@ -214,6 +225,7 @@ function main() {
     resultsDivEl: document.getElementById("results"),
     reviewFormEl: document.getElementById("review-form"),
     reviewCardContainerEl: document.getElementById("review-card-container"),
+    reviewHiddenIdEl : document.getElementById("openlib-id-hidden");
     searchFormEl: document.getElementById("search-form"),
     cardViewController: createCardViewController(),
   };
