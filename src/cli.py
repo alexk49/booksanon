@@ -45,6 +45,12 @@ def run_py_linters():
     run_command(["mypy", "."])
 
 
+def run_js_linters():
+    run_command(["npm", "run", "lint"])
+
+    run_command(["npm", "run", "format"])
+
+
 async def async_main():
     parser = set_arg_parser()
     args = parser.parse_args()
@@ -71,6 +77,8 @@ async def async_main():
         await handle_db_args(args)
     if args.command == "lint":
         run_py_linters()
+
+        run_js_linters()
 
     if args.command == "test":
         run_command([sys.executable, "-m", "unittest", "discover", "-v"])

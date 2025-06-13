@@ -9,6 +9,7 @@ templates = Jinja2Templates(directory=str(settings.TEMPLATES_DIR))
 
 """ html page routes """
 
+
 async def home(request: Request):
     template = "index.html"
     books = await resources.book_repo.get_most_recent_books(resources.db)
@@ -30,4 +31,16 @@ async def search_books(request):
     search_query = form.get("search-query")
     results = await resources.openlib_caller.search_books(search_query=search_query, limit=10)
 
+    return JSONResponse({"success": True, "results": results})
+
+
+async def submit_book(request):
+    form = await request.form()
+
+    openlib_id = form.get("openlib_id_hidden")
+    review = form.get("review")
+
+    print(openlib_id)
+    print(review)
+    results = {"openlib_id": openlib_id, "review": review}
     return JSONResponse({"success": True, "results": results})

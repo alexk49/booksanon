@@ -55,7 +55,7 @@ function switchToReviewView(
   reviewCardContainerEl.innerHTML = "";
   reviewCardContainerEl.appendChild(card);
   reviewFormEl.classList.remove("hidden");
-  reviewHiddenIdEl.textContent = card.getElementById("openlib_id").innerText;
+  reviewHiddenIdEl.value = card.querySelector(".openlib_id").innerText;
 }
 
 function setUpSelectBtn(card, selectBtnEl, ui) {
@@ -187,10 +187,10 @@ function createPageNumEl(pageNum) {
 }
 
 function createHiddenIdEl(openLibWorkKey) {
-  const hiddenIdEl = createElWithClass("div", "hidden")
+  const hiddenIdEl = createElWithClass("div", "hidden");
   hiddenIdEl.innerText = openLibWorkKey;
-  hiddenIdEl.id = "openlib_id";
-  return hiddenIdEl
+  hiddenIdEl.classList.add("openlib_id");
+  return hiddenIdEl;
 }
 
 function createCardViewController() {
@@ -225,7 +225,7 @@ function main() {
     resultsDivEl: document.getElementById("results"),
     reviewFormEl: document.getElementById("review-form"),
     reviewCardContainerEl: document.getElementById("review-card-container"),
-    reviewHiddenIdEl : document.getElementById("openlib-id-hidden");
+    reviewHiddenIdEl: document.getElementById("openlib-id-hidden"),
     searchFormEl: document.getElementById("search-form"),
     cardViewController: createCardViewController(),
   };

@@ -355,10 +355,10 @@ class OpenLibCaller:
         books: list = []
 
         print(f"response: {response}")
-        num_of_results: int = response.get("num_found")
+        num_of_results: int | None = response.get("num_found")
 
         if not num_of_results:
-            num_of_results: int = len(response["docs"][0:limit])
+            num_of_results = len(response["docs"][0:limit])
 
         if limit and (limit > num_of_results):
             counter = limit
@@ -376,7 +376,6 @@ class OpenLibCaller:
                 continue
 
             if self.validate_book(title, first_publish_year, books):
-
                 books.append(
                     {
                         "title": title,
@@ -466,5 +465,7 @@ class OpenLibCaller:
                 if (book["title"] == title) and (int(book["first_publish_year"]) <= int(first_publish_year)):
                     return False
             except Exception as err:
-                print(f"error filter books. Current book: {book}, checking title: {title}, checking year: {first_publish_year}: error: {err}")
+                print(
+                    f"error filter books. Current book: {book}, checking title: {title}, checking year: {first_publish_year}: error: {err}"
+                )
         return True
