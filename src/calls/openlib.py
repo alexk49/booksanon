@@ -18,6 +18,7 @@ Cover Ids can be read into URLs with:
 """
 
 import pprint
+import re
 from statistics import median
 from typing import Any, Dict, List, Optional, Set
 
@@ -469,3 +470,9 @@ class OpenLibCaller:
                     f"error filter books. Current book: {book}, checking title: {title}, checking year: {first_publish_year}: error: {err}"
                 )
         return True
+
+
+def validate_openlib_work_id(openlib_work_id: str):
+    work_id = openlib_work_id.replace("/works/", "")
+    id_regex = re.compile(r"OL[0-9]+W", re.IGNORECASE)
+    return bool(re.search(id_regex, work_id.strip()))

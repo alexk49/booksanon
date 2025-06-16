@@ -1,3 +1,15 @@
+async function fetchServerData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    let err_msg = `Error fetching data from: ${url}, ${error}`;
+    console.error(err_msg);
+    return { success: "false", message: err_msg };
+  }
+}
+
 async function fetchFormResponse(url, formData) {
   try {
     const response = await fetch(url, {
@@ -220,6 +232,22 @@ function createCardViewController() {
   };
 }
 
+async function getCSRF() {
+  const result = await fetchServerData("/csrf_token");
+  return result.csrf_token;
+}
+
+async function populateCsrfTokens() {
+  const tokenEls = document.querySelectorAll(".csrf-token");
+
+  if (tokenEls) {
+    const token = await getCSRF();
+    tokenEls.forEach((tokenEl) => {
+      tokenEl.value = token;
+    });
+  }
+}
+
 function main() {
   const ui = {
     resultsDivEl: document.getElementById("results"),
@@ -229,6 +257,8 @@ function main() {
     searchFormEl: document.getElementById("search-form"),
     cardViewController: createCardViewController(),
   };
+
+  populateCsrfTokens();
 
   setUpBackBtn(ui);
 

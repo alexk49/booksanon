@@ -1,11 +1,17 @@
+from collections.abc import Callable
+import secrets
+from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.templating import Jinja2Templates
+from .form_validators import book_submit_fields, clean_results, get_errors, search_form_fields, validate_form
 from . import settings
 from . import resources
+from .tasks import fetch_and_store_book_data
 
 
 templates = Jinja2Templates(directory=str(settings.TEMPLATES_DIR))
+
 
 """ html page routes """
 
@@ -18,6 +24,8 @@ async def home(request: Request):
 
 
 async def add_book(request: Request):
+    if "session_id" not in request.session:
+        request.session["session_id"] = await create_csrf_token(request)
     template = "add_book.html"
     context = {"request": request}
     return templates.TemplateResponse(template, context=context)
@@ -27,20 +35,58 @@ async def add_book(request: Request):
 
 
 async def search_books(request):
-    form = await request.form()
-    search_query = form.get("search-query")
-    results = await resources.openlib_caller.search_books(search_query=search_query, limit=10)
+    async def on_success(clean_form):
+        results = await resources.openlib_caller.search_books(search_query=clean_form["search_query"], limit=10)
+        return JSONResponse({"success": True, "results": results})
 
-    return JSONResponse({"success": True, "results": results})
+    return await handle_form(request, search_form_fields, on_success)
 
 
 async def submit_book(request):
-    form = await request.form()
+    async def on_success(clean):
+        task = BackgroundTask(fetch_and_store_book_data, openlib_id=clean["openlib_id_hidden"], review=clean["review"])
+        return JSONResponse(
+            {"success": True, "message": "Thank you! Your submission is being processed."}, background=task
+        )
 
-    openlib_id = form.get("openlib_id_hidden")
-    review = form.get("review")
+    return await handle_form(request, book_submit_fields, on_success)
 
-    print(openlib_id)
-    print(review)
-    results = {"openlib_id": openlib_id, "review": review}
-    return JSONResponse({"success": True, "results": results})
+
+async def set_csrf_token(request: Request):
+    if "session_id" not in request.session:
+        csrf_token = await create_csrf_token(request)
+        request.session["session_id"] = csrf_token
+    else:
+        csrf_token = request.session["session_id"]
+    return JSONResponse({"csrf_token": csrf_token})
+
+
+""" helper functions """
+
+
+async def handle_form(request: Request, form_fields: dict, on_success: Callable):
+    """
+    Generic form handler, which requires on_success function from original view to be passed
+    """
+    form = dict(await request.form())
+    session_token = request.session.get("session_id", "")
+
+    result = validate_form(form, session_token, form_fields)
+    errors = get_errors(result)
+
+    if errors:
+        return JSONResponse(
+            {
+                "success": False,
+                "message": "There have been errors with your form.",
+                "errors": errors,
+            },
+            status_code=400,
+        )
+
+    clean = clean_results(result)
+    return await on_success(clean)
+
+
+async def create_csrf_token(request: Request):
+    return secrets.token_urlsafe(32)
