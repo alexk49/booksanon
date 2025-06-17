@@ -1,9 +1,12 @@
-from collections.abc import Callable
+import uuid
 import secrets
+from collections.abc import Callable
+
 from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.templating import Jinja2Templates
+
 from .form_validators import book_submit_fields, clean_results, get_errors, search_form_fields, validate_form
 from . import settings
 from . import resources
@@ -31,6 +34,12 @@ async def add_book(request: Request):
     return templates.TemplateResponse(template, context=context)
 
 
+async def submission(request: Request):
+    template = "submission.html"
+    context = {"request": request}
+    return templates.TemplateResponse(template, context=context)
+
+
 """ API routes """
 
 
@@ -44,9 +53,15 @@ async def search_books(request):
 
 async def submit_book(request):
     async def on_success(clean):
+        submission_id = str(uuid.uuid4())
         task = BackgroundTask(fetch_and_store_book_data, openlib_id=clean["openlib_id_hidden"], review=clean["review"])
         return JSONResponse(
-            {"success": True, "message": "Thank you! Your submission is being processed."}, background=task
+            {
+                "success": True,
+                "message": "Thanks for adding a review! Your submission is being processed.",
+                "submission_id": submission_id,
+            },
+            background=task,
         )
 
     return await handle_form(request, book_submit_fields, on_success)
