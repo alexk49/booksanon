@@ -2,17 +2,18 @@
 import asyncio
 import argparse
 import os
-import subprocess
 import sys
 
 from dotenv import load_dotenv
 
 from calls.cli import define_call_args, call_open_lib, call_google_books
 from db.cli import define_db_args, handle_db_args
+from utils import run_command
 
 
 def set_arg_parser():
     parser = argparse.ArgumentParser(description="Booksanon cli")
+
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     call_parser = subparsers.add_parser("call", help="Call the book search APIs")
@@ -26,15 +27,6 @@ def set_arg_parser():
     subparsers.add_parser("test", help="Run project tests")
 
     return parser
-
-
-def run_command(command, check=True):
-    try:
-        print(f"Running: {' '.join(command)}")
-        subprocess.run(command, check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed: {' '.join(command)}: {e}")
-        sys.exit(e.returncode)
 
 
 def run_py_linters():

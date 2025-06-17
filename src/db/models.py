@@ -82,6 +82,7 @@ class Book:
     isbns_13: Set[str] = field(default_factory=set)
     isbns_10: Set[str] = field(default_factory=set)
     openlib_cover_ids: Set[str] = field(default_factory=set)
+    id: Optional[int] = None  # only exists reading from db
     number_of_pages_median: Optional[int] = None
     openlib_description: Optional[str | None] = None
     openlib_tags: Optional[Set[str]] = field(default_factory=set)
@@ -92,6 +93,7 @@ class Book:
     @classmethod
     def from_db_record(cls, record: Record) -> "Book":
         return cls(
+            id=record["id"],
             title=record["title"],
             author_names=record["author_names"],
             author_keys=record["author_keys"],

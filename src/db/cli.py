@@ -1,11 +1,13 @@
 import os
 import pprint
+import sys
 
 from repositories import BookRepository
 from calls.client import Client
 from calls.openlib import OpenLibCaller
 from db import DataBase
 from db.models import Book, Author
+from utils import run_command
 
 
 def define_db_args(db_parser):
@@ -21,6 +23,12 @@ def define_db_args(db_parser):
         type=str,
         help="Pass Openlib work ID as str, to have book added to database.",
     )
+    db_parser.add_argument(
+        "-i",
+        "--interact",
+        action="store_true",
+        help="Start interactive sql session",
+    )
     return db_parser
 
 
@@ -28,6 +36,10 @@ async def handle_db_args(args):
     POSTGRES_USERNAME = os.environ.get("POSTGRES_USERNAME")
     POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
     POSTGRES_URL = os.environ.get("POSTGRES_URL")
+
+    if args.interact:
+        run_command(["docker", "exec", "-it", "booksanon-db", "psql", "-U", POSTGRES_USERNAME])
+        sys.exit(0)
 
     async with DataBase(user=POSTGRES_USERNAME, password=POSTGRES_PASSWORD, url=POSTGRES_URL) as db:
         book_repo = BookRepository(db=db)

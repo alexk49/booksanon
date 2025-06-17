@@ -28,3 +28,24 @@ CREATE TABLE IF NOT EXISTS books (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS reviews (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    book_id INTEGER REFERENCES books(id),
+    content TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_tags (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    book_id INTEGER REFERENCES books(id),
+    tag TEXT NOT NULL,
+    UNIQUE(user_id, book_id, tag)
+);

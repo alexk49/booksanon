@@ -1,6 +1,9 @@
 -- name: get_book_by_openlib_work_key
 SELECT * FROM books WHERE openlib_work_key = :openlib_work_key;
 
+-- name: get_book_id_by_openlib_work_key
+SELECT id FROM books WHERE openlib_work_key = :openlib_work_key;
+
 -- name: get_most_recent_books
 SELECT * FROM books ORDER BY updated_at DESC LIMIT 10;
 
@@ -35,3 +38,4 @@ INSERT INTO books (
     :remote_links
 )
 ON CONFLICT (openlib_work_key) DO NOTHING;
+RETURNING id;
