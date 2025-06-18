@@ -61,7 +61,8 @@ function main() {
   populateCsrfTokens();
 
   const ui = {
-    resultsDivEl: document.getElementById("results"),
+    searchContainer: document.getElementById("search"),
+    resultsContainer: document.getElementById("results"),
     reviewFormContainerEl: document.getElementById("review-form"),
     reviewCardContainerEl: document.getElementById("review-card-container"),
     reviewHiddenIdEl: document.getElementById("openlib-id-hidden"),

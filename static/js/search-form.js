@@ -4,13 +4,13 @@ import { createBookCardEl } from "./book-cards.js";
 export function setUpSearchForm(ui) {
   ui.searchFormEl.addEventListener("submit", async function (e) {
     const response = await handleFormSubmission(e, this, "/search_books");
-    const books = getBookDataFromResponse(response, ui.resultsDivEl);
+    const books = getBookDataFromResponse(response, ui.resultsContainer);
 
     books.forEach((book) => {
       const card = createBookCardEl(book);
       const selectBtnEl = card.querySelector(".select-book-btn");
       setUpSelectBtn(card, selectBtnEl, ui);
-      ui.resultsDivEl.appendChild(card);
+      ui.resultsContainer.appendChild(card);
     });
   });
 }
@@ -22,47 +22,46 @@ export function setUpSelectBtn(card, selectBtnEl, ui) {
   });
 }
 
-export function getBookDataFromResponse(response, resultsDivEl) {
+export function getBookDataFromResponse(response, resultsContainer) {
   if (response && Array.isArray(response.results)) {
-    resultsDivEl.innerHTML = "";
+    resultsContainer.innerHTML = "";
     return response.results;
   } else {
-    resultsDivEl.innerText = "No results found.";
+    resultsContainer.innerText = "No results found.";
     return null;
   }
 }
 
-export function setUpBackBtn(
-  {
-    cardViewController,
-    resultsDivEl,
-    reviewFormContainerEl,
-    reviewCardContainerEl,
-  },
-  backBtnEl,
-) {
+export function setUpBackBtn(ui, backBtnEl) {
   backBtnEl.addEventListener("click", () => {
-    const bookCard = reviewCardContainerEl.querySelector(".book-card");
-    cardViewController.restoreCard(bookCard);
-    switchToResultsView(resultsDivEl, reviewFormContainerEl);
+    const bookCard = ui.reviewCardContainerEl.querySelector(".book-card");
+    ui.cardViewController.restoreCard(bookCard);
+    switchToResultsView(ui);
   });
 }
 
-export function switchToResultsView(resultsDivEl, formEl) {
-  resultsDivEl.classList.remove("hidden");
-  formEl.classList.add("hidden");
+export function switchToResultsView({
+  searchContainer,
+  resultsContainer,
+  reviewFormContainerEl,
+}) {
+  searchContainer.classList.remove("hidden");
+  resultsContainer.classList.remove("hidden");
+  reviewFormContainerEl.classList.add("hidden");
 }
 
 export function switchToReviewView(
   {
-    resultsDivEl,
+    searchContainer,
+    resultsContainer,
     reviewCardContainerEl,
     reviewFormContainerEl,
     reviewHiddenIdEl,
   },
   card,
 ) {
-  resultsDivEl.classList.add("hidden");
+  searchContainer.classList.add("hidden");
+  resultsContainer.classList.add("hidden");
   reviewCardContainerEl.innerHTML = "";
   reviewCardContainerEl.appendChild(card);
   reviewFormContainerEl.classList.remove("hidden");

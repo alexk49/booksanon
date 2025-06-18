@@ -34,7 +34,7 @@ function createSubmissionEl(submission) {
 }
 
 function main() {
-  const submissionsEl = document.getElementById("submission-message");
+  const submissionsEl = document.getElementById("submissions-container");
 
   if (submissionsEl) {
     renderSubmissions(submissionsEl);

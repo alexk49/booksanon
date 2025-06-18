@@ -4,6 +4,7 @@
 
 {% block main %}
     <h1>Add a book to the site</h1>
+    <section id="search">
       <p>
       This search uses the
       <a href="https://www.openlibrary.org">Open Library</a> for results. There
@@ -34,8 +35,9 @@
       </div>
     </div>
   </form>
-  <div id="results" class="book-grid"></div>
-  <div id="review-form" class="hidden">
+  </section>
+  <section id="results" class="book-grid"></section>
+  <section id="review-form" class="hidden">
   <button id="back-btn">← Back</button>
     <div id="review-card-container" class="book-grid"></div>
     <h2 id="review-title">Review</h2>
@@ -45,5 +47,5 @@
       <input type="hidden" name="openlib_id_hidden" id="openlib-id-hidden"> 
       <input type="hidden" name="csrf_token" class="csrf-token"> 
     </form>
-  </div>
+  </section>
 {% endblock %}
