@@ -19,7 +19,7 @@ body {
   font-size: 1em;
 }
 
-.book {
+.book-review {
   display: flex;
   flex-direction: column;
 }

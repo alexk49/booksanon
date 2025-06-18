@@ -21,15 +21,15 @@ templates = Jinja2Templates(directory=str(settings.TEMPLATES_DIR))
 
 async def home(request: Request):
     template = "index.html"
-    books = await resources.book_repo.get_most_recent_books(resources.db)
-    context = {"request": request, "books": books}
+    reviews = await resources.book_repo.get_most_recent_book_reviews(resources.db)
+    context = {"request": request, "reviews": reviews}
     return templates.TemplateResponse(template, context=context)
 
 
 async def add_book(request: Request):
     if "session_id" not in request.session:
         request.session["session_id"] = await create_csrf_token(request)
-    template = "add_book.html"
+    template = "add-book.html"
     context = {"request": request}
     return templates.TemplateResponse(template, context=context)
 

@@ -1,7 +1,7 @@
 from asyncpg import Record
 
 from db import DataBase
-from db.models import Author, Book
+from db.models import Author, Book, Review
 from repositories.utils import one_or_none
 
 
@@ -25,7 +25,11 @@ class BookRepository:
 
     """ Get or read values """
 
-    async def get_most_recent_books(self, limit: int = 20) -> list[Book]:
+    async def get_most_recent_book_reviews(self, limit: int = 10) -> list[Book]:
+        records = await self.db.run_query("get_most_recent_book_reviews", limit=limit)
+        return Review.from_db_records(records)
+
+    async def get_most_recent_books(self, limit: int = 10) -> list[Book]:
         records = await self.db.run_query("get_most_recent_books", limit=limit)
         return Book.from_db_records(records)
 

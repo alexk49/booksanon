@@ -89,15 +89,16 @@ class Book:
     remote_links: Optional[list[dict[str, str]]] = None
     first_publish_year: Optional[int] = None
     created_at: Optional[str] = None
+    updated_at: Optional[str] = None
 
     @classmethod
     def from_db_record(cls, record: Record) -> "Book":
         return cls(
-            id=record["id"],
-            title=record["title"],
-            author_names=record["author_names"],
-            author_keys=record["author_keys"],
-            openlib_work_key=record["openlib_work_key"],
+            id=record.get("id"),
+            title=record.get("title", ""),
+            author_names=record.get("author_names", []),
+            author_keys=record.get("author_keys", []),
+            openlib_work_key=record.get("openlib_work_key", ""),
             known_publishers=set(record.get("known_publishers", [])),
             isbns_13=set(record.get("isbns_13", [])),
             isbns_10=set(record.get("isbns_10", [])),
@@ -105,9 +106,10 @@ class Book:
             number_of_pages_median=record.get("number_of_pages_median"),
             openlib_description=record.get("openlib_description"),
             openlib_tags=set(record.get("openlib_tags", [])),
-            remote_links=record.get("remote_links", {}),
+            remote_links=record.get("remote_links") or [],
             first_publish_year=record.get("first_publish_year"),
             created_at=record.get("created_at"),
+            updated_at=record.get("created_at"),
         )
 
     @classmethod
@@ -185,17 +187,54 @@ class Book:
 
     @property
     def link_outs(self) -> list[dict[str, str | None]]:
+        links = []
+
         if self.remote_links:
             if isinstance(self.remote_links, str):
                 rl: list = self.get_remote_links(self.remote_links)
             else:
                 rl = self.remote_links
-            return [
+
+            links.extend([
                 {"text": link.get("title"), "url": link.get("url")}
                 for link in rl
                 if link.get("title") and link.get("url")
-            ]
-        return []
+            ])
+
+        if self.openlib_work_key:
+            links.append({
+                "text": "OpenLibrary",
+                "url": f"https://openlibrary.org/works/{self.openlib_work_key}"
+            })
+        return links
+
+
+@dataclass
+class Review:
+    id: int
+    book_id: int
+    user_id: int
+    content: str
+    updated_at: str
+    created_at: str
+    book: Book
+
+    @classmethod
+    def from_db_record(cls, record: Record) -> "Review":
+        book_data = Book.from_db_record(record)
+        return cls(
+            id=record.get("id"),
+            book_id=record.get("book_id"),
+            user_id=record.get("user_id"),
+            content=record.get("content"),
+            updated_at=record.get("updated_at"),
+            created_at=record.get("created_at"),
+            book=book_data,
+        )
+
+    @classmethod
+    def from_db_records(cls, records: list[Record]) -> list["Review"]:
+        return [cls.from_db_record(r) for r in records]
 
 
 """
