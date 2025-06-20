@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+
+{% block main %}
+{% if book %}
+    <article class="book">
+      <header>
+        <h2>{{ book.title }} by {{ book.author_display }}</h2>
+      </header>
+      <section>
+      <p><strong>OpenLib description:</strong> {{ book.openlib_description }}</p>
+      <dl>
+        <div class="meta-items">
+          <div class="meta-item">
+            <dt><strong>First published:</strong></dt>
+            <dd>{{ book.first_publish_year }}</dd>
+          </div>
+
+          <div class="meta-item">
+            <dt><strong>Pages:</strong></dt>
+            <dd>{{ book.number_of_pages_median }}</dd>
+          </div>
+        </div>
+
+     <dt><strong>Publishers:</strong></dt>
+     <dd class="meta-list">
+         {% set pubs = book.publishers_display %}
+         {% if pubs|length > 5 %}
+             {{ pubs[:5]|join(', ') }}
+             <details class="inline-details">
+                 <summary>see more</summary>
+                 {{ pubs[5:]|join(', ') }}
+             </details>
+         {% elif pubs %}
+             {{ pubs|join(', ') }}
+         {% else %}
+             Unknown publisher
+         {% endif %}
+    </dd>
+
+  <dt><strong>OpenLib Tags:</strong></dt>
+  <dd class="meta-list">
+     {% set tags = book.tags_display %}
+         {% if tags|length > 5 %}
+             {{ tags[:5]|join(', ') }}
+             <details class="inline-details">
+                 <summary>see more</summary>
+                 {{ tags[5:]|join(', ') }}
+             </details>
+         {% elif tags %}
+             {{ tags|join(', ') }}
+         {% else %}
+             No tags
+         {% endif %}
+    </dd>
+
+      <dt><strong>Link outs:</strong></dt>
+      <dd>
+        {% for link in book.link_outs %}
+            <p><a href="{{ link.url }}">{{ link.text }}</a></p>
+        {% endfor %}
+      </dd>
+      </dl>
+      </section>
+        {% if reviews %}
+      <section>
+        {% for review in reviews %}
+        <article class="review">
+            <h3>Review - submitted {{ review.created_at }}</h3>
+            <p>{{ review.content }}</p>
+        </article>
+        {% endfor %}
+        </section>
+        {% endif %}
+      <footer>
+        <small>First added: {{ book.created_at }}</small>
+      </footer>
+    </article>
+{% else %}
+    <p>No book found.</p>
+{% endif %}
+{% endblock %}

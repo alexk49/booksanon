@@ -40,6 +40,17 @@ async def submission(request: Request):
     return templates.TemplateResponse(template, context=context)
 
 
+async def book_page(request: Request):
+    """
+    Use /books/book.id to return a book page
+    """
+    book_id = request.path_params["book_id"]
+    book, reviews = await resources.book_repo.get_book_and_reviews_by_book_id(book_id=book_id)
+    template = "book.html"
+    context = {"request": request, "book": book, "reviews": reviews}
+    return templates.TemplateResponse(template, context=context)
+
+
 """ API routes """
 
 

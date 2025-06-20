@@ -20,14 +20,7 @@ class BookRepository:
     async def insert_author(self, author: Author):
         return await self.db.run_query("insert_author", **author.to_db_dict())
 
-    async def insert_review(self, user_id: int, book_id: int, content: str):
-        return await self.db.run_query("insert_review", user_id=user_id, book_id=book_id, content=content)
-
     """ Get or read values """
-
-    async def get_most_recent_book_reviews(self, limit: int = 10) -> list[Book]:
-        records = await self.db.run_query("get_most_recent_book_reviews", limit=limit)
-        return Review.from_db_records(records)
 
     async def get_most_recent_books(self, limit: int = 10) -> list[Book]:
         records = await self.db.run_query("get_most_recent_books", limit=limit)
@@ -36,10 +29,42 @@ class BookRepository:
     async def get_book_by_openlib_id(self, openlib_work_key: str = "") -> Record | None:
         return one_or_none(await self.db.run_query("get_book_by_openlib_work_key", openlib_work_key=openlib_work_key))
 
-    async def get_book_id_by_openlib_id(self, openlib_work_key: str = "") -> Record | None:
+    async def get_book_id_by_openlib_id(self, openlib_work_key: str) -> Record | None:
         return one_or_none(
             await self.db.run_query("get_book_id_by_openlib_work_key", openlib_work_key=openlib_work_key)
         )
+
+    async def get_book_by_id(self, book_id: int) -> Record | None:
+        result = one_or_none(await self.db.run_query("get_book_by_id", book_id=book_id))
+        if result:
+            return Book.from_db_record(result)
+        return None
+
+    """ Reviews """
+
+    async def get_most_recent_book_reviews(self, limit: int = 10) -> list[Book]:
+        records = await self.db.run_query("get_most_recent_book_reviews", limit=limit)
+        return Review.from_db_records(records)
+
+    async def get_book_and_reviews_by_book_id(self, book_id: int) -> tuple[Book, list[Review]]:
+        records = await self.db.run_query("get_book_and_reviews_by_book_id", book_id=book_id)
+
+        if not records:
+            return None, []
+
+        book = Book.from_db_record(records[0])
+
+        reviews = []
+        for r in records:
+            # left join has possible null values
+            if r:
+                reviews.append(Review.from_joined_record(r))
+
+        return book, reviews
+
+    async def get_reviews_by_book_id(self, book_id: int) -> list[Book]:
+        records = await self.db.run_query("get_reviews_by_book_id", book_id=book_id)
+        return Review.from_db_records(records)
 
     async def get_user_id_by_username(self, username: str):
         return one_or_none(await self.db.run_query("get_user_id_by_username", username=username))

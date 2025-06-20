@@ -195,17 +195,16 @@ class Book:
             else:
                 rl = self.remote_links
 
-            links.extend([
-                {"text": link.get("title"), "url": link.get("url")}
-                for link in rl
-                if link.get("title") and link.get("url")
-            ])
+            links.extend(
+                [
+                    {"text": link.get("title"), "url": link.get("url")}
+                    for link in rl
+                    if link.get("title") and link.get("url")
+                ]
+            )
 
         if self.openlib_work_key:
-            links.append({
-                "text": "OpenLibrary",
-                "url": f"https://openlibrary.org/works/{self.openlib_work_key}"
-            })
+            links.append({"text": "OpenLibrary", "url": f"https://openlibrary.org/works/{self.openlib_work_key}"})
         return links
 
 
@@ -217,7 +216,7 @@ class Review:
     content: str
     updated_at: str
     created_at: str
-    book: Book
+    book: Optional[Book] = None
 
     @classmethod
     def from_db_record(cls, record: Record) -> "Review":
@@ -235,6 +234,17 @@ class Review:
     @classmethod
     def from_db_records(cls, records: list[Record]) -> list["Review"]:
         return [cls.from_db_record(r) for r in records]
+
+    @classmethod
+    def from_joined_record(cls, record: Record) -> "Review":
+        return cls(
+            id=record.get("id"),
+            book_id=record.get("book_id"),
+            user_id=record.get("user_id"),
+            content=record.get("content"),
+            created_at=record.get("created_at"),
+            updated_at=record.get("updated_at"),
+        )
 
 
 """
