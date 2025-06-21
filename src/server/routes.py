@@ -5,12 +5,16 @@ from . import views, settings
 static = StaticFiles(directory=str(settings.STATIC_DIR))
 
 routes = [
+    Mount("/static", static, name="static"),
+    # page routes
     Route("/", views.home, name="home"),
     Route("/add-book", views.add_book, name="add_book"),
     Route("/submission", views.submission, name="submission"),
+    Route("/search", views.search, name="search", methods=["GET", "POST"]),
     Route("/book/{book_id:int}", views.book_page, name="book"),
-    Route("/csrf_token", views.set_csrf_token, name="csrf_token"),
-    Route("/search_books", views.search_books, name="search_books", methods=["POST"]),
-    Route("/submit_book", views.submit_book, name="submit_book", methods=["POST"]),
-    Mount("/static", static, name="static"),
+    # api routes
+    Route("/api/csrf-token", views.set_csrf_token, name="csrf-token"),
+    Route("/api/search", views.search_api, name="search-api", methods=["POST"]),
+    Route("/api/search-openlib", views.search_openlib, name="search-openlib", methods=["POST"]),
+    Route("/api/submit-book", views.submit_book, name="submit-book", methods=["POST"]),
 ]

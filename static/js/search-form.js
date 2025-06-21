@@ -1,9 +1,9 @@
-import { handleFormSubmission } from "./utils.js";
+import { getBookDataFromResponse, handleFormSubmission } from "./utils.js";
 import { createBookCardEl } from "./book-cards.js";
 
 export function setUpSearchForm(ui) {
   ui.searchFormEl.addEventListener("submit", async function (e) {
-    const response = await handleFormSubmission(e, this, "/search_books");
+    const response = await handleFormSubmission(e, this, this.action);
     const books = getBookDataFromResponse(response, ui.resultsContainer);
 
     books.forEach((book) => {
@@ -20,16 +20,6 @@ export function setUpSelectBtn(card, selectBtnEl, ui) {
     ui.cardViewController.captureCardPosition(card);
     switchToReviewView(ui, card);
   });
-}
-
-export function getBookDataFromResponse(response, resultsContainer) {
-  if (response && Array.isArray(response.results)) {
-    resultsContainer.innerHTML = "";
-    return response.results;
-  } else {
-    resultsContainer.innerText = "No results found.";
-    return null;
-  }
 }
 
 export function setUpBackBtn(ui, backBtnEl) {

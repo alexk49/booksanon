@@ -33,10 +33,20 @@ export async function handleFormSubmission(e, formDataEl, apiRoute) {
   return await fetchFormResponse(apiRoute, formData);
 }
 
+export function getBookDataFromResponse(response, resultsContainer) {
+  if (response && Array.isArray(response.results)) {
+    resultsContainer.innerHTML = "";
+    return response.results;
+  } else {
+    resultsContainer.innerText = "No results found.";
+    return null;
+  }
+}
+
 /* csrf token utils */
 
 export async function getCSRF() {
-  const result = await fetchServerData("/csrf_token");
+  const result = await fetchServerData("/api/csrf-token");
   return result.csrf_token;
 }
 

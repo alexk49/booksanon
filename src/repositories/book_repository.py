@@ -40,6 +40,12 @@ class BookRepository:
             return Book.from_db_record(result)
         return None
 
+    """ search values """
+
+    async def search_books(self, search_query: str):
+        records = await self.db.run_query("search_books", search_query=search_query)
+        return Book.from_db_records(records)
+
     """ Reviews """
 
     async def get_most_recent_book_reviews(self, limit: int = 10) -> list[Book]:

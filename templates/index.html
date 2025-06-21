@@ -1,13 +1,11 @@
 {% extends "layout.html" %}
 
 {% block main %}
-  <h1>BooksAnon</h1>
-
   <h2>Latest book reviews</h2>
     {% for review in reviews %}
     <article class="book-review">
       <header>
-        <h3>{{ review.book.title }} by {{ review.book.author_display }}</h3>
+      <h3><a href="book/{{ review.book_id }}">{{ review.book.title }}</a> by {{ review.book.author_display }}</h3>
       </header>
       <section>
        <h4>Review</h4>

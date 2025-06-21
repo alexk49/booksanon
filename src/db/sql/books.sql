@@ -10,6 +10,14 @@ SELECT id FROM books WHERE openlib_work_key = :openlib_work_key;
 -- name: get_most_recent_books
 SELECT * FROM books ORDER BY updated_at DESC LIMIT 10;
 
+-- name: search_books
+SELECT *
+FROM books
+WHERE
+  title ILIKE '%' || :search_query || '%'
+  OR array_to_string(author_names, ', ') ILIKE '%' || :search_query || '%'
+LIMIT 100;
+
 -- name: insert_book!
 INSERT INTO books (
     title,

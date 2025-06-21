@@ -1,6 +1,9 @@
+import inspect
 import json
-from dataclasses import asdict, dataclass, field
-from typing import Set, Optional
+import random
+from dataclasses import asdict, is_dataclass, dataclass, field
+from datetime import datetime
+from typing import Optional
 
 from asyncpg import Record
 
@@ -20,6 +23,30 @@ def convert_nested_dict_to_json(db_dict: dict):
         elif isinstance(value, list) and all(isinstance(item, dict) for item in value):
             db_dict[key] = json.dumps(value)
     return db_dict
+
+
+def make_json_safe(data):
+    if is_dataclass(data):
+        result = {}
+        # Include regular fields
+        result.update({k: make_json_safe(v) for k, v in asdict(data).items()})
+        # Include properties
+        for name, attr in inspect.getmembers(type(data), lambda o: isinstance(o, property)):
+            try:
+                result[name] = make_json_safe(getattr(data, name))
+            except Exception:
+                result[name] = None  # or raise, or skip
+        return result
+    elif isinstance(data, dict):
+        return {k: make_json_safe(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [make_json_safe(v) for v in data]
+    elif isinstance(data, set):
+        return list(data)
+    elif isinstance(data, datetime):
+        return str(data)
+    else:
+        return data
 
 
 def map_types_for_db(db_dict: dict) -> dict:
@@ -78,14 +105,15 @@ class Book:
     author_names: list[str]
     author_keys: list[str]
     openlib_work_key: str  # "key": "OL27448W",
-    known_publishers: Set[str] = field(default_factory=set)
-    isbns_13: Set[str] = field(default_factory=set)
-    isbns_10: Set[str] = field(default_factory=set)
-    openlib_cover_ids: Set[str] = field(default_factory=set)
+    known_publishers: set[str] = field(default_factory=set)
+    isbns_13: set[str] = field(default_factory=set)
+    isbns_10: set[str] = field(default_factory=set)
+    openlib_cover_ids: list[str] = field(default_factory=list)
+    cover_id: Optional[str] = None
     id: Optional[int] = None  # only exists reading from db
     number_of_pages_median: Optional[int] = None
     openlib_description: Optional[str | None] = None
-    openlib_tags: Optional[Set[str]] = field(default_factory=set)
+    openlib_tags: Optional[set[str]] = field(default_factory=set)
     remote_links: Optional[list[dict[str, str]]] = None
     first_publish_year: Optional[int] = None
     created_at: Optional[str] = None
@@ -93,6 +121,13 @@ class Book:
 
     @classmethod
     def from_db_record(cls, record: Record) -> "Book":
+        openlib_cover_ids = list(record.get("openlib_cover_ids", []))
+
+        if openlib_cover_ids:
+            cover_id = random.choice(openlib_cover_ids)
+        else:
+            cover_id = None
+
         return cls(
             id=record.get("id"),
             title=record.get("title", ""),
@@ -102,7 +137,8 @@ class Book:
             known_publishers=set(record.get("known_publishers", [])),
             isbns_13=set(record.get("isbns_13", [])),
             isbns_10=set(record.get("isbns_10", [])),
-            openlib_cover_ids=set(record.get("openlib_cover_ids", [])),
+            cover_id=cover_id,
+            openlib_cover_ids=openlib_cover_ids,
             number_of_pages_median=record.get("number_of_pages_median"),
             openlib_description=record.get("openlib_description"),
             openlib_tags=set(record.get("openlib_tags", [])),
@@ -129,19 +165,23 @@ class Book:
             author_keys=book_dict["author_keys"],
             first_publish_year=book_dict["first_publish_year"],
             openlib_work_key=book_dict["openlib_work_key"],
+            cover_id=book_dict["cover_id"],
             openlib_cover_ids=book_dict.get("covers", []),
             openlib_description=description,
             openlib_tags=book_dict.get("subjects"),
             remote_links=book_dict.get("links"),
             number_of_pages_median=book_dict.get("number_of_pages_median", 0),
-            isbns_13=book_dict.get("isbns_13", set()),
-            isbns_10=book_dict.get("isbns_10", set()),
-            known_publishers=book_dict.get("known_publishers", set()),
+            isbns_13=book_dict.get("isbns_13", []),
+            isbns_10=book_dict.get("isbns_10", []),
+            known_publishers=book_dict.get("known_publishers", []),
         )
 
     def to_db_dict(self) -> dict:
         db_dict = asdict(self)
         return map_types_for_db(db_dict)
+
+    def to_json_dict(self) -> dict:
+        return make_json_safe(self)
 
     @staticmethod
     def get_description(description_raw: dict | str):
@@ -205,6 +245,15 @@ class Book:
 
         if self.openlib_work_key:
             links.append({"text": "OpenLibrary", "url": f"https://openlibrary.org/works/{self.openlib_work_key}"})
+
+        if self.author_display and self.author_display != "Unknown":
+            search_query = f"{self.title}+{self.author_display}".replace(" ", "+")
+        else:
+            search_query = f"{self.title}".replace(" ", "+")
+
+        links.append({"text": "uk.bookshop.org", "url": f"https://uk.bookshop.org/search?keywords={search_query}"})
+        links.append({"text": "us.bookshop.org", "url": f"https://bookshop.org/search?keywords={search_query}"})
+        links.append({"text": "librofm", "url": f"https://libro.fm/search?utf8=%E2%9C%93&q={search_query}"})
         return links
 
 

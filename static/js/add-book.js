@@ -1,9 +1,5 @@
 import { setUpBackBtn, setUpSearchForm } from "./search-form.js";
-import {
-  addSubmissionToLocalStorage,
-  handleFormSubmission,
-  populateCsrfTokens,
-} from "./utils.js";
+import { addSubmissionToLocalStorage, handleFormSubmission } from "./utils.js";
 
 function createCardViewController() {
   let previousCardParent = null;
@@ -34,7 +30,11 @@ function createCardViewController() {
 
 function setUpReviewForm(reviewFormContainerEl) {
   reviewFormContainerEl.addEventListener("submit", async function (event) {
-    const response = await handleFormSubmission(event, this, "/submit_book");
+    const response = await handleFormSubmission(
+      event,
+      this,
+      "/api/submit-book",
+    );
 
     if (response.success) {
       const { submission_id } = response;
@@ -58,8 +58,6 @@ function setUpReviewForm(reviewFormContainerEl) {
 }
 
 function main() {
-  populateCsrfTokens();
-
   const ui = {
     searchContainer: document.getElementById("search"),
     resultsContainer: document.getElementById("results"),
@@ -78,6 +76,12 @@ function main() {
   if (ui.searchFormEl) {
     setUpSearchForm(ui);
   }
+
+  const providerSelect = document.getElementById("search-provider");
+
+  providerSelect.addEventListener("change", function () {
+    ui.searchFormEl.action = this.value;
+  });
 
   const submitReviewForm = document.getElementById("submit-form");
 

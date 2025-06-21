@@ -19,6 +19,10 @@ body {
   font-size: 1em;
 }
 
+main {
+  margin: 5rem;
+}
+
 .book-review {
   display: flex;
   flex-direction: column;
@@ -122,6 +126,16 @@ summary,
   width: 100%;
 }
 
+.nav-bar input {
+  border-color: #cecdd1 !important;
+  box-shadow: none;
+  display: block;
+  text-align: center;
+}
+
+.nav-search {
+}
+
 .nav-item {
   border-right: 1px solid #282a35;
   float: left;
@@ -131,7 +145,7 @@ summary,
   display: block;
   display: inline-block;
   text-align: center;
-  padding: 14px 16px;
+  padding: 8px 8px;
   color: #282a35;
   text-decoration: none;
 }
@@ -166,7 +180,6 @@ summary,
 @media screen and (max-width: 600px) {
   .nav-item {
     display: none;
-    /* disable set border */
     border-right: none;
   }
   .navbar-toggle {
@@ -192,7 +205,7 @@ summary,
     float: none;
     display: block;
     text-align: left;
-    width: 50px;
+    width: 120px;
   }
 }
 

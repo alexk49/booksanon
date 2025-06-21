@@ -14,7 +14,7 @@ export function createBookCardEl(book) {
 
   bookMetaEl.appendChild(createPublishYearEl(book.first_publish_year));
 
-  const pageNumEl = createPageNumEl(book.number_of_pages);
+  const pageNumEl = createPageNumEl(book.number_of_pages_median);
   if (pageNumEl) bookMetaEl.appendChild(pageNumEl);
 
   const openLibLink = getOpenLibLink(book.openlib_work_key);
@@ -25,6 +25,32 @@ export function createBookCardEl(book) {
 
   const selectBtnEl = createSelectBtnEl();
   bookMetaEl.appendChild(selectBtnEl);
+
+  card.appendChild(bookMetaEl);
+  return card;
+}
+
+export function createLocalBookCard(book) {
+  const card = document.createElement("div");
+  card.className = "book-card";
+
+  const imgUrl = getImgUrl(book.cover_id);
+  const imgWrapperEl = createImgWrapperEl(imgUrl);
+  card.appendChild(imgWrapperEl);
+
+  const bookMetaEl = createElWithClass("div", "book-meta");
+
+  bookMetaEl.appendChild(createTitleEl(book.title));
+
+  bookMetaEl.appendChild(createAuthorEl(book.author_names));
+
+  bookMetaEl.appendChild(createPublishYearEl(book.first_publish_year));
+
+  const pageNumEl = createPageNumEl(book.number_of_pages_median);
+  if (pageNumEl) bookMetaEl.appendChild(pageNumEl);
+
+  const linkOutsEl = createLinkOutsEl(book.link_outs);
+  bookMetaEl.appendChild(linkOutsEl);
 
   card.appendChild(bookMetaEl);
   return card;
@@ -94,6 +120,32 @@ export function createPageNumEl(pageNum) {
   } else {
     return null;
   }
+}
+
+export function createLinkOutsEl(linkOuts) {
+  const container = document.createElement("div");
+  container.className = "link-outs";
+
+  if (!Array.isArray(linkOuts)) return container;
+
+  const dlEl = document.createElement("dl");
+  const ddEl = document.createElement("dd");
+
+  linkOuts.forEach((link) => {
+    if (link.url && link.text) {
+      const anchor = document.createElement("a");
+      const li = document.createElement("li");
+      anchor.href = link.url;
+      anchor.innerText = link.text;
+
+      li.appendChild(anchor);
+      ddEl.appendChild(li);
+    }
+  });
+
+  dlEl.appendChild(ddEl);
+  container.appendChild(dlEl);
+  return container;
 }
 
 export function createHiddenIdEl(openLibWorkKey) {

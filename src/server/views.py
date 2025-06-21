@@ -4,9 +4,10 @@ from collections.abc import Callable
 
 from starlette.background import BackgroundTask
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
 
+from db.models import Book
 from .form_validators import book_submit_fields, clean_results, get_errors, search_form_fields, validate_form
 from . import settings
 from . import resources
@@ -51,18 +52,48 @@ async def book_page(request: Request):
     return templates.TemplateResponse(template, context=context)
 
 
+async def search(request):
+    async def on_success(clean_form):
+        q = clean_form["search_query"].replace(" ", "+")
+        return RedirectResponse(
+            url=f"/search?q={q}",
+            status_code=303,
+        )
+
+    if request.method == "POST":
+        return await handle_form(request, search_form_fields, on_success)
+
+    if request.method == "GET":
+        query = (request.query_params.get("q", "")).replace("+", " ")
+        results = []
+        if query:
+            results = await resources.book_repo.search_books(search_query=query)
+        return templates.TemplateResponse("search.html", {"request": request, "query": query, "results": results})
+
+
 """ API routes """
 
 
-async def search_books(request):
+async def search_api(request):
     async def on_success(clean_form):
-        results = await resources.openlib_caller.search_books(search_query=clean_form["search_query"], limit=10)
-        return JSONResponse({"success": True, "results": results})
+        results = await resources.book_repo.search_books(search_query=clean_form["search_query"])
+        books = [book.to_json_dict() for book in results]
+        print(books)
+        return JSONResponse({"success": True, "results": books})
 
     return await handle_form(request, search_form_fields, on_success)
 
 
-async def submit_book(request):
+async def search_openlib(request: Request):
+    async def on_success(clean_form):
+        results = await resources.openlib_caller.search_books(search_query=clean_form["search_query"], limit=10)
+        books = [Book.from_dict(res).to_json_dict() for res in results]
+        return JSONResponse({"success": True, "results": books})
+
+    return await handle_form(request, search_form_fields, on_success)
+
+
+async def submit_book(request: Request):
     async def on_success(clean):
         submission_id = str(uuid.uuid4())
         task = BackgroundTask(fetch_and_store_book_data, openlib_id=clean["openlib_id_hidden"], review=clean["review"])
