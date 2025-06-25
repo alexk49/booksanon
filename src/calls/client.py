@@ -11,7 +11,6 @@ from typing import Optional
 class Client:
     def __init__(
         self,
-        max_concurrent_requests=5,
         max_retries=3,
         retry_delay=5,
         timeout=10,
@@ -19,7 +18,6 @@ class Client:
     ) -> None:
         self.max_retries = max_retries
         self.retry_delay = retry_delay
-        self.semaphore = asyncio.Semaphore(max_concurrent_requests)
         self.timeout = httpx.Timeout(timeout, connect=5.0, read=5.0, write=5.0)
         self.session: Optional[httpx.AsyncClient] = None
         self.email = email
@@ -48,16 +46,15 @@ class Client:
         print(f"making request to {url}, with {params}")
         for attempt in range(1, self.max_retries + 1):
             try:
-                async with self.semaphore:
-                    if params != {}:
-                        response = await self.session.get(url, params=params)
-                    else:
-                        response = await self.session.get(url)
+                if params != {}:
+                    response = await self.session.get(url, params=params)
+                else:
+                    response = await self.session.get(url)
 
-                    if response.status_code == 200:
-                        return response.json()
+                if response.status_code == 200:
+                    return response.json()
 
-                    print(f"Attempt {attempt}: Received status {response.status_code}, {response}")
+                print(f"Attempt {attempt}: Received status {response.status_code}, {response}")
             except httpx.HTTPError as exc:
                 print(f"HTTP Exception on attempt: {attempt} for {exc.request.url} - {exc}")
 

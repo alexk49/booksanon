@@ -43,7 +43,7 @@ async def _async_process_review_submission(submission_id):
 
 async def fetch_and_store_book_data(db, openlib_id: str, review: str, username="anon") -> bool:
     client = Client(email=settings.EMAIL_ADDRESS)
-    openlib_caller = OpenLibCaller(client=client)
+    openlib_caller = OpenLibCaller(client=client, max_concurrent_requests=1)
 
     book_repo = BookRepository(db=db)
 

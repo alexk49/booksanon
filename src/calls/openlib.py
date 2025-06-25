@@ -17,6 +17,7 @@ Cover Ids can be read into URLs with:
 >>> cover_id_img = f"https://covers.openlibrary.org/b/id/{cover_id}-S.jpg"
 """
 
+import asyncio
 import pprint
 import re
 from datetime import datetime
@@ -43,18 +44,23 @@ def extract_year(date_str):
 
 
 class OpenLibCaller:
-    def __init__(self, client: Client, pprint_results: bool = True):
+    def __init__(self, client: Client, pprint_results: bool = True, max_concurrent_requests: int = 10):
         self.client = client
         self.pprint: bool = pprint_results
         self.root_url = "https://openlibrary.org"
         self.search_url = f"{self.root_url}/search.json"
+        self.semaphore = asyncio.Semaphore(max_concurrent_requests)
+
+    async def fetch_with_semaphore(self, url: str, params: dict = {}):
+        async with self.semaphore:
+            return await self.client.fetch_results(url, params or {})
 
     """ Calls to API """
 
     async def get_work_id_results(self, work_id: str):
         """Fetch and optionally parse work ID results"""
         url = self.get_work_id_url(work_id)
-        response = await self.client.fetch_results(url)
+        response = await self.fetch_with_semaphore(url)
 
         if not response:
             return None
@@ -67,7 +73,7 @@ class OpenLibCaller:
 
     async def get_editions_only(self, work_id: str):
         url = self.get_editions_url(work_id)
-        response = await self.client.fetch_results(url)
+        response = await self.fetch_with_semaphore(url)
 
         if not response:
             return None
@@ -79,7 +85,7 @@ class OpenLibCaller:
 
     async def get_author_results(self, author_id: str):
         url = self.get_author_url(author_id)
-        response = await self.client.fetch_results(url)
+        response = await self.fetch_with_semaphore(url)
 
         if not response:
             return None
@@ -116,7 +122,7 @@ class OpenLibCaller:
         else:
             raise ValueError("Must provide either title/author or general search_query")
 
-        response = await self.client.fetch_results(url)
+        response = await self.fetch_with_semaphore(url)
 
         if not response:
             return None
@@ -177,7 +183,7 @@ class OpenLibCaller:
             return None
 
         editions_url = self.get_editions_url(work_id)
-        editions_response = await self.client.fetch_results(editions_url)
+        editions_response = await self.fetch_with_semaphore(editions_url)
 
         if not editions_response:
             return None
