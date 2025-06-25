@@ -53,19 +53,17 @@ class BookRepository:
         record = await self.db.run_query("get_author_by_id", author_id=author_id)
         if not record:
             return None
-        return Author.from_db_record(record)  # adapt as needed
+        return Author.from_db_record(record)
 
     async def get_books_by_author(self, author_id: int) -> list[Book]:
         records = await self.db.run_query("get_books_by_author", author_id=author_id)
-        # Each record is a book row; parse into Book, and if you need authors on those books,
-        # you could run the authors-aggregation query, or simply skip since on author page you know the author.
         return Book.from_db_records(records)
 
     async def get_reviews_for_books(self, book_ids: list[int]) -> list[Review]:
         if not book_ids:
             return []
         records = await self.db.run_query("get_reviews_for_books", book_ids=book_ids)
-        return [Review.from_db_record(r) for r in records]  # assuming you have Review.from_db_record
+        return [Review.from_db_record(r) for r in records] 
 
     async def get_author_id_by_openlib_id(self, author_openlib_id: str) -> Record | None:
         return one_or_none(await self.db.run_query("get_author_id_by_openlib_id", openlib_id=author_openlib_id))

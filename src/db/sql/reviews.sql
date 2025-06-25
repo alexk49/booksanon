@@ -32,6 +32,13 @@ LEFT JOIN authors a ON a.id = ba.author_id
 GROUP BY r.id, b.id
 ORDER BY r.created_at DESC
 
+-- name: get_reviews_for_books
+SELECT 
+  r.*
+FROM reviews r
+WHERE r.book_id = ANY(:book_ids) 
+ORDER BY r.created_at DESC;
+
 -- name: get_review_and_book_by_review_id^
 SELECT 
     r.*, 
