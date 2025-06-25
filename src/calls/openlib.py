@@ -19,10 +19,27 @@ Cover Ids can be read into URLs with:
 
 import pprint
 import re
+from datetime import datetime
 from statistics import median
 from typing import Any, Dict, List, Optional, Set
 
 from calls.client import Client
+
+
+def extract_year(date_str):
+    formats = [
+        "%Y",
+        "%Y-%m-%d",
+        "%Y/%m/%d",
+    ]
+
+    for fmt in formats:
+        try:
+            dt = datetime.strptime(date_str, fmt)
+            return dt.year
+        except ValueError:
+            continue
+    return f"Could not parse: {date_str}"
 
 
 class OpenLibCaller:
@@ -333,9 +350,9 @@ class OpenLibCaller:
 
             known_publishers.update(entry.get("publishers", []))
 
-        if book.get("first_publish_year", "") == "":
-            first_edition_date = sorted(edition_dates)[0]
-            book.update({"first_publish_year": int(first_edition_date)})
+        first_edition_date = sorted(edition_dates)[0]
+        year = int(extract_year(first_edition_date))
+        book.update({"first_publish_year": year})
 
         pages = book.get("number_of_pages_median")
 
@@ -357,14 +374,20 @@ class OpenLibCaller:
 
         print(f"response: {response}")
         num_of_results: int | None = response.get("num_found")
+        print(f"number of results: {num_of_results}")
 
         if not num_of_results:
             num_of_results = len(response["docs"][0:limit])
+        else:
+            num_of_results = num_of_results - 1
 
-        if limit and (limit > num_of_results):
+        if limit and (limit < num_of_results):
             counter = limit
         else:
             counter = num_of_results
+
+        print(f"len of response: {str(len(response['docs']))}")
+        print(f"counter: {str(counter)}")
 
         for num in range(counter):
             book: dict = response["docs"][num]
@@ -376,18 +399,18 @@ class OpenLibCaller:
             if not openlib_work_key:
                 continue
 
-            if self.validate_book(title, first_publish_year, books):
-                books.append(
-                    {
-                        "title": title,
-                        "author_names": book.get("author_name", []),
-                        "author_keys": book.get("author_key", []),
-                        "first_publish_year": first_publish_year,
-                        "number_of_pages": book.get("number_of_pages_median", 0),
-                        "openlib_work_key": book.get("key", "Unknown"),
-                        "cover_id": [book.get("cover_i")],
-                    }
-                )
+            # if self.validate_book(title, first_publish_year, books):
+            books.append(
+                {
+                    "title": title,
+                    "author_names": book.get("author_name", []),
+                    "author_keys": book.get("author_key", []),
+                    "first_publish_year": first_publish_year,
+                    "number_of_pages": book.get("number_of_pages_median", 0),
+                    "openlib_work_key": book.get("key", "Unknown"),
+                    "cover_id": [book.get("cover_i")],
+                }
+            )
 
         return books
 

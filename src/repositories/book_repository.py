@@ -11,6 +11,9 @@ class BookRepository:
 
     """ Insert values """
 
+    async def create_anon(self):
+        await self.db.run_query("create_anon")
+
     async def insert_book(self, book: Book) -> int:
         """
         Returns id of created book
@@ -19,6 +22,12 @@ class BookRepository:
 
     async def insert_author(self, author: Author):
         return await self.db.run_query("insert_author", **author.to_db_dict())
+
+    async def insert_review(self, user_id, book_id, review):
+        return await self.db.run_query("insert_review", book_id=book_id, user_id=user_id, content=review)
+
+    async def link_book_author(self, book_id: int, author_id: int):
+        return await self.db.run_query("link_book_author", book_id=book_id, author_id=author_id)
 
     """ Get or read values """
 
@@ -39,6 +48,35 @@ class BookRepository:
         if result:
             return Book.from_db_record(result)
         return None
+
+    async def get_author_by_id(self, author_id: int) -> Author:
+        record = await self.db.run_query("get_author_by_id", author_id=author_id)
+        if not record:
+            return None
+        return Author.from_db_record(record)  # adapt as needed
+
+    async def get_books_by_author(self, author_id: int) -> list[Book]:
+        records = await self.db.run_query("get_books_by_author", author_id=author_id)
+        # Each record is a book row; parse into Book, and if you need authors on those books,
+        # you could run the authors-aggregation query, or simply skip since on author page you know the author.
+        return Book.from_db_records(records)
+
+    async def get_reviews_for_books(self, book_ids: list[int]) -> list[Review]:
+        if not book_ids:
+            return []
+        records = await self.db.run_query("get_reviews_for_books", book_ids=book_ids)
+        return [Review.from_db_record(r) for r in records]  # assuming you have Review.from_db_record
+
+    async def get_author_id_by_openlib_id(self, author_openlib_id: str) -> Record | None:
+        return one_or_none(await self.db.run_query("get_author_id_by_openlib_id", openlib_id=author_openlib_id))
+
+    async def get_author_books_and_reviews(self, author_id: int) -> Record | None:
+        records = await self.db.run_query("get_author_books_and_reviews", author_id=author_id)
+        return records
+
+    async def get_review_and_book_by_review_id(self, review_id: int):
+        record = await self.db.run_query("get_review_and_book_by_review_id", review_id=review_id)
+        return Review.from_db_record(record)
 
     """ search values """
 

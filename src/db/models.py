@@ -7,13 +7,6 @@ from typing import Optional
 
 from asyncpg import Record
 
-# https://openlibrary.org/search/howto
-
-# works url
-# https://openlibrary.org/works/OL45804W.json
-# editions url
-# https://openlibrary.org/works/OL45804W/editions.json
-
 
 def convert_nested_dict_to_json(db_dict: dict):
     # convert all dicts to json
@@ -28,7 +21,6 @@ def convert_nested_dict_to_json(db_dict: dict):
 def make_json_safe(data):
     if is_dataclass(data):
         result = {}
-        # Include regular fields
         result.update({k: make_json_safe(v) for k, v in asdict(data).items()})
         # Include properties
         for name, attr in inspect.getmembers(type(data), lambda o: isinstance(o, property)):
@@ -79,10 +71,13 @@ def map_types_for_db(db_dict: dict) -> dict:
 @dataclass
 class Author:
     name: str
-    openlib_id: str  # "/authors/OL34184A"
     remote_ids: dict[str, str] = field(default_factory=dict)
+    id: Optional[int] = None  # only exists reading from db
+    openlib_id: Optional[str] = None  # "/authors/OL34184A"
     birth_date: Optional[str] = None
     death_date: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
 
     @classmethod
     def from_dict(cls, author_dict: dict) -> "Author":
@@ -98,6 +93,19 @@ class Author:
         db_dict = asdict(self)
         return map_types_for_db(db_dict)
 
+    @classmethod
+    def from_db_record(cls, record: Record) -> "Author":
+        return cls(
+            id=record.get("id"),
+            name=record.get("name"),
+            remote_ids=record.get("remote_ids") or {},
+            openlib_id=record.get("openlib_id"),
+            birth_date=record.get("birth_date"),
+            death_date=record.get("death_date"),
+            created_at=record.get("created_at"),
+            updated_at=record.get("created_at"),
+        )
+
 
 @dataclass
 class Book:
@@ -111,26 +119,40 @@ class Book:
     openlib_cover_ids: list[str] = field(default_factory=list)
     cover_id: Optional[str] = None
     id: Optional[int] = None  # only exists reading from db
+    authors: Optional[list] = None  # from db only
     number_of_pages_median: Optional[int] = None
     openlib_description: Optional[str | None] = None
     openlib_tags: Optional[set[str]] = field(default_factory=set)
     remote_links: Optional[list[dict[str, str]]] = None
-    first_publish_year: Optional[int] = None
+    first_publish_year: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
     @classmethod
     def from_db_record(cls, record: Record) -> "Book":
-        openlib_cover_ids = list(record.get("openlib_cover_ids", []))
+        print(record)
+        openlib_cover_ids = record.get("openlib_cover_ids", [])
 
         if openlib_cover_ids:
-            cover_id = random.choice(openlib_cover_ids)
+            cover_id = random.choice(list(openlib_cover_ids))
         else:
             cover_id = None
+
+        raw_authors = record.get("authors", [])
+
+        print(raw_authors)
+        print(type(raw_authors))
+
+        if raw_authors:
+            authors_dict = json.loads(raw_authors)
+            authors = [Author(id=int(author["id"]), name=author["name"]) for author in authors_dict or []]
+        else:
+            authors = []
 
         return cls(
             id=record.get("id"),
             title=record.get("title", ""),
+            authors=authors,
             author_names=record.get("author_names", []),
             author_keys=record.get("author_keys", []),
             openlib_work_key=record.get("openlib_work_key", ""),
@@ -165,10 +187,10 @@ class Book:
             author_keys=book_dict["author_keys"],
             first_publish_year=book_dict["first_publish_year"],
             openlib_work_key=book_dict["openlib_work_key"],
-            cover_id=book_dict["cover_id"],
+            cover_id=book_dict.get("cover_id"),
             openlib_cover_ids=book_dict.get("covers", []),
             openlib_description=description,
-            openlib_tags=book_dict.get("subjects"),
+            openlib_tags=set(book_dict.get("subjects", [])),
             remote_links=book_dict.get("links"),
             number_of_pages_median=book_dict.get("number_of_pages_median", 0),
             isbns_13=book_dict.get("isbns_13", []),
@@ -244,7 +266,10 @@ class Book:
             )
 
         if self.openlib_work_key:
-            links.append({"text": "OpenLibrary", "url": f"https://openlibrary.org/works/{self.openlib_work_key}"})
+            if self.openlib_work_key.startswith("/works/"):
+                links.append({"text": "OpenLibrary", "url": f"https://openlibrary.org{self.openlib_work_key}"})
+            else:
+                links.append({"text": "OpenLibrary", "url": f"https://openlibrary.org/works/{self.openlib_work_key}"})
 
         if self.author_display and self.author_display != "Unknown":
             search_query = f"{self.title}+{self.author_display}".replace(" ", "+")

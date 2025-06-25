@@ -23,6 +23,13 @@ deploy_app_local () {
 }
 
 
+deploy_huey_local () {
+    echo "running huey"
+    source .venv/bin/activate
+    huey_consumer.py src.server.tasks.huey --workers=1 
+}
+
+
 help () {
 
 cat << _EOF_
@@ -34,6 +41,12 @@ print help
 
 -dbl | --db-local 
 run local postgres container with mounted volume
+
+-l | --local
+run web app locally
+
+-hl | --huey-local)
+run huey task runner locally
 
 _EOF_
 }
@@ -59,6 +72,10 @@ while [[ -n "$1" ]]; do
         case "$1" in
             -dbl | --db-local)
                 deploy_db_container_local
+                exit
+                ;;
+            -hl | --huey-local)
+                deploy_huey_local
                 exit
                 ;;
             -l | --local)

@@ -1,19 +1,16 @@
 {% extends "layout.html" %}
 
 {% block main %}
-  <h2>Latest book reviews</h2>
-    {% for review in reviews %}
     <article class="book-review">
       <header>
       <h3><a href="book/{{ review.book_id }}">{{ review.book.title }}</a></h3>
-    <p>By 
-      {% for author in review.book.authors %}
+    <p>By {% for author in review.book.authors %}
         <a href="/author/{{ author.id }}">{{ author.name }}</a>{% if not loop.last %}, {% endif %}
       {% endfor %}
     </p>
       </header>
       <section>
-        <h4><a href="/review/{{ review.id }}">Review</a></h4>
+       <h4>Review</h4>
       <p>{{ review.content }}</p>
       <dl>
         <div class="meta-items">
@@ -72,5 +69,4 @@
         <small>First added: {{ review.created_at }}</small>
       </footer>
     </article>
-    {% endfor %}
 {% endblock %}

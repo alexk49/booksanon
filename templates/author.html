@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block main %}
+{% if author %}
+    <article class="author">
+      <header>
+        <h2>{{ author.name }}</h2>
+      </header>
+      <section>
+      <dl>
+        <div class="meta-items">
+          <div class="meta-item">
+        <p>Born: {{ author.birth_date }}</p>
+        <p>Died: {{ author.death_date }}</p>
+          </div>
+        </div>
+      <dt><strong>Link outs:</strong></dt>
+      <dd>
+        <p>{{ author.remote_ids }}</p>
+      </dd>
+      </dl>
+      </section>
+      {% if books %}
+        <section>
+          {% for book in books %}
+          <p><a href="/books/{{ book.id}}">{{ book.title }}</a></p>
+            {% if book.reviews %}
+            <section>
+              {% for review in book.reviews %}
+                <article class="review">
+                    <h3>Review - submitted {{ review.created_at }}</h3>
+                    <p>{{ review.content }}</p>
+                </article>
+                {% endfor %}
+              </section>
+            {% endif %}
+          {% endfor %}
+        </section>
+      {% endif %}
+    </article>
+{% else %}
+    <p>No author found.</p>
+{% endif %}
+{% endblock %}

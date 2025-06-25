@@ -40,7 +40,7 @@ export function createLocalBookCard(book) {
 
   const bookMetaEl = createElWithClass("div", "book-meta");
 
-  bookMetaEl.appendChild(createTitleEl(book.title));
+  bookMetaEl.appendChild(createTitleElWithLink(book.title, book.id));
 
   bookMetaEl.appendChild(createAuthorEl(book.author_names));
 
@@ -73,9 +73,15 @@ export function createImgWrapperEl(imgUrl) {
 }
 
 export function createTitleEl(bookTitle) {
-  const titleEl = document.createElement("h3");
-  titleEl.innerText = bookTitle;
-  return titleEl;
+  return createElWithText("h3", bookTitle);
+}
+
+export function createTitleElWithLink(bookTitle, bookId) {
+  const headingEl = document.createElement("h3");
+  const anchor = createElWithText("a", bookTitle);
+  anchor.href = `/book/${bookId}`;
+  headingEl.append(anchor);
+  return headingEl;
 }
 
 export function createAuthorEl(authorNames) {

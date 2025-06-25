@@ -1,17 +1,15 @@
-import uuid
 import secrets
 from collections.abc import Callable
 
-from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
 
-from db.models import Book
+from db.models import Book, Review
 from .form_validators import book_submit_fields, clean_results, get_errors, search_form_fields, validate_form
 from . import settings
 from . import resources
-from .tasks import fetch_and_store_book_data
+from .tasks import process_review_submission
 
 
 templates = Jinja2Templates(directory=str(settings.TEMPLATES_DIR))
@@ -41,6 +39,17 @@ async def submission(request: Request):
     return templates.TemplateResponse(template, context=context)
 
 
+async def review_page(request: Request):
+    """
+    Use /review/review.id to return individual review
+    """
+    review_id = request.path_params["review_id"]
+    review = await resources.book_repo.get_review_and_book_by_review_id(review_id=review_id)
+    template = "review.html"
+    context = {"request": request, "review": review}
+    return templates.TemplateResponse(template, context=context)
+
+
 async def book_page(request: Request):
     """
     Use /books/book.id to return a book page
@@ -50,6 +59,31 @@ async def book_page(request: Request):
     template = "book.html"
     context = {"request": request, "book": book, "reviews": reviews}
     return templates.TemplateResponse(template, context=context)
+
+
+async def author_page(request: Request):
+    author_id = int(request.path_params["author_id"])
+    author = await resources.book_repo.get_author_by_id(author_id)
+
+    if author:
+        books = await resources.book_repo.get_books_by_author(author_id)
+        book_ids = [b.id for b in books]
+
+        reviews = await resources.book_repo.get_reviews_for_books(book_ids)
+
+        reviews_by_book: dict[int, list[Review]] = {}
+        for rv in reviews:
+            reviews_by_book.setdefault(rv.book_id, []).append(rv)
+
+        for b in books:
+            b.reviews = reviews_by_book.get(b.id, [])
+
+        context = {
+            "request": request,
+            "author": author,
+            "books": books,
+        }
+    return templates.TemplateResponse("author.html", context=context)
 
 
 async def search(request):
@@ -95,15 +129,22 @@ async def search_openlib(request: Request):
 
 async def submit_book(request: Request):
     async def on_success(clean):
-        submission_id = str(uuid.uuid4())
-        task = BackgroundTask(fetch_and_store_book_data, openlib_id=clean["openlib_id_hidden"], review=clean["review"])
+        # submission_id = str(uuid.uuid4())
+        # task = BackgroundTask(fetch_and_store_book_data, openlib_id=clean["openlib_id_hidden"], review=clean["review"])
+        print(f"inserting form data into queue: {clean}")
+        submission_id = await resources.queue_repo.insert_review_submission(
+            openlib_id=clean["openlib_id_hidden"], review=clean["review"]
+        )
+
+        print(f"adding submission id to queue: {submission_id}")
+        process_review_submission(submission_id)
+
         return JSONResponse(
             {
                 "success": True,
                 "message": "Thanks for adding a review! Your submission is being processed.",
                 "submission_id": submission_id,
             },
-            background=task,
         )
 
     return await handle_form(request, book_submit_fields, on_success)

@@ -29,6 +29,12 @@ CREATE TABLE IF NOT EXISTS books (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS book_authors (
+    book_id INTEGER REFERENCES books(id) ON DELETE CASCADE,
+    author_id INTEGER REFERENCES authors(id) ON DELETE CASCADE,
+    PRIMARY KEY (book_id, author_id)
+);
+
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username TEXT UNIQUE NOT NULL
@@ -49,4 +55,12 @@ CREATE TABLE IF NOT EXISTS user_tags (
     book_id INTEGER REFERENCES books(id),
     tag TEXT NOT NULL,
     UNIQUE(user_id, book_id, tag)
+);
+
+CREATE TABLE IF NOT EXISTS pending_reviews (
+    id SERIAL PRIMARY KEY,
+    openlib_id TEXT NOT NULL,
+    review TEXT NOT NULL,
+    username TEXT NOT NULL,
+    status TEXT DEFAULT 'pending'
 );
