@@ -27,22 +27,6 @@ from typing import Any, Dict, List, Optional, Set
 from calls.client import Client
 
 
-def extract_year(date_str):
-    formats = [
-        "%Y",
-        "%Y-%m-%d",
-        "%Y/%m/%d",
-    ]
-
-    for fmt in formats:
-        try:
-            dt = datetime.strptime(date_str, fmt)
-            return dt.year
-        except ValueError:
-            continue
-    return f"Could not parse: {date_str}"
-
-
 class OpenLibCaller:
     def __init__(self, client: Client, pprint_results: bool = True, max_concurrent_requests: int = 10):
         self.client = client
@@ -52,6 +36,9 @@ class OpenLibCaller:
         self.semaphore = asyncio.Semaphore(max_concurrent_requests)
 
     async def fetch_with_semaphore(self, url: str, params: dict = {}):
+        """
+        Used to rate limit Caller obj usage of client
+        """
         async with self.semaphore:
             return await self.client.fetch_results(url, params or {})
 
@@ -198,6 +185,10 @@ class OpenLibCaller:
 
         Full author data is also collected to match book and author in models.
         """
+        if not validate_openlib_work_id(work_id):
+            print(f"invalid work id passed: {work_id}")
+            return None
+
         book = await self._get_complete_book_data(work_id=work_id)
 
         if not book:
@@ -338,7 +329,7 @@ class OpenLibCaller:
 
         isbns_13: Set[str] = set()
         isbns_10: Set[str] = set()
-        known_publishers: Set[str] = set()
+        publishers: Set[str] = set()
         edition_dates: list = []
         edition_pages: list[int] = []
 
@@ -354,7 +345,7 @@ class OpenLibCaller:
             if page_numbers:
                 edition_pages.append(page_numbers)
 
-            known_publishers.update(entry.get("publishers", []))
+            publishers.update(entry.get("publishers", []))
 
         first_edition_date = sorted(edition_dates)[0]
         year = int(extract_year(first_edition_date))
@@ -366,16 +357,11 @@ class OpenLibCaller:
             num_pages = median(edition_pages)
             book.update({"number_of_pages_median": num_pages})
 
-        book.update({"isbns_13": isbns_13, "isbns_10": isbns_10, "known_publishers": known_publishers})
+        book.update({"isbns_13": isbns_13, "isbns_10": isbns_10, "publishers": publishers})
         return book
 
     @staticmethod
-    def count_num_of_books_in_response(response: dict):
-        num_of_results = len(response["docs"])
-        print(f"showing {num_of_results}")
-        return num_of_results
-
-    def parse_books_search_results(self, response: dict, limit: int | None = None) -> List[Dict[str, Any]]:
+    def parse_books_search_results(response: dict, limit: int | None = None) -> List[Dict[str, Any]]:
         books: list = []
 
         print(f"response: {response}")
@@ -405,7 +391,6 @@ class OpenLibCaller:
             if not openlib_work_key:
                 continue
 
-            # if self.validate_book(title, first_publish_year, books):
             books.append(
                 {
                     "title": title,
@@ -485,20 +470,21 @@ class OpenLibCaller:
 
         return book
 
-    @staticmethod
-    def validate_book(title: str, first_publish_year: str | int, books: list[dict]) -> bool:
-        """
-        Used to help filter results. If book already exists in given books list, then older publish year is prefered.
-        """
-        for book in books:
-            try:
-                if (book["title"] == title) and (int(book["first_publish_year"]) <= int(first_publish_year)):
-                    return False
-            except Exception as err:
-                print(
-                    f"error filter books. Current book: {book}, checking title: {title}, checking year: {first_publish_year}: error: {err}"
-                )
-        return True
+
+def extract_year(date_str):
+    formats = [
+        "%Y",
+        "%Y-%m-%d",
+        "%Y/%m/%d",
+    ]
+
+    for fmt in formats:
+        try:
+            dt = datetime.strptime(date_str, fmt)
+            return dt.year
+        except ValueError:
+            continue
+    return f"Could not parse: {date_str}"
 
 
 def validate_openlib_work_id(openlib_work_id: str):

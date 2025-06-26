@@ -1,8 +1,8 @@
-from db import DataBase
+from db import Database
 
 
 class QueueRepository:
-    def __init__(self, db: DataBase):
+    def __init__(self, db: Database):
         self.db = db
 
     async def insert_review_submission(self, openlib_id: str, review: str, username: str = "anon"):

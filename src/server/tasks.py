@@ -3,9 +3,9 @@ from pathlib import Path
 
 from calls.client import Client
 from calls.openlib import OpenLibCaller
-from db import DataBase
+from db import Database
 from db.models import Book, Author
-from repositories import QueueRepository, BookRepository
+from repositories import QueueRepository, AuthorRepository, BookRepository, ReviewRepository, UserRepository
 from . import settings
 from huey import SqliteHuey
 
@@ -19,7 +19,7 @@ def process_review_submission(submission_id):
 
 
 async def _async_process_review_submission(submission_id):
-    db = DataBase(user=settings.POSTGRES_USERNAME, password=settings.POSTGRES_PASSWORD, url=settings.POSTGRES_URL)
+    db = Database(user=settings.POSTGRES_USERNAME, password=settings.POSTGRES_PASSWORD, url=settings.POSTGRES_URL)
     await db.start_up()
     queue_repo = QueueRepository(db=db)
 
@@ -45,12 +45,15 @@ async def fetch_and_store_book_data(db, openlib_id: str, review: str, username="
     client = Client(email=settings.EMAIL_ADDRESS)
     openlib_caller = OpenLibCaller(client=client, max_concurrent_requests=1)
 
+    author_repo = AuthorRepository(db=db)
     book_repo = BookRepository(db=db)
+    review_repo = ReviewRepository(db=db)
+    user_repo = UserRepository(db=db)
 
     print(f"fetching book data for {openlib_id}")
-    record = await book_repo.get_book_by_openlib_id(openlib_id)
+    book = await book_repo.get_book_by_openlib_id(openlib_id)
 
-    if not record:
+    if not book:
         book_data, complete_authors = await openlib_caller.get_book_data_for_db(work_id=openlib_id)
 
         book = Book.from_dict(book_data)
@@ -60,22 +63,21 @@ async def fetch_and_store_book_data(db, openlib_id: str, review: str, username="
 
         for author_data in complete_authors:
             author = Author.from_dict(author_data)
-            author_id = await book_repo.get_author_id_by_openlib_id(author.openlib_id)
+            author_id = await author_repo.get_author_id_by_openlib_id(author.openlib_id)
 
             if not author_id:
                 print(f"inserting author: {author}")
-                author_id = await book_repo.insert_author(author)
+                author_id = await author_repo.insert_author(author)
 
             print(f"linking book to author: book_id: {book_id}, author_id: {author_id}")
             await book_repo.link_book_author(book_id, author_id)
     else:
-        book = Book.from_db_record(record)
         book_id = book.id
 
-    user_id = await book_repo.get_user_id_by_username(username)
+    user_id = await user_repo.get_user_id_by_username(username)
 
     print(f"got user_id: {user_id}")
 
     print(f"inserting review: {review}")
-    await book_repo.insert_review(user_id["id"], book_id, review)
+    await review_repo.insert_review(user_id, book_id, review)
     return True

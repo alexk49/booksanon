@@ -2,10 +2,10 @@ from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.middleware.sessions import SessionMiddleware
 from . import settings
-from .resources import db, book_repo
+from .resources import db, user_repo
 from .routes import routes
 
-startup = [db.start_up, book_repo.create_anon]
+startup = [db.start_up, user_repo.create_anon]
 
 shutdown = [db.close_down]
 

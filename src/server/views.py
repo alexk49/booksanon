@@ -20,7 +20,7 @@ templates = Jinja2Templates(directory=str(settings.TEMPLATES_DIR))
 
 async def home(request: Request):
     template = "index.html"
-    reviews = await resources.book_repo.get_most_recent_book_reviews(resources.db)
+    reviews = await resources.review_repo.get_most_recent_book_reviews(resources.db)
     context = {"request": request, "reviews": reviews}
     return templates.TemplateResponse(template, context=context)
 
@@ -44,7 +44,7 @@ async def review_page(request: Request):
     Use /review/review.id to return individual review
     """
     review_id = request.path_params["review_id"]
-    review = await resources.book_repo.get_review_and_book_by_review_id(review_id=review_id)
+    review = await resources.review_repo.get_review_and_book_by_review_id(review_id=review_id)
     template = "review.html"
     context = {"request": request, "review": review}
     return templates.TemplateResponse(template, context=context)
@@ -63,13 +63,13 @@ async def book_page(request: Request):
 
 async def author_page(request: Request):
     author_id = int(request.path_params["author_id"])
-    author = await resources.book_repo.get_author_by_id(author_id)
+    author = await resources.author_repo.get_author_by_id(author_id)
 
     if author:
         books = await resources.book_repo.get_books_by_author(author_id)
         book_ids = [b.id for b in books]
 
-        reviews = await resources.book_repo.get_reviews_for_books(book_ids)
+        reviews = await resources.review_repo.get_reviews_for_books(book_ids)
 
         reviews_by_book: dict[int, list[Review]] = {}
         for rv in reviews:

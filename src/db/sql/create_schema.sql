@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS books (
     openlib_description TEXT,
     first_publish_year INT,
     openlib_work_key TEXT UNIQUE NOT NULL,
-    known_publishers TEXT[] DEFAULT '{}',
+    publishers TEXT[] DEFAULT '{}',
     isbns_13 TEXT[] DEFAULT '{}',
     isbns_10 TEXT[] DEFAULT '{}',
     openlib_tags TEXT[] DEFAULT '{}',

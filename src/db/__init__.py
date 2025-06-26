@@ -1,3 +1,3 @@
-from .db import DataBase
+from .db import Database
 
-__all__ = ["DataBase"]
+__all__ = ["Database"]

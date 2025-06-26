@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 
-class DataBase:
+class Database:
     def __init__(self, user: str, password: str, url: str):
         self.dsn = f"postgresql://{user}:{password}@{url}"
         self.pool: asyncpg.Pool = None

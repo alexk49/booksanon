@@ -1,11 +1,8 @@
--- name: get_book_by_openlib_work_key
+-- name: get_book_by_openlib_work_key^
 SELECT * FROM books WHERE openlib_work_key = :openlib_work_key;
 
--- name: get_book_by_id
+-- name: get_book_by_id^
 SELECT * FROM books WHERE id = :book_id;
-
--- name: get_book_id_by_openlib_work_key
-SELECT id FROM books WHERE openlib_work_key = :openlib_work_key;
 
 -- name: get_most_recent_books
 SELECT 
@@ -30,6 +27,14 @@ WHERE
   OR array_to_string(author_names, ', ') ILIKE '%' || :search_query || '%'
 LIMIT 100;
 
+-- name: get_books_by_author
+SELECT 
+  b.* 
+FROM books b
+JOIN book_authors ba ON ba.book_id = b.id
+WHERE ba.author_id = :author_id
+ORDER BY b.updated_at DESC;
+
 -- name: insert_book<!
 INSERT INTO books (
     title,
@@ -38,7 +43,7 @@ INSERT INTO books (
     openlib_description,
     first_publish_year,
     openlib_work_key,
-    known_publishers,
+    publishers,
     isbns_13,
     isbns_10,
     openlib_tags,
@@ -52,7 +57,7 @@ INSERT INTO books (
     :openlib_description,
     :first_publish_year,
     :openlib_work_key,
-    :known_publishers,
+    :publishers,
     :isbns_13,
     :isbns_10,
     :openlib_tags,
@@ -66,10 +71,3 @@ RETURNING id;
 -- name: link_book_author!
 INSERT INTO book_authors (book_id, author_id) VALUES (:book_id, :author_id) ON CONFLICT DO NOTHING;
 
--- name: get_books_by_author
-SELECT 
-  b.* 
-FROM books b
-JOIN book_authors ba ON ba.book_id = b.id
-WHERE ba.author_id = :author_id
-ORDER BY b.updated_at DESC;

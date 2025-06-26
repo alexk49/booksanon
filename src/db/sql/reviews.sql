@@ -30,7 +30,7 @@ JOIN books b ON b.id = r.book_id
 LEFT JOIN book_authors ba ON ba.book_id = b.id
 LEFT JOIN authors a ON a.id = ba.author_id
 GROUP BY r.id, b.id
-ORDER BY r.created_at DESC
+ORDER BY r.created_at DESC;
 
 -- name: get_reviews_for_books
 SELECT 
@@ -64,4 +64,4 @@ INSERT INTO reviews (
         :user_id,
         :book_id,
         :content
-        )
+        );
