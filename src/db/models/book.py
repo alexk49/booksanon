@@ -36,7 +36,7 @@ class Book:
     updated_at: Optional[str] = None
 
     @classmethod
-    def from_db_record(cls, record: Record) -> "Book":
+    def from_db_record(cls, record: Record) -> Optional["Book"]:
         if not record:
             return None
 
@@ -63,7 +63,7 @@ class Book:
         )
 
     @classmethod
-    def from_db_records(cls, records: list[Record]) -> list["Book"]:
+    def from_db_records(cls, records: list[Record]) -> list[Optional["Book"]]:
         """
         Converts an iterable of database records into a list of Book objects.
         """
@@ -72,6 +72,7 @@ class Book:
     @classmethod
     def from_dict(cls, book_dict: dict) -> "Book":
         description = cls._parse_description(book_dict.get("description", None))
+        cover_ids_from_api = book_dict.get("covers", [])
 
         return cls(
             title=book_dict["title"],
@@ -80,7 +81,7 @@ class Book:
             first_publish_year=book_dict["first_publish_year"],
             openlib_work_key=book_dict["openlib_work_key"],
             cover_id=book_dict.get("cover_id"),
-            openlib_cover_ids=book_dict.get("covers", []),
+            openlib_cover_ids=[str(cid) for cid in cover_ids_from_api],
             openlib_description=description,
             openlib_tags=set(book_dict.get("subjects", [])),
             remote_links=book_dict.get("links"),

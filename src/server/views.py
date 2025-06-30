@@ -1,3 +1,4 @@
+import asyncio
 import secrets
 from collections.abc import Callable
 
@@ -5,10 +6,10 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
 
-from db.models import Book, Review
+from db.models import Book
 from .form_validators import book_submit_fields, clean_results, get_errors, search_form_fields, validate_form
 from . import settings
-from . import resources
+from .resources import resources
 from .tasks import process_review_submission
 
 
@@ -63,26 +64,17 @@ async def book_page(request: Request):
 
 async def author_page(request: Request):
     author_id = int(request.path_params["author_id"])
-    author = await resources.author_repo.get_author_by_id(author_id)
 
-    if author:
-        books = await resources.book_repo.get_books_by_author(author_id)
-        book_ids = [b.id for b in books]
+    author_task = resources.author_repo.get_author_by_id(author_id)
+    books_task = resources.book_repo.get_books_with_reviews_by_author(author_id)
 
-        reviews = await resources.review_repo.get_reviews_for_books(book_ids)
+    author, books = await asyncio.gather(author_task, books_task)
 
-        reviews_by_book: dict[int, list[Review]] = {}
-        for rv in reviews:
-            reviews_by_book.setdefault(rv.book_id, []).append(rv)
-
-        for b in books:
-            b.reviews = reviews_by_book.get(b.id, [])
-
-        context = {
-            "request": request,
-            "author": author,
-            "books": books,
-        }
+    context = {
+        "request": request,
+        "author": author,
+        "books": books,
+    }
     return templates.TemplateResponse("author.html", context=context)
 
 
@@ -94,15 +86,18 @@ async def search(request):
             status_code=303,
         )
 
-    if request.method == "POST":
-        return await handle_form(request, search_form_fields, on_success)
-
-    if request.method == "GET":
+    async def search_get(request):
         query = (request.query_params.get("q", "")).replace("+", " ")
         results = []
         if query:
             results = await resources.book_repo.search_books(search_query=query)
         return templates.TemplateResponse("search.html", {"request": request, "query": query, "results": results})
+
+    if request.method == "POST":
+        return await handle_form(request, search_form_fields, on_success)
+
+    if request.method == "GET":
+        return await search_get(request)
 
 
 """ API routes """
@@ -129,8 +124,6 @@ async def search_openlib(request: Request):
 
 async def submit_book(request: Request):
     async def on_success(clean):
-        # submission_id = str(uuid.uuid4())
-        # task = BackgroundTask(fetch_and_store_book_data, openlib_id=clean["openlib_id_hidden"], review=clean["review"])
         print(f"inserting form data into queue: {clean}")
         submission_id = await resources.queue_repo.insert_review_submission(
             openlib_id=clean["openlib_id_hidden"], review=clean["review"]

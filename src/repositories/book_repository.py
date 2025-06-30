@@ -1,12 +1,16 @@
+from collections import defaultdict
+
 from asyncpg import Record
 
 from db import Database
 from db.models import Book, Review
+from .review_repository import ReviewRepository
 
 
 class BookRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Database, review_repo: ReviewRepository):
         self.db = db
+        self.review_repo = review_repo
 
     """ Insert values """
 
@@ -38,6 +42,24 @@ class BookRepository:
     async def get_books_by_author(self, author_id: int) -> list[Book]:
         records = await self.db.run_query("get_books_by_author", author_id=author_id)
         return Book.from_db_records(records)
+
+    async def get_books_with_reviews_by_author(self, author_id: int) -> list[Book]:
+        """Fetches books by an author and attaches their reviews."""
+        books = await self.get_books_by_author(author_id)
+        if not books:
+            return []
+
+        book_ids = [b.id for b in books]
+        reviews = await self.review_repo.get_reviews_for_books(book_ids)
+        reviews_by_book = defaultdict(list)
+
+        for review in reviews:
+            reviews_by_book[review.book_id].append(review)
+
+        for book in books:
+            book.reviews = reviews_by_book.get(book.id, [])
+
+        return books
 
     """ search values """
 
