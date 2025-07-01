@@ -229,10 +229,7 @@ class OpenLibCaller:
         Limit has to be a digit but should be passed as str,
         this does not limit actual results but limits pages of results so default is 1
         """
-        if limit and type(limit) is int:
-            url = f"{self.search_url}?q={search_query}&limit={limit}&lang={lang}"
-        else:
-            url = f"{self.search_url}?q={search_query}"
+        url = f"{self.search_url}?q={search_query}&limit={limit}&lang={lang}"
         print(f"created search url as {url}")
         return url
 
@@ -305,7 +302,7 @@ class OpenLibCaller:
             work_id = f"/works/{work_id}"
             return f"{self.root_url}{work_id}.json"
         else:
-            print("invalid work id")
+            print(f"invalid work id: {work_id}")
             return None
 
     def get_editions_url(self, work_id):
@@ -347,13 +344,14 @@ class OpenLibCaller:
 
             publishers.update(entry.get("publishers", []))
 
-        first_edition_date = sorted(edition_dates)[0]
-        year = int(extract_year(first_edition_date))
-        book.update({"first_publish_year": year})
+        if edition_dates:
+            first_edition_date = sorted(edition_dates)[0]
+            year = int(extract_year(first_edition_date))
+            book.update({"first_publish_year": year})
 
         pages = book.get("number_of_pages_median")
 
-        if not pages or pages == 0:
+        if (not pages or pages == 0) and edition_pages:
             num_pages = median(edition_pages)
             book.update({"number_of_pages_median": num_pages})
 
@@ -370,8 +368,6 @@ class OpenLibCaller:
 
         if not num_of_results:
             num_of_results = len(response["docs"][0:limit])
-        else:
-            num_of_results = num_of_results - 1
 
         if limit and (limit < num_of_results):
             counter = limit
@@ -403,6 +399,7 @@ class OpenLibCaller:
                 }
             )
 
+        pprint.pp(books)
         return books
 
     @staticmethod
