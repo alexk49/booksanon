@@ -25,6 +25,9 @@ lint = [
     "mypy==1.15.0",
 ]
 test = [
+    "pytest==8.4.1",
+    "pytest-asyncio==1.0.0",
+    "pytest-mock==3.14.1",
 ]
 [tool.ruff]
 line-length = 120
@@ -37,3 +40,5 @@ ignore_missing_imports = true
 [build-system]
 requires = ["setuptools >= 64"]
 build-backend = "setuptools.build_meta"
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
