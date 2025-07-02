@@ -17,4 +17,6 @@ class UserRepository:
 
     async def get_user_id_by_username(self, username: str) -> int | None:
         result = await self.db.run_query("get_user_id_by_username", username=username)
-        return result["id"]
+        if result:
+            return result["id"]
+        return None

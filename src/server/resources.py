@@ -5,19 +5,6 @@ from repositories import AuthorRepository, BookRepository, QueueRepository, Revi
 from . import settings
 
 
-"""
-client = Client(email=settings.EMAIL_ADDRESS)
-openlib_caller = OpenLibCaller(client=client)
-db = Database(user=settings.POSTGRES_USERNAME, password=settings.POSTGRES_PASSWORD, url=settings.POSTGRES_URL)
-
-review_repo = ReviewRepository(db=db)
-author_repo = AuthorRepository(db=db)
-book_repo = BookRepository(db=db, review_repo=review_repo)
-queue_repo = QueueRepository(db=db)
-user_repo = UserRepository(db=db)
-"""
-
-
 class AppResourceContainer:
     def __init__(self):
         self.client = Client(email=settings.EMAIL_ADDRESS)

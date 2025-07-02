@@ -1,6 +1,5 @@
 from typing import Any
 
-
 from calls.openlib import validate_openlib_work_id
 
 

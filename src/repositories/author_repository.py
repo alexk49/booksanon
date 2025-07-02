@@ -23,7 +23,9 @@ class AuthorRepository:
 
     async def get_author_id_by_openlib_id(self, author_openlib_id: str) -> Record | None:
         result = await self.db.run_query("get_author_id_by_openlib_id", openlib_id=author_openlib_id)
-        return result["id"]
+        if result:
+            return result["id"]
+        return None
 
     """ Check values """
 

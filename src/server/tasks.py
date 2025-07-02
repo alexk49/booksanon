@@ -64,6 +64,8 @@ async def _fetch_and_store_book_data(openlib_id: str, review: str, username="ano
         print(f"inserting book: {book}")
         book_id = await resources.book_repo.insert_book(book)
 
+        print(f"checking author data: {complete_authors}")
+
         for author_data in complete_authors:
             if not author_data:
                 print("skipping empty author")
