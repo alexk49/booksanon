@@ -1,4 +1,3 @@
-import pytest
 from server.form_validators import (
     validate_form,
     clean_results,
@@ -9,7 +8,6 @@ from server.form_validators import (
     must_be_empty,
     validate_csrf_token,
     book_submit_fields,
-    search_form_fields,
 )
 
 

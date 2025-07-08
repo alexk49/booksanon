@@ -20,10 +20,12 @@ templates = Jinja2Templates(directory=str(settings.TEMPLATES_DIR))
 
 
 async def home(request: Request):
+    if "session_id" not in request.session:
+        request.session["session_id"] = await create_csrf_token(request)
     template = "index.html"
     reviews = await resources.review_repo.get_most_recent_book_reviews(resources.db)
     context = {"request": request, "reviews": reviews}
-    return templates.TemplateResponse(template, context=context)
+    return templates.TemplateResponse(request, template, context=context)
 
 
 async def add_book(request: Request):
@@ -31,13 +33,13 @@ async def add_book(request: Request):
         request.session["session_id"] = await create_csrf_token(request)
     template = "add-book.html"
     context = {"request": request}
-    return templates.TemplateResponse(template, context=context)
+    return templates.TemplateResponse(request, template, context=context)
 
 
 async def submission(request: Request):
     template = "submission.html"
     context = {"request": request}
-    return templates.TemplateResponse(template, context=context)
+    return templates.TemplateResponse(request, template, context=context)
 
 
 async def review_page(request: Request):
@@ -48,7 +50,7 @@ async def review_page(request: Request):
     review = await resources.review_repo.get_review_and_book_by_review_id(review_id=review_id)
     template = "review.html"
     context = {"request": request, "review": review}
-    return templates.TemplateResponse(template, context=context)
+    return templates.TemplateResponse(request, template, context=context)
 
 
 async def book_page(request: Request):
@@ -59,7 +61,7 @@ async def book_page(request: Request):
     book, reviews = await resources.book_repo.get_book_and_reviews_by_book_id(book_id=book_id)
     template = "book.html"
     context = {"request": request, "book": book, "reviews": reviews}
-    return templates.TemplateResponse(template, context=context)
+    return templates.TemplateResponse(request, template, context=context)
 
 
 async def author_page(request: Request):
@@ -75,7 +77,7 @@ async def author_page(request: Request):
         "author": author,
         "books": books,
     }
-    return templates.TemplateResponse("author.html", context=context)
+    return templates.TemplateResponse(request, "author.html", context=context)
 
 
 async def search(request):
@@ -91,9 +93,14 @@ async def search(request):
         results = []
         if query:
             results = await resources.book_repo.search_books(search_query=query)
-        return templates.TemplateResponse("search.html", {"request": request, "query": query, "results": results})
+        return templates.TemplateResponse(
+            request, "search.html", {"request": request, "query": query, "results": results}
+        )
 
     if request.method == "POST":
+        session_token = request.session.get("session_id", "")
+        print(session_token)
+        print(request.session)
         return await handle_form(request, search_form_fields, on_success)
 
     if request.method == "GET":
@@ -145,11 +152,8 @@ async def submit_book(request: Request):
 
 async def set_csrf_token(request: Request):
     if "session_id" not in request.session:
-        csrf_token = await create_csrf_token(request)
-        request.session["session_id"] = csrf_token
-    else:
-        csrf_token = request.session["session_id"]
-    return JSONResponse({"csrf_token": csrf_token})
+        request.session["session_id"] = await create_csrf_token(request)
+    return JSONResponse({"csrf_token": request.session["session_id"]})
 
 
 """ helper functions """
@@ -161,6 +165,9 @@ async def handle_form(request: Request, form_fields: dict, on_success: Callable)
     """
     form = dict(await request.form())
     session_token = request.session.get("session_id", "")
+
+    print("Form keys:", form.keys())
+    print("Session token:", session_token)
 
     result = validate_form(form, session_token, form_fields)
     errors = get_errors(result)

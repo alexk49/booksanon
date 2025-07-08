@@ -22,15 +22,15 @@ def repo(mock_db, mock_review_repo):
 @pytest.mark.asyncio
 async def test_get_book_and_reviews_by_book_id(repo, mock_db, mock_book_record, mock_review_record):
     # Simulate DB joined rows: book + reviews
-    record1 = {**mock_book_record, **mock_review_record(book_id=1, review_id=10)}
-    record2 = {**mock_book_record, **mock_review_record(book_id=1, review_id=11)}
+    record1 = {**mock_review_record(review_id=10, book_id=1), **mock_book_record}
+    record2 = {**mock_review_record(review_id=11, book_id=1), **mock_book_record}
     mock_db.run_query.return_value = [record1, record2]
 
     # Patch Review.from_joined_record to parse mock record correctly
     def patched_from_joined_record(r):
         return Review(
             id=r["review_id"],
-            book_id=r["id"],
+            book_id=r["book_id"],
             user_id=r["user_id"],
             content=r["content"],
             created_at=r["created_at"],

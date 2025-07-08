@@ -24,7 +24,7 @@ async def test_get_reviews_for_books(mock_db, mock_review_record):
 
     Review.from_db_record = lambda r: Review(
         id=r["review_id"],
-        book_id=r["id"],
+        book_id=r["book_id"],
         user_id=r["user_id"],
         content=r["content"],
         created_at=r["created_at"],
@@ -53,7 +53,7 @@ async def test_get_review_and_book_by_review_id(mock_db, mock_review_record):
 
     Review.from_db_record = lambda r: Review(
         id=r["review_id"],
-        book_id=r["id"],
+        book_id=r["book_id"],
         user_id=r["user_id"],
         content=r["content"],
         created_at=r["created_at"],
@@ -74,7 +74,7 @@ async def test_get_most_recent_book_reviews(mock_db, mock_review_record):
     Review.from_db_records = lambda records: [
         Review(
             id=r["review_id"],
-            book_id=r["id"],
+            book_id=r["book_id"],
             user_id=r["user_id"],
             content=r["content"],
             created_at=r["created_at"],
@@ -98,7 +98,7 @@ async def test_get_reviews_by_book_id(mock_db, mock_review_record):
     Review.from_db_records = lambda records: [
         Review(
             id=r["review_id"],
-            book_id=r["id"],
+            book_id=r["book_id"],
             user_id=r["user_id"],
             content=r["content"],
             created_at=r["created_at"],
