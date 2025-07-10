@@ -10,12 +10,14 @@ def repo(mock_db):
 
 
 @pytest.mark.asyncio
-async def test_get_author_by_id_returns_author(repo, mock_db):
+async def test_get_author_by_id_returns_author(repo, mock_db, monkeypatch):
     fake_record = {"id": 1, "name": "Author X"}
     mock_db.run_query.return_value = fake_record
 
-    # Patch the staticmethod
-    Author.from_db_record = lambda record: Author(id=record["id"], name=record["name"])
+    def mock_from_db_record(record):
+        return Author(id=record["id"], name=record["name"])
+
+    monkeypatch.setattr(Author, "from_db_record", mock_from_db_record)
 
     result = await repo.get_author_by_id(1)
     assert isinstance(result, Author)

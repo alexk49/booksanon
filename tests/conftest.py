@@ -30,7 +30,7 @@ def mock_author_record():
         "death_date": None,
         "created_at": datetime.now().isoformat(),
         "updated_at": datetime.now().isoformat(),
-    }
+    }.copy()
 
 
 @pytest.fixture
@@ -48,7 +48,7 @@ def mock_book_record():
         "openlibrary_key": "OL123M",
         "created_at": datetime.now().isoformat(),
         "updated_at": datetime.now().isoformat(),
-    }
+    }.copy()
 
 
 @pytest.fixture
@@ -77,6 +77,6 @@ def mock_review_record():
             "openlib_description": "A mock book description.",
             "openlib_cover_ids": ["1234", "5678"],
             "remote_links": '[{"title": "Sample Link", "url": "http://example.com"}]',
-        }
+        }.copy()
 
     return _review

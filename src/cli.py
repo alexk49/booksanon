@@ -24,10 +24,19 @@ def set_arg_parser():
 
     subparsers.add_parser("lint", help="Run project linters")
 
-    subparsers.add_parser("test", help="Run project tests")
+    test_parser = subparsers.add_parser("test", help="Run project tests")
+    define_test_args(test_parser)
 
     return parser
 
+
+def define_test_args(test_parser):
+    test_parser.add_argument(
+    "--coverage",
+        "-c",
+        action="store_true",
+        help="Run tests with coverage report",
+    )
 
 def run_py_linters():
     run_command(["ruff", "check", ".", "--fix"])
@@ -73,7 +82,12 @@ async def async_main():
         run_js_linters()
 
     if args.command == "test":
-        run_command([sys.executable, "-m", "unittest", "discover", "-v"])
+        if args.coverage:
+            run_command(["coverage", "run", "-m", "pytest"])
+            run_command(["coverage", "html"])
+            sys.exit()
+       
+        run_command(["pytest"])
 
 
 def main():

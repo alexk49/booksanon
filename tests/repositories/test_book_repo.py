@@ -20,7 +20,7 @@ def repo(mock_db, mock_review_repo):
 
 
 @pytest.mark.asyncio
-async def test_get_book_and_reviews_by_book_id(repo, mock_db, mock_book_record, mock_review_record):
+async def test_get_book_and_reviews_by_book_id(repo, mock_db, mock_book_record, mock_review_record, monkeypatch):
     # Simulate DB joined rows: book + reviews
     record1 = {**mock_review_record(review_id=10, book_id=1), **mock_book_record}
     record2 = {**mock_review_record(review_id=11, book_id=1), **mock_book_record}
@@ -37,20 +37,23 @@ async def test_get_book_and_reviews_by_book_id(repo, mock_db, mock_book_record, 
             updated_at=r["updated_at"],
         )
 
-    Review.from_joined_record = patched_from_joined_record
+    monkeypatch.setattr(Review, "from_joined_record", patched_from_joined_record)
 
     # Patch Book.from_db_record if needed (optional)
-    Book.from_db_record = lambda r: Book(
-        id=r["id"],
-        title=r["title"],
-        authors=r["authors"],
-        author_keys=r["author_keys"],
-        author_names=r["author_names"],
-        first_publish_year=r["first_publish_year"],
-        openlib_work_key=r["openlibrary_key"],
-        created_at=r["created_at"],
-        updated_at=r["updated_at"],
-    )
+    def mock_from_db_record(r):
+        return Book(
+            id=r["id"],
+            title=r["title"],
+            authors=r["authors"],
+            author_keys=r["author_keys"],
+            author_names=r["author_names"],
+            first_publish_year=r["first_publish_year"],
+            openlib_work_key=r["openlibrary_key"],
+            created_at=r["created_at"],
+            updated_at=r["updated_at"],
+        )
+
+    monkeypatch.setattr(Book, "from_db_record", mock_from_db_record)
 
     result_book, reviews = await repo.get_book_and_reviews_by_book_id(book_id=1)
 
