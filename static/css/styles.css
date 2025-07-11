@@ -6,7 +6,6 @@ html {
 
 body {
   margin: 0 auto;
-  max-width: 70em;
   line-height: 1.5;
   padding: 0.25em 0.25em;
   min-height: 100vh;
@@ -14,7 +13,8 @@ body {
 }
 
 main {
-  margin: 5rem;
+  margin: 2rem;
+  max-width: 70em;
 }
 
 .book-review {
@@ -65,116 +65,100 @@ main {
 
 /* nav bar */
 
-.navbar-brand {
-  font-size: xx-large;
-  float: left;
-}
-
-.navbrand-link {
-  display: block;
-  text-align: center;
-  color: #282a35;
-  font-family: "Lucida Handwriting", cursive;
-}
-
 .nav-bar {
   position: sticky;
-  padding-bottom: 25px;
-}
-
-.nav-bar ul {
-  background-color: white;
-  overflow: hidden;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
   top: 0;
-  left: 0;
-  right: 0;
-  position: fixed;
-  width: 100%;
+  padding: 1rem;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  background-color: #fff;
 }
 
-.nav-bar input {
-  border-color: #cecdd1 !important;
-  box-shadow: none;
-  display: block;
-  text-align: center;
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.nav-item {
-  border-right: 1px solid #282a35;
-  float: left;
-}
-
-.nav-link {
-  display: block;
-  display: inline-block;
-  text-align: center;
-  padding: 8px 8px;
+.navbar-brand {
+  font-size: 1.8rem;
+  font-family: "Lucida Handwriting", cursive;
   color: #282a35;
   text-decoration: none;
 }
 
-.nav-border {
-  height: 2px;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: black;
-  box-shadow: 0 -1px 0 black;
-  z-index: 1904;
+.nav-menu {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
-.navbar-toggle {
-  /* set display to none for toggle unless screen < 600px (see @media screen block) */
+.nav-link {
+  color: #282a35;
+  text-decoration: none;
+  padding: 0.25rem;
+  display: inline-block;
+}
+
+.nav-toggle {
   display: none;
-  border: none;
-  background-color: transparent;
-  width: 40px;
-  height: 40px;
   flex-direction: column;
   justify-content: center;
-  align-self: flex-end;
-  margin-left: auto;
-  padding-right: 50px;
-  /*padding-left: 20px;*/
+  gap: 4px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
 }
 
-/* When the screen is less than 600 pixels wide, hide all nav items except branding */
-@media screen and (max-width: 600px) {
-  .nav-item {
-    display: none;
-    border-right: none;
-  }
-  .navbar-toggle {
-    display: flex;
-  }
-}
-
-/* sets the menu toggle bars */
-.icon-bar {
-  display: block;
-  width: 25px;
-  height: 4px;
-  margin: 2px;
+.nav-toggle .icon-bar {
+  width: 100%;
+  height: 3px;
   background-color: #282a35;
 }
 
-/* The "responsive" class is added to the navbar with JavaScript when the user clicks on the icon. This class makes the navbar look good on small screens (display the links vertically instead of horizontally) */
-@media screen and (max-width: 600px) {
-  .nav-bar.responsive {
-    position: relative;
+/* Responsive menu behavior */
+@media (max-width: 600px) {
+  .nav-container {
+    flex-direction: column;
+    align-items: strech;
+    gap: 1rem;
   }
-  .nav-item.responsive {
-    float: none;
-    display: block;
-    text-align: left;
-    width: 120px;
-  }
-}
 
+  .nav-bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav-toggle, .nav-search {
+    padding: 0.2rem;
+    margin: 0.2rem;
+  }
+
+  .nav-menu {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    background: white;
+    border: 1px solid #ccc;
+    width: 200px;
+    padding: 1rem;
+  }
+
+  .nav-menu.open {
+    display: flex;
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+
+}
 
 /* book display on search results */
 
