@@ -32,11 +32,12 @@ def set_arg_parser():
 
 def define_test_args(test_parser):
     test_parser.add_argument(
-    "--coverage",
+        "--coverage",
         "-c",
         action="store_true",
         help="Run tests with coverage report",
     )
+
 
 def run_py_linters():
     run_command(["ruff", "check", ".", "--fix"])
@@ -86,7 +87,7 @@ async def async_main():
             run_command(["coverage", "run", "-m", "pytest"])
             run_command(["coverage", "html"])
             sys.exit()
-       
+
         run_command(["pytest"])
 
 

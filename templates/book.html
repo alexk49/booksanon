@@ -7,6 +7,11 @@
         <h2>{{ book.title }} by {{ book.author_display }}</h2>
       </header>
       <section>
+        {% if book.cover_id %}
+          <div class="img-wrapper">
+      <a href="/book/{{ book.id }}"><img src="https://covers.openlibrary.org/b/id/{{ book.cover_id }}-M.jpg" alt="Book cover" loading="lazy"></a>
+        </div>
+        {% endif %}
       <p><strong>OpenLib description:</strong> {{ book.openlib_description }}</p>
       <dl>
         <div class="meta-items">

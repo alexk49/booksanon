@@ -13,6 +13,11 @@
     </p>
       </header>
       <section>
+        {% if review.book.cover_id %}
+          <div class="img-wrapper">
+      <a href="/book/{{ review.book.id }}"><img src="https://covers.openlibrary.org/b/id/{{ review.book.cover_id }}-M.jpg" alt="Book cover" loading="lazy"></a>
+        </div>
+        {% endif %}
         <h4><a href="/review/{{ review.id }}">Review</a></h4>
       <p>{{ review.content }}</p>
       <dl>
