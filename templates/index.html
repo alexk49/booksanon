@@ -1,81 +1,89 @@
 {% extends "layout.html" %}
-
 {% block main %}
   <h2>Latest book reviews</h2>
-    {% for review in reviews %}
+  {% for review in reviews %}
     <article class="book-review">
       <header>
-      <h3><a href="book/{{ review.book_id }}">{{ review.book.title }}</a></h3>
-    <p>By 
-      {% for author in review.book.authors %}
-        <a href="/author/{{ author.id }}">{{ author.name }}</a>{% if not loop.last %}, {% endif %}
-      {% endfor %}
-    </p>
+        <h3><a href="book/{{ review.book_id }}">{{ review.book.title }}</a></h3>
+        <p>
+          By
+          {% for author in review.book.authors %}
+            <a href="/author/{{ author.id }}">{{ author.name }}</a
+            >{% if not loop.last %}
+              ,
+            {% endif %}
+          {% endfor %}
+        </p>
       </header>
       <section>
         {% if review.book.cover_id %}
           <div class="img-wrapper">
-      <a href="/book/{{ review.book.id }}"><img src="https://covers.openlibrary.org/b/id/{{ review.book.cover_id }}-M.jpg" alt="Book cover" loading="lazy"></a>
-        </div>
+            <a href="/book/{{ review.book.id }}"
+              ><img
+                src="https://covers.openlibrary.org/b/id/{{ review.book.cover_id }}-M.jpg"
+                alt="Book cover"
+                loading="lazy"
+            /></a>
+          </div>
         {% endif %}
         <h4><a href="/review/{{ review.id }}">Review</a></h4>
-      <p>{{ review.content }}</p>
-      <dl>
-        <div class="meta-items">
-          <div class="meta-item">
-            <dt><strong>First published:</strong></dt>
-            <dd>{{ review.book.first_publish_year }}</dd>
+        <p>{{ review.content }}</p>
+        <dl>
+          <div class="meta-items">
+            <div class="meta-item">
+              <dt><strong>First published:</strong></dt>
+              <dd>{{ review.book.first_publish_year }}</dd>
+            </div>
+
+            <div class="meta-item">
+              <dt><strong>Pages:</strong></dt>
+              <dd>{{ review.book.number_of_pages_median }}</dd>
+            </div>
           </div>
 
-          <div class="meta-item">
-            <dt><strong>Pages:</strong></dt>
-            <dd>{{ review.book.number_of_pages_median }}</dd>
-          </div>
-        </div>
+          <dt><strong>Publishers:</strong></dt>
+          <dd class="meta-list">
+            {% set pubs = review.book.publishers_display %}
+            {% if pubs|length > 5 %}
+              {{ pubs[:5]|join(', ') }}
+              <details class="inline-details">
+                <summary>see more</summary>
+                {{ pubs[5:]|join(', ') }}
+              </details>
+            {% elif pubs %}
+              {{ pubs|join(', ') }}
+            {% else %}
+              Unknown publisher
+            {% endif %}
+          </dd>
 
-     <dt><strong>Publishers:</strong></dt>
-     <dd class="meta-list">
-         {% set pubs = review.book.publishers_display %}
-         {% if pubs|length > 5 %}
-             {{ pubs[:5]|join(', ') }}
-             <details class="inline-details">
-                 <summary>see more</summary>
-                 {{ pubs[5:]|join(', ') }}
-             </details>
-         {% elif pubs %}
-             {{ pubs|join(', ') }}
-         {% else %}
-             Unknown publisher
-         {% endif %}
-    </dd>
+          <dt><strong>OpenLib Tags:</strong></dt>
+          <dd class="meta-list">
+            {% set tags = review.book.tags_display %}
+            {% if tags|length > 5 %}
+              {{ tags[:5]|join(', ') }}
+              <details class="inline-details">
+                <summary>see more</summary>
+                {{ tags[5:]|join(', ') }}
+              </details>
+            {% elif tags %}
+              {{ tags|join(', ') }}
+            {% else %}
+              No tags
+            {% endif %}
+          </dd>
 
-  <dt><strong>OpenLib Tags:</strong></dt>
-  <dd class="meta-list">
-     {% set tags = review.book.tags_display %}
-         {% if tags|length > 5 %}
-             {{ tags[:5]|join(', ') }}
-             <details class="inline-details">
-                 <summary>see more</summary>
-                 {{ tags[5:]|join(', ') }}
-             </details>
-         {% elif tags %}
-             {{ tags|join(', ') }}
-         {% else %}
-             No tags
-         {% endif %}
-    </dd>
-
-      <dt><strong>Link outs:</strong></dt>
-      <dd>
-        {% for link in review.book.link_outs %}
-          <a href="{{ link.url }}">{{ link.text }}</a>
-        {% endfor %}
-      </dd>
-      </dl>
+          <dt><strong>Link outs:</strong></dt>
+          <dd>
+            {% for link in review.book.link_outs %}
+              <a href="{{ link.url }}">{{ link.text }}</a>
+            {% endfor %}
+          </dd>
+        </dl>
       </section>
       <footer>
         <small>First added: {{ review.created_at }}</small>
       </footer>
     </article>
-    {% endfor %}
+  {% endfor %}
 {% endblock %}

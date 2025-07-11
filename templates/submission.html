@@ -1,9 +1,13 @@
-{% extends "layout.html" %}
-  {% block title %} - Submission{% endblock %}
-  {% block javascript %}<script defer type="module" src="/static/js/submission.js"></script>{% endblock %}
+{% extends "layout.html" %} {% block title %}- Submission{% endblock %}
+{% block javascript %}
+  <script defer type="module" src="/static/js/submission.js"></script>
+{% endblock %}
 {% block main %}
-<h1>Submission confirmation</h1>
-  <p id="submission-message">Thank you for your book recommendation. Your review is being processed and will show on the site soon!</p>
+  <h1>Submission confirmation</h1>
+  <p id="submission-message">
+    Thank you for your book recommendation. Your review is being processed and
+    will show on the site soon!
+  </p>
   <p>This page is populated by submissions saved in your local storage only.</p>
-<div id="submissions-container"></div>
+  <div id="submissions-container"></div>
 {% endblock %}

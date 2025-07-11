@@ -1,13 +1,13 @@
 /* fonts and background */
 
 html {
-  font-family: "Helvetica", "Arial", sans-serif, system-ui;
+  font-family: Helvetica, Arial, sans-serif, system-ui;
 }
 
 body {
   margin: 0 auto;
   line-height: 1.5;
-  padding: 0.25em 0.25em;
+  padding: 0.25em;
   min-height: 100vh;
   font-size: 1em;
 }
@@ -22,7 +22,8 @@ main {
   flex-direction: column;
 }
 
-.meta-items, .meta-item {
+.meta-items,
+.meta-item {
   display: flex;
   gap: 0.25rem;
   align-items: baseline;
@@ -37,7 +38,8 @@ main {
   margin: 0;
 }
 
-.meta-list, .tooltip {
+.meta-list,
+.tooltip {
   font-size: 0.75em;
 }
 
@@ -62,7 +64,6 @@ main {
   }
 }
 
-
 /* nav bar */
 
 .nav-bar {
@@ -70,7 +71,7 @@ main {
   top: 0;
   padding: 1rem;
   z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 5%);
   background-color: #fff;
 }
 
@@ -90,11 +91,11 @@ main {
 }
 
 .nav-menu {
-    display: flex;
-    gap: 1rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .nav-link {
@@ -121,10 +122,9 @@ main {
 }
 
 /* Responsive menu behavior */
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .nav-container {
     flex-direction: column;
-    align-items: strech;
     gap: 1rem;
   }
 
@@ -134,7 +134,8 @@ main {
     align-items: center;
   }
 
-  .nav-toggle, .nav-search {
+  .nav-toggle,
+  .nav-search {
     padding: 0.2rem;
     margin: 0.2rem;
   }
@@ -157,7 +158,6 @@ main {
   .nav-toggle {
     display: flex;
   }
-
 }
 
 /* book display on search results */
@@ -169,7 +169,8 @@ main {
   padding: 1rem;
 }
 
-.book-card p, .book-card h3 {
+.book-card p,
+.book-card h3 {
   line-height: 1;
   padding: 0.2rem;
   margin: 0 auto;
@@ -180,8 +181,7 @@ main {
   border-radius: 8px;
   display: flex;
   text-align: center;
-  justify-content:  center;
-  padding: 1rem;
+  justify-content: center;
   max-width: 100%;
   flex-wrap: wrap;
   padding: 1rem;

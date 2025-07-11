@@ -1,57 +1,63 @@
 {% extends "layout.html" %}
-
-{% block javascript %}<script defer type="module" src="/static/js/search.js"></script>{% endblock %}
-
+{% block javascript %}
+  <script defer type="module" src="/static/js/search.js"></script>
+{% endblock %}
 {% block main %}
-<section id="search">
-  <form id="search-form" method="post" action="/api/search">
-    <div class="search-field">
-      <input
-        autocomplete="off"
-        autofocus
-        id="search_query"
-        name="search_query"
-        placeholder="Enter book"
-        type="text"
-        {% if query %}
-        value="{{ query }}"
-        {% endif %}
-      />
-      <input type="hidden" name="csrf_token" class="csrf-token"> 
-      <div class="tooltip">
-        title, author, ISBN etc.
+  <section id="search">
+    <form id="search-form" method="post" action="/api/search">
+      <div class="search-field">
+        <input
+          autocomplete="off"
+          autofocus
+          id="search_query"
+          name="search_query"
+          placeholder="Enter book"
+          type="text"
+          {%
+            if
+            query
+          %}
+            value="{{ query }}"
+          {% endif %}
+        />
+        <input type="hidden" name="csrf_token" class="csrf-token" />
+        <div class="tooltip">title, author, ISBN etc.</div>
       </div>
-    </div>
-  </form>
-</section>
+    </form>
+  </section>
   <section id="results" class="book-grid">
-  {% if results %}
-    {% for book in results %}
-    <div class="book-card">
-        {% if book.cover_id %}
-          <div class="img-wrapper">
-      <a href="/book/{{ book.id }}"><img src="https://covers.openlibrary.org/b/id/{{ book.cover_id }}-M.jpg" alt="Book cover" loading="lazy"></a>
+    {% if results %}
+      {% for book in results %}
+        <div class="book-card">
+          {% if book.cover_id %}
+            <div class="img-wrapper">
+              <a href="/book/{{ book.id }}"
+                ><img
+                  src="https://covers.openlibrary.org/b/id/{{ book.cover_id }}-M.jpg"
+                  alt="Book cover"
+                  loading="lazy"
+              /></a>
+            </div>
+          {% endif %}
+          <div class="book-meta">
+            <h3><a href="/book/{{ book.id }}">{{ book.title }}</a></h3>
+            <p>by {{ book.author_display }}</p>
+            <p>Published: {{ book.first_publish_year }}</p>
+            <p>Pages: {{ book.number_of_pages_median }}</p>
+            <div class="link-outs">
+              <dl>
+                <dd>
+                  {% for link in book.link_outs %}
+                    <li><a href="{{ link.url }}">{{ link.text }}</a></li>
+                  {% endfor %}
+                </dd>
+              </dl>
+            </div>
+          </div>
         </div>
-        {% endif %}
-      <div class="book-meta">
-      <h3><a href="/book/{{ book.id }}">{{ book.title }}</a></h3>
-          <p>by {{ book.author_display }}</p>
-          <p>Published: {{ book.first_publish_year }}</p>
-          <p>Pages: {{ book.number_of_pages_median }}</p>
-      <div class="link-outs">
-        <dl>
-              <dd>
-                {% for link in book.link_outs %}
-                <li><a href="{{ link.url }}">{{ link.text }}</a></li>
-                {% endfor %}
-              </dd>
-        </dl>
-      </div>
-      </div>
-      </div>
       {% endfor %}
-      {% else %}
-    <p>No results found.</p>
-  {% endif %}
-</section>
+    {% else %}
+      <p>No results found.</p>
+    {% endif %}
+  </section>
 {% endblock %}

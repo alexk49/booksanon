@@ -1,18 +1,23 @@
 {% extends "layout.html" %}
-
-{% block main %}
-{% if book %}
-    <article class="book">
-      <header>
-        <h2>{{ book.title }} by {{ book.author_display }}</h2>
-      </header>
-      <section>
-        {% if book.cover_id %}
-          <div class="img-wrapper">
-      <a href="/book/{{ book.id }}"><img src="https://covers.openlibrary.org/b/id/{{ book.cover_id }}-M.jpg" alt="Book cover" loading="lazy"></a>
+{% block main %}{% if book %}
+  <article class="book">
+    <header>
+      <h2>{{ book.title }} by {{ book.author_display }}</h2>
+    </header>
+    <section>
+      {% if book.cover_id %}
+        <div class="img-wrapper">
+          <a href="/book/{{ book.id }}"
+            ><img
+              src="https://covers.openlibrary.org/b/id/{{ book.cover_id }}-M.jpg"
+              alt="Book cover"
+              loading="lazy"
+          /></a>
         </div>
-        {% endif %}
-      <p><strong>OpenLib description:</strong> {{ book.openlib_description }}</p>
+      {% endif %}
+      <p>
+        <strong>OpenLib description:</strong> {{ book.openlib_description }}
+      </p>
       <dl>
         <div class="meta-items">
           <div class="meta-item">
@@ -26,61 +31,60 @@
           </div>
         </div>
 
-     <dt><strong>Publishers:</strong></dt>
-     <dd class="meta-list">
-         {% set pubs = book.publishers_display %}
-         {% if pubs|length > 5 %}
-             {{ pubs[:5]|join(', ') }}
-             <details class="inline-details">
-                 <summary>see more</summary>
-                 {{ pubs[5:]|join(', ') }}
-             </details>
-         {% elif pubs %}
-             {{ pubs|join(', ') }}
-         {% else %}
-             Unknown publisher
-         {% endif %}
-    </dd>
+        <dt><strong>Publishers:</strong></dt>
+        <dd class="meta-list">
+          {% set pubs = book.publishers_display %}
+          {% if pubs|length > 5 %}
+            {{ pubs[:5]|join(', ') }}
+            <details class="inline-details">
+              <summary>see more</summary>
+              {{ pubs[5:]|join(', ') }}
+            </details>
+          {% elif pubs %}
+            {{ pubs|join(', ') }}
+          {% else %}
+            Unknown publisher
+          {% endif %}
+        </dd>
 
-  <dt><strong>OpenLib Tags:</strong></dt>
-  <dd class="meta-list">
-     {% set tags = book.tags_display %}
-         {% if tags|length > 5 %}
-             {{ tags[:5]|join(', ') }}
-             <details class="inline-details">
-                 <summary>see more</summary>
-                 {{ tags[5:]|join(', ') }}
-             </details>
-         {% elif tags %}
-             {{ tags|join(', ') }}
-         {% else %}
-             No tags
-         {% endif %}
-    </dd>
+        <dt><strong>OpenLib Tags:</strong></dt>
+        <dd class="meta-list">
+          {% set tags = book.tags_display %}
+          {% if tags|length > 5 %}
+            {{ tags[:5]|join(', ') }}
+            <details class="inline-details">
+              <summary>see more</summary>
+              {{ tags[5:]|join(', ') }}
+            </details>
+          {% elif tags %}
+            {{ tags|join(', ') }}
+          {% else %}
+            No tags
+          {% endif %}
+        </dd>
 
-      <dt><strong>Link outs:</strong></dt>
-      <dd>
-        {% for link in book.link_outs %}
+        <dt><strong>Link outs:</strong></dt>
+        <dd>
+          {% for link in book.link_outs %}
             <p><a href="{{ link.url }}">{{ link.text }}</a></p>
-        {% endfor %}
-      </dd>
+          {% endfor %}
+        </dd>
       </dl>
-      </section>
-        {% if reviews %}
+    </section>
+    {% if reviews %}
       <section>
         {% for review in reviews %}
-        <article class="review">
+          <article class="review">
             <h3>Review - submitted {{ review.created_at }}</h3>
             <p>{{ review.content }}</p>
-        </article>
+          </article>
         {% endfor %}
-        </section>
-        {% endif %}
-      <footer>
-        <small>First added: {{ book.created_at }}</small>
-      </footer>
-    </article>
+      </section>
+    {% endif %}
+    <footer>
+      <small>First added: {{ book.created_at }}</small>
+    </footer>
+  </article>
 {% else %}
-    <p>No book found.</p>
-{% endif %}
-{% endblock %}
+  <p>No book found.</p>
+{% endif %}{% endblock %}
