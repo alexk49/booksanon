@@ -13,13 +13,8 @@ body {
 }
 
 main {
-  margin: 2rem;
-  max-width: 70em;
-}
-
-.book-review {
-  display: flex;
-  flex-direction: column;
+  margin: 0 auto;
+  max-width: 50em;
 }
 
 .meta-items,
@@ -215,4 +210,81 @@ main {
   width: auto;
   padding: 0.5rem 1rem;
   margin-top: 1rem;
+}
+
+/* styles for book reviews */
+
+.review-img-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.review-img-wrapper img {
+  width: 100%;
+  max-height: 160px;
+  height: auto;
+  border-radius: 4px;
+}
+
+.book-review-container {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+  max-width: 100%;
+  flex-wrap: wrap;
+  padding: 1rem;
+}
+
+.book-metadata {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.col1 {
+  max-width: 40%;
+  display: flex;
+  flex-direction: column;
+}
+
+.col2 {
+  display: flex;
+  flex-direction: column;
+  max-width: 60%;
+}
+
+.book-review-meta-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 2rem;
+  max-width: 100%;
+  text-align: left;
+}
+
+.review-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: baseline;
+}
+
+.book-cover {
+  flex: 0 0 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 40%;
+}
+
+.book-review-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  text-align: center;
 }
