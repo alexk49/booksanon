@@ -70,4 +70,3 @@ RETURNING id;
 
 -- name: link_book_author!
 INSERT INTO book_authors (book_id, author_id) VALUES (:book_id, :author_id) ON CONFLICT DO NOTHING;
-

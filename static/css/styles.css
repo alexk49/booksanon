@@ -231,11 +231,10 @@ main {
 
 .book-review-container {
   display: flex;
-  flex-direction: column;
+  flex-flow: column wrap;
   text-align: center;
   justify-content: center;
   max-width: 100%;
-  flex-wrap: wrap;
   padding: 1rem;
 }
 

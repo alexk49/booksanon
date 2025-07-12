@@ -20,7 +20,7 @@ class Review:
     def from_db_record(cls, record: Record) -> "Review":
         book_data = Book.from_db_record(record)
         return cls(
-            id=record.get("id"),
+            id=record.get("review_id"),
             book_id=record.get("book_id"),
             user_id=record.get("user_id"),
             content=record.get("content"),
@@ -36,7 +36,7 @@ class Review:
     @classmethod
     def from_joined_record(cls, record: Record) -> "Review":
         return cls(
-            id=record.get("id"),
+            id=record.get("review_id"),
             book_id=record.get("book_id"),
             user_id=record.get("user_id"),
             content=record.get("content"),

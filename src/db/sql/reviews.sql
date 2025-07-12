@@ -1,7 +1,24 @@
 -- name: get_most_recent_book_reviews
 SELECT
-    r.*,
-    b.*,
+    r.id AS review_id,
+    r.book_id,
+    r.user_id,
+    r.content,
+    r.created_at,
+    r.updated_at,
+    
+    b.id AS book_id,
+    b.title,
+    b.openlib_work_key,
+    b.openlib_cover_ids,
+    b.author_names,
+    b.author_keys,
+    b.publishers,
+    b.number_of_pages_median,
+    b.openlib_tags,
+    b.remote_links,
+    b.first_publish_year,
+
     json_agg(json_build_object(
         'id', a.id,
         'name', a.name,
