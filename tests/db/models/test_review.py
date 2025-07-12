@@ -10,7 +10,7 @@ from db.models.book import Book
 def review_record():
     record = MagicMock()
     record.get.side_effect = lambda key, default=None: {
-        "id": 1,
+        "review_id": 1,
         "book_id": 1,
         "user_id": 1,
         "content": "A great book!",
