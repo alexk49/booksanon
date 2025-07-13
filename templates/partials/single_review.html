@@ -81,7 +81,7 @@
     <div class="col2">
       <section>
         <h3>
-          <a href="book/{{ review.book_id }}">{{ review.book.title }}</a> By
+          <a href="/book/{{ review.book_id }}">{{ review.book.title }}</a> By
           {% for author in review.book.authors %}
             <a href="/author/{{ author.id }}">{{ author.name }}</a
             >{% if not loop.last %}

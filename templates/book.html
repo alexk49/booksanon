@@ -1,78 +1,107 @@
 {% extends "layout.html" %}
 {% block main %}{% if book %}
-  <article class="book">
-    <header>
-      <h2>{{ book.title }} by {{ book.author_display }}</h2>
-    </header>
-    <section>
-      {% if book.cover_id %}
-        <div class="img-wrapper">
-          <a href="/book/{{ book.id }}"
-            ><img
-              src="https://covers.openlibrary.org/b/id/{{ book.cover_id }}-M.jpg"
-              alt="Book cover"
-              loading="lazy"
-          /></a>
-        </div>
-      {% endif %}
-      <p>
-        <strong>OpenLib description:</strong> {{ book.openlib_description }}
-      </p>
-      <dl>
-        <div class="meta-items">
-          <div class="meta-item">
-            <dt><strong>First published:</strong></dt>
-            <dd>{{ book.first_publish_year }}</dd>
+  <article class="book-review-container">
+    <div class="book-review-meta-container">
+      <div class="col1">
+        <section class="review-img-wrapper">
+          {% if book.cover_id %}
+            <a href="/book/{{ book.id }}"
+              ><img
+                src="https://covers.openlibrary.org/b/id/{{ book.cover_id }}-M.jpg"
+                alt="Book cover"
+                loading="lazy"
+            /></a>
+          {% endif %}
+        </section>
+
+        <section class="book-metadata">
+          <div class="review-meta-item">
+            <span>
+              <strong>First published:</strong
+              >{{ book.first_publish_year }}</span
+            >
           </div>
 
-          <div class="meta-item">
-            <dt><strong>Pages:</strong></dt>
-            <dd>{{ book.number_of_pages_median }}</dd>
+          <div class="review-meta-item">
+            <span
+              ><strong>Pages:</strong>{{ book.number_of_pages_median }}</span
+            >
           </div>
-        </div>
 
-        <dt><strong>Publishers:</strong></dt>
-        <dd class="meta-list">
-          {% set pubs = book.publishers_display %}
-          {% if pubs %}
-            {{ pubs|join(', ') }}
-          {% else %}
-            Unknown publisher
-          {% endif %}
-        </dd>
+          <div class="review-meta-item">
+            <span><strong>Publishers:</strong></span>
+            <div class="meta-list">
+              {% set pubs = book.publishers_display %}
+              {% if pubs|length > 10 %}
+                {{ pubs[:10]|join(', ') }}
+                <details class="inline-details">
+                  <summary>see more</summary>
+                  {{ pubs[10:]|join(', ') }}
+                </details>
+              {% elif pubs %}
+                {{ pubs|join(', ') }}
+              {% else %}
+                Unknown publisher
+              {% endif %}
+            </div>
+          </div>
 
-        <dt><strong>OpenLib Tags:</strong></dt>
-        <dd class="meta-list">
-          {% set tags = book.tags_display %}
-          {% if tags %}
-            {{ tags|join(', ') }}
-          {% else %}
-            No tags
-          {% endif %}
-        </dd>
+          <div class="review-meta-item">
+            <span><strong>OpenLib Tags:</strong></span>
+            <div class="meta-list">
+              <span>
+                {% set tags = book.tags_display %}
+                {% if tags|length > 10 %}
+                  {{ tags[:10]|join(', ') }}
+                  <details class="inline-details">
+                    <summary>see more</summary>
+                    {{ tags[10:]|join(', ') }}
+                  </details>
+                {% elif tags %}
+                  {{ tags|join(', ') }}
+                {% else %}
+                  No tags
+                {% endif %}
+              </span>
+            </div>
+          </div>
+          <div class="review-meta-item">
+            <div class="meta-list">
+              <span>
+                {% for link in book.link_outs %}
+                  <a href="{{ link.url }}">{{ link.text }}</a
+                  >{% if not loop.last %},{% endif %}
+                {% endfor %}
+              </span>
+            </div>
+          </div>
+        </section>
+      </div>
 
-        <dt><strong>Link outs:</strong></dt>
-        <dd>
-          {% for link in book.link_outs %}
-            <p><a href="{{ link.url }}">{{ link.text }}</a></p>
-          {% endfor %}
-        </dd>
-      </dl>
-    </section>
-    {% if reviews %}
-      <section>
-        {% for review in reviews %}
-          <article class="review">
-            <h3>Review - submitted {{ review.created_at }}</h3>
-            <p>{{ review.content }}</p>
-          </article>
-        {% endfor %}
-      </section>
-    {% endif %}
-    <footer>
+      <div class="col2">
+        <section>
+          <h3>OpenLib description</h3>
+          <p>{{ book.openlib_description }}</p>
+        </section>
+      </div>
+    </div>
+    <footer class="book-review-footer">
       <small>First added: {{ book.created_at }}</small>
     </footer>
   </article>
+  {% if reviews %}
+    {% for review in reviews %}
+      <article class="review">
+        <h3>
+          <a href="/review/{{ review.id }}">Review</a> - submitted
+          {{ review.created_at }}
+        </h3>
+        <section class="review-content">
+          <p>{{ review.content }}</p>
+        </section>
+      </article>
+    {% endfor %}
+  {% endif %}
 {% else %}
   <p>No book found.</p>
 {% endif %}{% endblock %}

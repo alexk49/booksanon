@@ -24,7 +24,6 @@ async def home(request: Request):
         request.session["session_id"] = await create_csrf_token(request)
     template = "index.html"
     reviews = await resources.review_repo.get_most_recent_book_reviews(resources.db)
-    print(reviews)
     context = {"request": request, "reviews": reviews}
     return templates.TemplateResponse(request, template, context=context)
 
