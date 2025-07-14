@@ -252,6 +252,15 @@ main {
   padding: 1rem;
 }
 
+.book-review-container header {
+  padding: 1rem;
+}
+
+.book-review-container header h3 {
+  margin: 0;
+  line-height: 1.2;
+}
+
 .book-metadata {
   display: flex;
   flex-direction: column;
@@ -300,4 +309,15 @@ main {
   margin-top: auto;
   padding-top: 1rem;
   text-align: center;
+}
+
+
+@media (width <= 600px) {
+  .col1, .col2 {
+    max-width: 100%;
+  }
+
+  .book-review-meta-container {
+    flex-direction: column;
+  }
 }

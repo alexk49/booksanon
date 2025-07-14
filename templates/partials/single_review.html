@@ -1,4 +1,15 @@
 <article class="book-review-container">
+      <header>
+        <h3>
+          <a href="/book/{{ review.book_id }}">{{ review.book.title }}</a> By
+          {% for author in review.book.authors %}
+            <a href="/author/{{ author.id }}">{{ author.name }}</a
+            >{% if not loop.last %}
+              ,
+            {% endif %}
+          {% endfor %}
+        </h3>
+      </header>
   <div class="book-review-meta-container">
     <div class="col1">
       <section class="review-img-wrapper">
@@ -77,19 +88,7 @@
         </div>
       </section>
     </div>
-
     <div class="col2">
-      <section>
-        <h3>
-          <a href="/book/{{ review.book_id }}">{{ review.book.title }}</a> By
-          {% for author in review.book.authors %}
-            <a href="/author/{{ author.id }}">{{ author.name }}</a
-            >{% if not loop.last %}
-              ,
-            {% endif %}
-          {% endfor %}
-        </h3>
-      </section>
       <section class="review-content">
         <h4><a href="/review/{{ review.id }}">Review</a></h4>
         <p>{{ review.content }}</p>
