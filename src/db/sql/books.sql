@@ -20,8 +20,20 @@ ORDER BY book.updated_at DESC
 LIMIT 10;
 
 -- name: search_books
-SELECT *
-FROM books
+SELECT 
+    b.id AS book_id,
+    b.title,
+    b.openlib_work_key,
+    b.openlib_cover_ids,
+    b.openlib_description,
+    b.author_names,
+    b.author_keys,
+    b.publishers,
+    b.number_of_pages_median,
+    b.openlib_tags,
+    b.remote_links,
+    b.first_publish_year
+FROM books b
 WHERE
   title ILIKE '%' || :search_query || '%'
   OR array_to_string(author_names, ', ') ILIKE '%' || :search_query || '%'
@@ -29,10 +41,28 @@ LIMIT 100;
 
 -- name: get_books_by_author
 SELECT 
-  b.* 
+    b.id AS book_id,
+    b.title,
+    b.openlib_work_key,
+    b.openlib_cover_ids,
+    b.openlib_description,
+    b.author_names,
+    b.author_keys,
+    b.publishers,
+    b.number_of_pages_median,
+    b.openlib_tags,
+    b.remote_links,
+    b.first_publish_year,
+    json_agg(json_build_object(
+        'id', a.id,
+        'name', a.name,
+        'openlib_id', a.openlib_id
+    ) ORDER BY a.name) AS authors
 FROM books b
 JOIN book_authors ba ON ba.book_id = b.id
+JOIN authors a ON a.id = ba.author_id
 WHERE ba.author_id = :author_id
+GROUP BY b.id
 ORDER BY b.updated_at DESC;
 
 -- name: insert_book<!

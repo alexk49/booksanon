@@ -25,15 +25,15 @@ class BookRepository:
 
     """ Get or read values """
 
-    async def get_most_recent_books(self, limit: int = 10) -> list[Book]:
+    async def get_most_recent_books(self, limit: int = 10) -> list[Book | None]:
         records = await self.db.run_query("get_most_recent_books", limit=limit)
         return Book.from_db_records(records)
 
-    async def get_book_by_openlib_id(self, openlib_work_key: str = "") -> Record | None:
+    async def get_book_by_openlib_id(self, openlib_work_key: str = "") -> Book | None:
         result = await self.db.run_query("get_book_by_openlib_work_key", openlib_work_key=openlib_work_key)
         return Book.from_db_record(result)
 
-    async def get_book_by_id(self, book_id: int) -> Record | None:
+    async def get_book_by_id(self, book_id: int) -> Book | None:
         result = await self.db.run_query("get_book_by_id", book_id=book_id)
         if result:
             return Book.from_db_record(result)
@@ -43,7 +43,7 @@ class BookRepository:
         records = await self.db.run_query("get_books_by_author", author_id=author_id)
         return Book.from_db_records(records)
 
-    async def get_books_with_reviews_by_author(self, author_id: int) -> list[Book]:
+    async def get_books_with_reviews_by_author(self, author_id: int) -> list[Book | None]:
         """Fetches books by an author and attaches their reviews."""
         books = await self.get_books_by_author(author_id)
         if not books:
@@ -59,6 +59,7 @@ class BookRepository:
         for book in books:
             book.reviews = reviews_by_book.get(book.id, [])
 
+        print(books)
         return books
 
     """ search values """
@@ -67,7 +68,7 @@ class BookRepository:
         records = await self.db.run_query("search_books", search_query=search_query)
         return Book.from_db_records(records)
 
-    async def get_book_and_reviews_by_book_id(self, book_id: int) -> tuple[Book, list[Review]]:
+    async def get_book_and_reviews_by_book_id(self, book_id: int) -> tuple[Book | None, list[Review | None]]:
         records = await self.db.run_query("get_book_and_reviews_by_book_id", book_id=book_id)
 
         if not records:

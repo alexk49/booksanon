@@ -68,15 +68,36 @@ ORDER BY r.created_at DESC;
 
 -- name: get_reviews_for_books
 SELECT 
-  r.*
+    r.id AS review_id,
+    r.book_id,
+    r.user_id,
+    r.content,
+    r.created_at,
+    r.updated_at
 FROM reviews r
 WHERE r.book_id = ANY(:book_ids) 
 ORDER BY r.created_at DESC;
 
 -- name: get_review_and_book_by_review_id^
-SELECT 
-    r.*, 
-    b.*, 
+SELECT
+    r.id AS review_id,
+    r.book_id,
+    r.user_id,
+    r.content,
+    r.created_at,
+    r.updated_at,
+    b.id AS book_id,
+    b.title,
+    b.openlib_work_key,
+    b.openlib_cover_ids,
+    b.openlib_description,
+    b.author_names,
+    b.author_keys,
+    b.publishers,
+    b.number_of_pages_median,
+    b.openlib_tags,
+    b.remote_links,
+    b.first_publish_year,
     json_agg(json_build_object(
         'id', a.id,
         'name', a.name,

@@ -134,23 +134,28 @@ export function createLinkOutsEl(linkOuts) {
 
   if (!Array.isArray(linkOuts)) return container;
 
-  const dlEl = document.createElement("dl");
-  const ddEl = document.createElement("dd");
+  const allowedTexts = new Set([
+    "OpenLibrary",
+    "uk.bookshop.org",
+    "us.bookshop.org",
+    "librofm",
+  ]);
+
+  const ulEl = document.createElement("ul");
 
   linkOuts.forEach((link) => {
-    if (link.url && link.text) {
+    if (link.url && allowedTexts.has(link.text)) {
       const anchor = document.createElement("a");
       const li = document.createElement("li");
       anchor.href = link.url;
       anchor.innerText = link.text;
 
       li.appendChild(anchor);
-      ddEl.appendChild(li);
+      ulEl.appendChild(li);
     }
   });
 
-  dlEl.appendChild(ddEl);
-  container.appendChild(dlEl);
+  container.appendChild(ulEl);
   return container;
 }
 

@@ -23,7 +23,7 @@ async def home(request: Request):
     if "session_id" not in request.session:
         request.session["session_id"] = await create_csrf_token(request)
     template = "index.html"
-    reviews = await resources.review_repo.get_most_recent_book_reviews(resources.db)
+    reviews = await resources.review_repo.get_most_recent_book_reviews()
     context = {"request": request, "reviews": reviews}
     return templates.TemplateResponse(request, template, context=context)
 
@@ -72,6 +72,7 @@ async def author_page(request: Request):
 
     author, books = await asyncio.gather(author_task, books_task)
 
+    print(books)
     context = {
         "request": request,
         "author": author,
@@ -99,8 +100,6 @@ async def search(request):
 
     if request.method == "POST":
         session_token = request.session.get("session_id", "")
-        print(session_token)
-        print(request.session)
         return await handle_form(request, search_form_fields, on_success)
 
     if request.method == "GET":
@@ -114,7 +113,6 @@ async def search_api(request):
     async def on_success(clean_form):
         results = await resources.book_repo.search_books(search_query=clean_form["search_query"])
         books = [book.to_json_dict() for book in results]
-        print(books)
         return JSONResponse({"success": True, "results": books})
 
     return await handle_form(request, search_form_fields, on_success)
@@ -170,9 +168,11 @@ async def handle_form(request: Request, form_fields: dict, on_success: Callable)
     print("Session token:", session_token)
 
     result = validate_form(form, session_token, form_fields)
+    print(result)
     errors = get_errors(result)
 
     if errors:
+        print(errors)
         return JSONResponse(
             {
                 "success": False,
@@ -183,6 +183,7 @@ async def handle_form(request: Request, form_fields: dict, on_success: Callable)
         )
 
     clean = clean_results(result)
+    print(clean)
     return await on_success(clean)
 
 

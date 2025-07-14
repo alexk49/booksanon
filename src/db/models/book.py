@@ -42,7 +42,7 @@ class Book:
 
         openlib_cover_ids = record.get("openlib_cover_ids", [])
         return cls(
-            id=record.get("id"),
+            id=record.get("book_id"),
             title=record.get("title", ""),
             authors=cls._parse_authors(record.get("authors")),
             author_names=record.get("author_names", []),

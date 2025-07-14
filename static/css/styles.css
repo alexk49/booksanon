@@ -212,6 +212,20 @@ main {
   margin-top: 1rem;
 }
 
+.link-outs {
+  margin-top: 0.5rem;
+}
+
+.link-outs ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 /* styles for book reviews */
 
 .review-img-wrapper {

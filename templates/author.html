@@ -5,31 +5,36 @@
       <h2>{{ author.name }}</h2>
     </header>
     <section>
-      <dl>
-        <div class="meta-items">
-          <div class="meta-item">
-            <p>Born: {{ author.birth_date }}</p>
-            <p>Died: {{ author.death_date }}</p>
-          </div>
-        </div>
-        <dt><strong>Link outs:</strong></dt>
-        <dd>
-          <p>{{ author.remote_ids }}</p>
-        </dd>
-      </dl>
+          <p>Born: {{ author.birth_date }}</p>
+          <p>Died: {{ author.death_date }}</p>
     </section>
     {% if books %}
       <section>
+      <h3>Works by {{ author.name }}</h3>
         {% for book in books %}
-          <p><a href="/books/{{ book.id }}">{{ book.title }}</a></p>
+        {% include "partials/single_book.html" %}
           {% if book.reviews %}
             <section>
-              {% for review in book.reviews %}
-                <article class="review">
-                  <h3>Review - submitted {{ review.created_at }}</h3>
-                  <p>{{ review.content }}</p>
-                </article>
-              {% endfor %}
+              <article class="review">
+                <h3>
+                  <a href="/review/{{ book.reviews[0].id }}">Review</a> – submitted {{ book.reviews[0].created_at }}
+                </h3>
+                <p>{{ book.reviews[0].content }}</p>
+              </article>
+
+              {% if book.reviews|length > 1 %}
+                <details class="inline-details">
+                  <summary>View more reviews</summary>
+                  {% for review in book.reviews[1:] %}
+                    <article class="review">
+                      <h3>
+                        <a href="/review/{{ review.id }}">Review</a> – submitted {{ review.created_at }}
+                      </h3>
+                      <p>{{ review.content }}</p>
+                    </article>
+                  {% endfor %}
+                </details>
+              {% endif %}
             </section>
           {% endif %}
         {% endfor %}
