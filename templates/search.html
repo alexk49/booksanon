@@ -45,13 +45,11 @@
             <p>Published: {{ book.first_publish_year }}</p>
             <p>Pages: {{ book.number_of_pages_median }}</p>
             <div class="link-outs">
-              <dl>
-                <dd>
-                  {% for link in book.link_outs %}
+              <ul>
+                  {% for link in book.filtered_link_outs %}
                     <li><a href="{{ link.url }}">{{ link.text }}</a></li>
                   {% endfor %}
-                </dd>
-              </dl>
+              </ul>
             </div>
           </div>
         </div>

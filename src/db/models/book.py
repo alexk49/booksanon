@@ -182,3 +182,8 @@ class Book:
         links.append({"text": "us.bookshop.org", "url": f"https://bookshop.org/search?keywords={search_query}"})
         links.append({"text": "librofm", "url": f"https://libro.fm/search?utf8=%E2%9C%93&q={search_query}"})
         return links
+
+    @property
+    def filtered_link_outs(self) -> list[dict[str, str | None]]:
+        allowed_texts = {"OpenLibrary", "uk.bookshop.org", "us.bookshop.org", "librofm"}
+        return [link for link in self.link_outs if link["text"] in allowed_texts]

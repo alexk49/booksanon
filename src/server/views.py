@@ -99,7 +99,6 @@ async def search(request):
         )
 
     if request.method == "POST":
-        session_token = request.session.get("session_id", "")
         return await handle_form(request, search_form_fields, on_success)
 
     if request.method == "GET":

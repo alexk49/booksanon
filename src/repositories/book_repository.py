@@ -1,6 +1,5 @@
 from collections import defaultdict
 
-from asyncpg import Record
 
 from db import Database
 from db.models import Book, Review

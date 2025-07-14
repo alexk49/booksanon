@@ -30,7 +30,7 @@ def book_data():
 def db_record():
     record = MagicMock()
     record.get.side_effect = lambda key, default=None: {
-        "id": 1,
+        "book_id": 1,
         "title": "DB Book",
         "authors": json.dumps([{"id": 1, "name": "DB Author"}]),
         "author_names": ["DB Author"],
