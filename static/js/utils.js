@@ -80,3 +80,7 @@ export function addSubmissionToLocalStorage(newSubmission) {
     localStorage.setItem("submissions", JSON.stringify(submissions));
   }
 }
+
+export function clearSubmissionsFromLocalStorage() {
+  localStorage.removeItem("submissions");
+}

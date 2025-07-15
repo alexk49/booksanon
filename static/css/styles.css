@@ -311,9 +311,9 @@ main {
   text-align: center;
 }
 
-
 @media (width <= 600px) {
-  .col1, .col2 {
+  .col1,
+  .col2 {
     max-width: 100%;
   }
 

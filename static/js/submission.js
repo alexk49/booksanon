@@ -1,4 +1,8 @@
-import { getSubmissionsFromLocalStorage } from "./utils.js";
+import {
+  getSubmissionsFromLocalStorage,
+  clearSubmissionsFromLocalStorage,
+} from "./utils.js";
+
 import {
   createElWithClass,
   createElWithText,
@@ -38,6 +42,15 @@ function main() {
 
   if (submissionsEl) {
     renderSubmissions(submissionsEl);
+  }
+
+  const clearBtn = document.getElementById("clear-submissions");
+
+  if (clearBtn && submissionsEl) {
+    clearBtn.addEventListener("click", () => {
+      clearSubmissionsFromLocalStorage();
+      submissionsEl.innerHTML = "No submissions found.";
+    });
   }
 }
 

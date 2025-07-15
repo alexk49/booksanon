@@ -46,9 +46,9 @@
             <p>Pages: {{ book.number_of_pages_median }}</p>
             <div class="link-outs">
               <ul>
-                  {% for link in book.filtered_link_outs %}
-                    <li><a href="{{ link.url }}">{{ link.text }}</a></li>
-                  {% endfor %}
+                {% for link in book.filtered_link_outs %}
+                  <li><a href="{{ link.url }}">{{ link.text }}</a></li>
+                {% endfor %}
               </ul>
             </div>
           </div>
