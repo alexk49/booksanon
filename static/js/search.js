@@ -3,7 +3,12 @@ import { createLocalBookCard } from "./book-cards.js";
 
 export function setUpLocalSearch(ui) {
   ui.searchFormEl.addEventListener("submit", async function (e) {
-    const response = await handleFormSubmission(e, this, this.action);
+    const response = await handleFormSubmission(
+      e,
+      this,
+      this.action,
+      ui.loaderEl,
+    );
     const books = getBookDataFromResponse(response, ui.resultsContainer);
 
     books.forEach((book) => {
@@ -15,6 +20,7 @@ export function setUpLocalSearch(ui) {
 
 function main() {
   const ui = {
+    loaderEl: document.getElementById("global-loader"),
     searchFormEl: document.getElementById("search-form"),
     resultsContainer: document.getElementById("results"),
   };

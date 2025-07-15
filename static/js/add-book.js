@@ -28,12 +28,13 @@ function createCardViewController() {
   };
 }
 
-function setUpReviewForm(reviewFormContainerEl) {
+function setUpReviewForm(reviewFormContainerEl, loaderEl) {
   reviewFormContainerEl.addEventListener("submit", async function (event) {
     const response = await handleFormSubmission(
       event,
       this,
       "/api/submit-book",
+      loaderEl,
     );
 
     if (response.success) {
@@ -59,6 +60,7 @@ function setUpReviewForm(reviewFormContainerEl) {
 
 function main() {
   const ui = {
+    loaderEl: document.getElementById("global-loader"),
     searchContainer: document.getElementById("search"),
     resultsContainer: document.getElementById("results"),
     reviewFormContainerEl: document.getElementById("review-form"),
@@ -86,7 +88,7 @@ function main() {
   const submitReviewForm = document.getElementById("submit-form");
 
   if (submitReviewForm) {
-    setUpReviewForm(submitReviewForm);
+    setUpReviewForm(submitReviewForm, ui.loaderEl);
   }
 }
 

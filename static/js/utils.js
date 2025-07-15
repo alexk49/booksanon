@@ -27,10 +27,36 @@ export async function fetchFormResponse(url, formData) {
   }
 }
 
-export async function handleFormSubmission(e, formDataEl, apiRoute) {
+export async function handleFormSubmission(
+  e,
+  formDataEl,
+  apiRoute,
+  loaderEl = null,
+) {
+  if (loaderEl) {
+    showHiddenEl(loaderEl);
+  }
   e.preventDefault();
   const formData = new FormData(formDataEl);
-  return await fetchFormResponse(apiRoute, formData);
+
+  try {
+    return await fetchFormResponse(apiRoute, formData);
+  } catch (err) {
+    console.error("Form submission failed:", err);
+    throw err;
+  } finally {
+    if (loaderEl) {
+      hideEl(loaderEl);
+    }
+  }
+}
+
+export function hideEl(el) {
+  el.classList.add("hidden");
+}
+
+export function showHiddenEl(el) {
+  el.classList.remove("hidden");
 }
 
 export function getBookDataFromResponse(response, resultsContainer) {

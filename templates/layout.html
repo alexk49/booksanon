@@ -54,7 +54,12 @@
             <span class="icon-bar"></span>
           </button>
 
-          <form method="POST" action="/search" class="nav-search">
+          <form
+            id="nav-search-form"
+            method="POST"
+            action="/search"
+            class="nav-search"
+          >
             <input
               type="text"
               aria-label="Search by book title, author, or ISBN"
@@ -75,5 +80,8 @@
       </div>
     </nav>
     <main>{% block main %}{% endblock %}</main>
+    <div id="global-loader" class="loader-container hidden" aria-hidden="true">
+      <span class="spinner"></span>
+    </div>
   </body>
 </html>

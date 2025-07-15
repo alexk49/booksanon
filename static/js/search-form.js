@@ -3,7 +3,12 @@ import { createBookCardEl } from "./book-cards.js";
 
 export function setUpSearchForm(ui) {
   ui.searchFormEl.addEventListener("submit", async function (e) {
-    const response = await handleFormSubmission(e, this, this.action);
+    const response = await handleFormSubmission(
+      e,
+      this,
+      this.action,
+      ui.loaderEl,
+    );
     const books = getBookDataFromResponse(response, ui.resultsContainer);
 
     books.forEach((book) => {
