@@ -1,8 +1,12 @@
+import logging
 from calls.client import Client
 from calls.openlib import OpenLibCaller
 from db import Database
 from repositories import AuthorRepository, BookRepository, QueueRepository, ReviewRepository, UserRepository
-from . import settings
+from config import settings
+
+
+logger = logging.getLogger("app")
 
 
 class AppResourceContainer:
@@ -22,12 +26,12 @@ class AppResourceContainer:
     async def startup(self):
         await self.db.start_up()
         await self.user_repo.create_anon()
-        print("application resources started")
+        logger.info("application resources started")
 
     async def shutdown(self):
         await self.db.close_down()
         await self.client.close_session()
-        print("application resources shutdown")
+        logger.info("application resources shutdown")
 
 
 resources = AppResourceContainer()

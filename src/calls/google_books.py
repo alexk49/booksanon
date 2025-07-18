@@ -1,6 +1,10 @@
+import logging
 import pprint
 
 from calls.client import Client
+
+
+logger = logging.getLogger("app.calls")
 
 
 class GoogleBooksCaller:
@@ -28,7 +32,7 @@ class GoogleBooksCaller:
             query_terms.append(f"isbn:{isbn}")
 
         if not query_terms:
-            print("Please provide a search query, title, author, or ISBN for Google Books.")
+            logger.warning("Please provide a search query, title, author, or ISBN for Google Books.")
             return []
 
         params["q"] = "+".join(query_terms)
@@ -37,16 +41,16 @@ class GoogleBooksCaller:
         response = await self.client.fetch_results(search_url, params=params)
 
         results = response.get("items", [])
-        print("Google Books Search Results:")
+        logger.info("Google Books Search Results:")
 
         for i, item in enumerate(results):
             volume_info = item.get("volumeInfo", {})
-            print(f"\n--- Result {i + 1} ---")
-            print(f"Title: {volume_info.get('title')}")
+            logger.info(f"\n--- Result {i + 1} ---")
+            logger.info(f"Title: {volume_info.get('title')}")
             authors = volume_info.get("authors", [])
             if authors:
-                print(f"Author(s): {', '.join(authors)}")
-            print(f"First Publish Year: {volume_info.get('publishedDate', '').split('-')[0]}")
+                logger.info(f"Author(s): {', '.join(authors)}")
+            logger.info(f"First Publish Year: {volume_info.get('publishedDate', '').split('-')[0]}")
             industry_identifiers = volume_info.get("industryIdentifiers", [])
             isbns = [
                 id_data["identifier"]
@@ -54,10 +58,10 @@ class GoogleBooksCaller:
                 if id_data.get("type") in ["ISBN_10", "ISBN_13"]
             ]
             if isbns:
-                print(f"ISBN(s): {', '.join(isbns)}")
+                logger.info(f"ISBN(s): {', '.join(isbns)}")
             image_links = volume_info.get("imageLinks", {})
-            print(f"Cover Link: {image_links.get('thumbnail')}")
-            print(f"API ID: {item.get('id')}")
+            logger.info(f"Cover Link: {image_links.get('thumbnail')}")
+            logger.info(f"API ID: {item.get('id')}")
 
         pprint.pp(results)
         return results

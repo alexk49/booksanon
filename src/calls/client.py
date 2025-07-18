@@ -3,10 +3,12 @@ httpx client for making async api calls
 """
 
 import asyncio
+import logging
 import httpx
 
 from typing import Optional
 
+logger = logging.getLogger("app.calls")
 
 class Client:
     def __init__(
@@ -43,7 +45,7 @@ class Client:
     async def fetch_results(self, url: str, params: dict = {}):
         self.session = await self.start_session()
 
-        print(f"making request to {url}, with {params}")
+        logger.info(f"making request to %s, with %s", url, params)
         for attempt in range(1, self.max_retries + 1):
             try:
                 if params != {}:
@@ -54,12 +56,12 @@ class Client:
                 if response.status_code == 200:
                     return response.json()
 
-                print(f"Attempt {attempt}: Received status {response.status_code}, {response}")
+                logger.info(f"Attempt {attempt}: Received status {response.status_code}, {response}")
             except httpx.HTTPError as exc:
-                print(f"HTTP Exception on attempt: {attempt} for {exc.request.url} - {exc}")
+                logger.warning(f"HTTP Exception on attempt: {attempt} for {exc.request.url} - {exc}")
 
             if attempt < self.max_retries:
                 await asyncio.sleep(self.retry_delay)
 
-        print(f"Failed to fetch data from {url}, after {self.max_retries} attempts")
+        logger.warning(f"Failed to fetch data from {url}, after {self.max_retries} attempts")
         return None

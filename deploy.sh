@@ -19,7 +19,7 @@ deploy_db_container_local () {
 deploy_app_local () {
     echo "running app locally"
     source .venv/bin/activate
-    uvicorn src.server.app:app --reload
+    uvicorn src.server.app:app --reload --log-level info --access-log
 }
 
 

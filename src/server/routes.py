@@ -1,6 +1,8 @@
 from starlette.routing import Route, Mount
 from starlette.staticfiles import StaticFiles
-from . import views, settings
+from config import settings
+from . import views
+
 
 static = StaticFiles(directory=str(settings.STATIC_DIR))
 

@@ -18,6 +18,7 @@ Cover Ids can be read into URLs with:
 """
 
 import asyncio
+import logging
 import pprint
 import re
 from datetime import datetime
@@ -25,6 +26,9 @@ from statistics import median
 from typing import Any, Dict, List, Optional, Set
 
 from calls.client import Client
+
+
+logger = logging.getLogger("app.calls")
 
 
 class OpenLibCaller:
@@ -54,6 +58,7 @@ class OpenLibCaller:
 
         book = OpenLibCaller.parse_work_id_page(response)
 
+        logger.debug(book)
         if self.pprint:
             pprint.pp(book)
         return book
@@ -65,6 +70,7 @@ class OpenLibCaller:
         if not response:
             return None
 
+        logger.debug(response)
         if self.pprint:
             pprint.pp(response)
 
@@ -79,6 +85,7 @@ class OpenLibCaller:
 
         author = self.parse_author_id_page(response)
 
+        logger.debug(author)
         if self.pprint:
             pprint.pp(author)
         return author
@@ -116,6 +123,7 @@ class OpenLibCaller:
 
         clean_results = self.parse_books_search_results(response=response, limit=limit)
 
+        logger.debug(clean_results)
         if self.pprint:
             pprint.pp(clean_results)
         return clean_results
@@ -131,7 +139,7 @@ class OpenLibCaller:
                 complete_books.append(complete_book)
 
         if not complete_books:
-            print("error getting book data")
+            logger.debug("error getting book data")
             return None
 
         authors_response_keys = []
@@ -146,9 +154,11 @@ class OpenLibCaller:
             author = await self.get_author_results(author_key)
             complete_authors.append(author)
 
+        logger.debug(complete_books)
         if self.pprint:
             pprint.pp(complete_books)
 
+        logger.debug(complete_authors)
         if self.pprint:
             pprint.pp(complete_authors)
         return complete_books, complete_authors
@@ -158,7 +168,7 @@ class OpenLibCaller:
         Collect data for single book
         """
         if not book and not work_id:
-            print("either book or work id must be passed")
+            logger.warning("either book or work id must be passed")
             return None
 
         if not work_id:
@@ -186,19 +196,19 @@ class OpenLibCaller:
         Full author data is also collected to match book and author in models.
         """
         if not validate_openlib_work_id(work_id):
-            print(f"invalid work id passed: {work_id}")
+            logger.warning(f"invalid work id passed: {work_id}")
             return None
 
         book = await self._get_complete_book_data(work_id=work_id)
 
         if not book:
-            print(f"unable to get book data for {work_id}")
+            logger.warning(f"unable to get book data for {work_id}")
             return None
 
         authors_data = book.get("authors", [])
 
         if not authors_data:
-            print(f"unable to get author data for {work_id}")
+            logger.warning(f"unable to get author data for {work_id}")
             return None
 
         author_keys = []
@@ -230,7 +240,7 @@ class OpenLibCaller:
         this does not limit actual results but limits pages of results so default is 1
         """
         url = f"{self.search_url}?q={search_query}&limit={limit}&lang={lang}"
-        print(f"created search url as {url}")
+        logger.warning(f"created search url as {url}")
         return url
 
     def get_complex_query_url(self, **kwargs) -> str:
@@ -265,7 +275,7 @@ class OpenLibCaller:
         # Remove trailing "&" if it exists
         url = url.rstrip("&")
 
-        print(f"Search URL created as: {url}")
+        logger.warning(f"Search URL created as: {url}")
         return url
 
     def get_author_url(self, author_id: str):
@@ -281,7 +291,7 @@ class OpenLibCaller:
             author_id = f"/authors/{author_id}"
             return f"{self.root_url}{author_id}.json"
         else:
-            print("invalid author id passed")
+            logger.warning("invalid author id passed")
             return None
 
     def get_work_id_url(self, work_id: str):
@@ -302,7 +312,7 @@ class OpenLibCaller:
             work_id = f"/works/{work_id}"
             return f"{self.root_url}{work_id}.json"
         else:
-            print(f"invalid work id: {work_id}")
+            logger.warning(f"invalid work id: {work_id}")
             return None
 
     def get_editions_url(self, work_id):
@@ -346,14 +356,20 @@ class OpenLibCaller:
 
         if edition_dates:
             first_edition_date = sorted(edition_dates)[0]
+            logger.debug("edition dates found as: %s", edition_dates)
             year = int(extract_year(first_edition_date))
+            logger.debug("setting first edition date as: %s", year)
             book.update({"first_publish_year": year})
 
         pages = book.get("number_of_pages_median")
 
         if (not pages or pages == 0) and edition_pages:
             num_pages = median(edition_pages)
+            logger.debug("num of pages: %s", num_pages)
             book.update({"number_of_pages_median": num_pages})
+
+        logger.debug("isbns_13: %s", isbns_13)
+        logger.debug("isbns_10: %s", isbns_10)
 
         book.update({"isbns_13": isbns_13, "isbns_10": isbns_10, "publishers": publishers})
         return book
@@ -362,9 +378,9 @@ class OpenLibCaller:
     def parse_books_search_results(response: dict, limit: int | None = None) -> List[Dict[str, Any]]:
         books: list = []
 
-        print(f"response: {response}")
+        logger.debug(f"response: {response}")
         num_of_results: int | None = response.get("num_found")
-        print(f"number of results: {num_of_results}")
+        logger.debug(f"number of results: {num_of_results}")
 
         if not num_of_results:
             num_of_results = len(response["docs"][0:limit])
@@ -374,8 +390,8 @@ class OpenLibCaller:
         else:
             counter = num_of_results
 
-        print(f"len of response: {str(len(response['docs']))}")
-        print(f"counter: {str(counter)}")
+        logger.debug(f"len of response: {str(len(response['docs']))}")
+        logger.debug(f"counter: {str(counter)}")
 
         for num in range(counter):
             book: dict = response["docs"][num]
@@ -399,6 +415,7 @@ class OpenLibCaller:
                 }
             )
 
+        logger.debug(books)
         pprint.pp(books)
         return books
 
@@ -465,6 +482,7 @@ class OpenLibCaller:
             }
         )
 
+        logger.debug(book)
         return book
 
 

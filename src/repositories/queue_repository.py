@@ -1,4 +1,8 @@
+import logging
 from db import Database
+
+
+logger = logging.getLogger("app")
 
 
 class QueueRepository:
@@ -6,6 +10,7 @@ class QueueRepository:
         self.db = db
 
     async def insert_review_submission(self, openlib_id: str, review: str, username: str = "anon"):
+        logger.info("inserting review into db by user: %s, review: %s", username, review)
         return await self.db.run_query(
             "insert_review_submission", openlib_id=openlib_id, review=review, username=username
         )

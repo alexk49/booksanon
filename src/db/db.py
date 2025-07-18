@@ -1,7 +1,11 @@
 import aiosql
 import asyncpg
+import logging
 from pathlib import Path
 from typing import Any, Optional
+
+
+logger = logging.getLogger("app")
 
 
 class Database:
@@ -46,5 +50,5 @@ class Database:
             return await query_method(conn, **kwargs)
 
     async def create_schema(self):
-        print("setting up db schema")
+        logger.info("setting up db schema")
         await self.run_query("create_schema")

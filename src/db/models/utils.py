@@ -1,7 +1,11 @@
 import inspect
 import json
+import logging
 from dataclasses import asdict, is_dataclass
 from datetime import datetime
+
+
+logger = logging.getLogger("app")
 
 
 def make_json_safe(data):
@@ -32,7 +36,7 @@ def _dataclass_to_safe_dict(instance):
             value = getattr(instance, name)
             result[name] = make_json_safe(value)
         except Exception as exc:
-            print(f"unable to read {result}, {name}, {result[name]}: {exc}")
+            logger.info(f"unable to read {result}, {name}, {result[name]}: {exc}")
             result[name] = None
     return result
 

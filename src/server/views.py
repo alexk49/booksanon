@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import secrets
 from collections.abc import Callable
 
@@ -8,10 +9,12 @@ from starlette.templating import Jinja2Templates
 
 from db.models import Book
 from .form_validators import book_submit_fields, clean_results, get_errors, search_form_fields, validate_form
-from . import settings
+from config import settings
 from .resources import resources
 from .tasks import process_review_submission
 
+
+logger = logging.getLogger("app")
 
 templates = Jinja2Templates(directory=str(settings.TEMPLATES_DIR))
 
@@ -23,7 +26,9 @@ async def home(request: Request):
     if "session_id" not in request.session:
         request.session["session_id"] = await create_csrf_token(request)
     template = "index.html"
+    logger.debug("fetching latest reviews")
     reviews = await resources.review_repo.get_most_recent_book_reviews()
+    logger.debug(reviews)
     context = {"request": request, "reviews": reviews}
     return templates.TemplateResponse(request, template, context=context)
 
@@ -72,7 +77,8 @@ async def author_page(request: Request):
 
     author, books = await asyncio.gather(author_task, books_task)
 
-    print(books)
+    logger.debug(author)
+    logger.debug(books)
     context = {
         "request": request,
         "author": author,
@@ -110,6 +116,7 @@ async def search(request):
 
 async def search_api(request):
     async def on_success(clean_form):
+        logging.info("searching locally for: %s", clean_form["search_query"])
         results = await resources.book_repo.search_books(search_query=clean_form["search_query"])
         books = [book.to_json_dict() for book in results]
         return JSONResponse({"success": True, "results": books})
@@ -119,8 +126,11 @@ async def search_api(request):
 
 async def search_openlib(request: Request):
     async def on_success(clean_form):
+        logging.info("calling openlibrary with: %s", clean_form["search_query"])
         results = await resources.openlib_caller.search_books(search_query=clean_form["search_query"], limit=10)
+        logging.debug(results)
         books = [Book.from_dict(res).to_json_dict() for res in results]
+        logging.debug(books)
         return JSONResponse({"success": True, "results": books})
 
     return await handle_form(request, search_form_fields, on_success)
@@ -128,12 +138,12 @@ async def search_openlib(request: Request):
 
 async def submit_book(request: Request):
     async def on_success(clean):
-        print(f"inserting form data into queue: {clean}")
+        logger.info(f"inserting form data into queue: {clean}")
         submission_id = await resources.queue_repo.insert_review_submission(
             openlib_id=clean["openlib_id_hidden"], review=clean["review"]
         )
 
-        print(f"adding submission id to queue: {submission_id}")
+        logger.info(f"adding submission id to queue: {submission_id}")
         process_review_submission(submission_id)
 
         return JSONResponse(
@@ -149,7 +159,7 @@ async def submit_book(request: Request):
 
 async def set_csrf_token(request: Request):
     if "session_id" not in request.session:
-        request.session["session_id"] = await create_csrf_token(request)
+        request.session["session_id"] = await create_csrf_token()
     return JSONResponse({"csrf_token": request.session["session_id"]})
 
 
@@ -163,15 +173,12 @@ async def handle_form(request: Request, form_fields: dict, on_success: Callable)
     form = dict(await request.form())
     session_token = request.session.get("session_id", "")
 
-    print("Form keys:", form.keys())
-    print("Session token:", session_token)
-
     result = validate_form(form, session_token, form_fields)
-    print(result)
+    logger.debug(result)
     errors = get_errors(result)
 
     if errors:
-        print(errors)
+        logger.warning("Errors with form submission: %s", errors)
         return JSONResponse(
             {
                 "success": False,
@@ -182,9 +189,10 @@ async def handle_form(request: Request, form_fields: dict, on_success: Callable)
         )
 
     clean = clean_results(result)
-    print(clean)
+    logger.info(clean)
     return await on_success(clean)
 
 
-async def create_csrf_token(request: Request):
+async def create_csrf_token():
+    logger.info("creating new csrf token")
     return secrets.token_urlsafe(32)

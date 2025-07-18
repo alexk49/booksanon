@@ -1,8 +1,11 @@
+import logging
 from asyncpg import Record
 
 from db import Database
 from db.models import Author
 
+
+logger = logging.getLogger("app")
 
 class AuthorRepository:
     def __init__(self, db: Database):
@@ -11,6 +14,7 @@ class AuthorRepository:
     """ Insert values """
 
     async def insert_author(self, author: Author):
+        logger.info("inserting author into db: %s", author)
         return await self.db.run_query("insert_author", **author.to_db_dict())
 
     """ Get or read values """
@@ -30,5 +34,5 @@ class AuthorRepository:
     """ Check values """
 
     async def check_if_author_exists(self, author_openlib_id: str) -> bool:
-        print("checking if author exists")
+        logger.info("checking if author exists")
         return bool(await self.db.run_query("get_author_by_openlib_id", openlib_id=author_openlib_id))

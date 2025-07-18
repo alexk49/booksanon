@@ -1,11 +1,14 @@
 import asyncio
+import logging
 
 from calls.client import Client
 from calls.openlib import OpenLibCaller
 from db import Database
 from repositories import QueueRepository, AuthorRepository, BookRepository, ReviewRepository, UserRepository
-from . import settings
+from config import settings
 
+
+logger = logging.getLogger("app.tasks")
 
 class HueyResourceContainer:
     def __init__(self):
@@ -26,11 +29,11 @@ class HueyResourceContainer:
 
     async def _async_startup(self):
         await self.db.start_up()
-        print("huey resources database pool started")
+        logger.info("huey resources database pool started")
 
     async def _async_shutdown(self):
         await self.client.close_session()
-        print("closing down huey resources")
+        logger.info("closing down huey resources")
 
     def startup(self):
         if self.loop is None:
@@ -43,7 +46,7 @@ class HueyResourceContainer:
             self.loop.run_until_complete(self._async_shutdown())
             self.loop.close()
             asyncio.set_event_loop(None)
-            print("shutting down huey resources event loop")
+            logger.info("shutting down huey resources event loop")
 
 
 resources = HueyResourceContainer()

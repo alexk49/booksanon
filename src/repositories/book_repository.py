@@ -1,9 +1,13 @@
+import logging
 from collections import defaultdict
 
 
 from db import Database
 from db.models import Book, Review
 from .review_repository import ReviewRepository
+
+
+logger = logging.getLogger("app")
 
 
 class BookRepository:
@@ -17,6 +21,7 @@ class BookRepository:
         """
         Returns id of created book
         """
+        logger.info("inserting book into db: %s", book)
         return await self.db.run_query("insert_book", **book.to_db_dict())
 
     async def link_book_author(self, book_id: int, author_id: int) -> None:
@@ -58,7 +63,7 @@ class BookRepository:
         for book in books:
             book.reviews = reviews_by_book.get(book.id, [])
 
-        print(books)
+        logger.debug(books)
         return books
 
     """ search values """
@@ -81,4 +86,6 @@ class BookRepository:
             if r:
                 reviews.append(Review.from_joined_record(r))
 
+        logger.debug("book: %s", book)
+        logger.debug("reviews: %s", reviews)
         return book, reviews

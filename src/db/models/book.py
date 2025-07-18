@@ -1,4 +1,5 @@
 import json
+import logging
 import random
 from dataclasses import asdict, dataclass, field
 from typing import Any, Optional, Union
@@ -7,6 +8,9 @@ from asyncpg import Record
 
 from . import Author
 from .utils import make_json_safe, map_types_for_db
+
+
+logger = logging.getLogger("app")
 
 
 @dataclass
@@ -106,7 +110,7 @@ class Book:
             authors_dict = json.loads(raw_authors) if isinstance(raw_authors, str) else raw_authors
             return [Author(id=int(author["id"]), name=author["name"]) for author in authors_dict or []]
         except Exception as exc:
-            print(f"error reading authors: {raw_authors}, {exc}")
+            logger.info(f"error reading authors: {raw_authors}, {exc}")
             return []
 
     @staticmethod
@@ -122,7 +126,7 @@ class Book:
         try:
             return json.loads(remote_links_raw) if remote_links_raw else []
         except json.JSONDecodeError as exc:
-            print(f"Error parsing remote links: {exc}")
+            logger.info(f"Error parsing remote links: {exc}")
             return []
 
     @staticmethod
