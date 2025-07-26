@@ -78,10 +78,10 @@ def test_get_editions_url(openlib_caller):
     assert openlib_caller.get_editions_url("OL24214484W") == "https://openlibrary.org/works/OL24214484W/editions.json"
 
 
-""" Tests for Parsers (Static Methods) """
+""" Tests for Parsers """
 
 
-def test_parse_work_id_page():
+def test_parse_work_id_page(openlib_caller):
     response = {
         "title": "Test Book",
         "authors": [{"key": "authors/OL1A"}],
@@ -91,7 +91,7 @@ def test_parse_work_id_page():
         "key": "/works/OL1W",
         "covers": [12345],
     }
-    parsed = OpenLibCaller.parse_work_id_page(response)
+    parsed = openlib_caller.parse_work_id_page(response)
     assert parsed["title"] == "Test Book"
     assert parsed["openlib_work_key"] == "/works/OL1W"
     assert parsed["number_of_pages_median"] == 0
@@ -173,7 +173,7 @@ def test_extract_year():
     assert extract_year("2023-01-15") == 2023
     assert extract_year("2023/01/15") == 2023
     assert extract_year("2023") == 2023
-    assert "Could not parse" in extract_year("invalid-date")
+    assert not extract_year("invalid-date")
 
 
 def test_validate_openlib_work_id():
@@ -195,7 +195,7 @@ async def test_get_work_id_results(openlib_caller):
         result = await openlib_caller.get_work_id_results("OL12345W")
 
         openlib_caller.fetch_with_semaphore.assert_called_once()
-        mock_parse.assert_called_once_with({"title": "Test"})
+        mock_parse.assert_called_once_with({"title": "Test"}, book=None)
         assert result == {"parsed": True}
 
     # Test None response
@@ -255,39 +255,74 @@ async def test_search_books(openlib_caller):
 
 @pytest.mark.asyncio
 async def test_get_complete_book_data(openlib_caller):
+    # Mock get_work_id_results to return a book dict
     openlib_caller.get_work_id_results = AsyncMock(return_value={"key": "work_id"})
-    openlib_caller.fetch_with_semaphore = AsyncMock(return_value={"entries": []})
+
+    # Define a side effect for fetch_with_semaphore to return different data based on URL
+    async def fetch_side_effect(url):
+        if "search.json" in url:
+            # Mock search API response expected by _enrich_book_from_search
+            return {"docs": [], "num_found": 0}
+        elif "editions.json" in url:
+            # Mock editions API response expected by _get_complete_book_data
+            return {"entries": []}
+        else:
+            # Default fallback (if needed)
+            return None
+
+    openlib_caller.fetch_with_semaphore = AsyncMock(side_effect=fetch_side_effect)
 
     with patch(
         "calls.openlib.OpenLibCaller.parse_editions_response", return_value={"key": "work_id", "parsed_editions": True}
-    ) as mock_parse:
+    ) as mock_parse_editions:
+        # Input book with openlib_work_key triggers enrichment & work ID fetch
         book_input = {"openlib_work_key": "OL12345W"}
+
         result = await openlib_caller._get_complete_book_data(book=book_input)
 
-        openlib_caller.get_work_id_results.assert_called_once_with("OL12345W")
-        openlib_caller.fetch_with_semaphore.assert_called_once()
-        mock_parse.assert_called_once_with(response={"entries": []}, book={"key": "work_id"})
-        assert result["parsed_editions"] is True
+        # Check get_work_id_results called with correct work_id
+        openlib_caller.get_work_id_results.assert_called_once_with("OL12345W", book=book_input)
 
-    # Test with work_id directly
+        # Check fetch_with_semaphore called at least twice (search + editions)
+        assert openlib_caller.fetch_with_semaphore.call_count >= 2
+
+        # Check parse_editions_response called with editions response and enriched book
+        mock_parse_editions.assert_called_once_with({"entries": []}, {"key": "work_id"})
+
+        # Confirm result includes what parse_editions_response returns
+        assert result.get("parsed_editions") is True
+
+    # Additional test cases:
+
+    # Test with work_id argument instead of book dict
     openlib_caller.get_work_id_results.reset_mock()
+    openlib_caller.fetch_with_semaphore.reset_mock()
     result = await openlib_caller._get_complete_book_data(work_id="OL12345W")
-    openlib_caller.get_work_id_results.assert_called_once_with("OL12345W")
+    openlib_caller.get_work_id_results.assert_called_once_with("OL12345W", book={})
 
-    # Test no input
+    # Test with neither book nor work_id
     result = await openlib_caller._get_complete_book_data()
     assert result is None
 
-    # Test failing get_work_id_results
+    # Test get_work_id_results returns None
     openlib_caller.get_work_id_results.return_value = None
     result = await openlib_caller._get_complete_book_data(work_id="OL12345W")
     assert result is None
-    openlib_caller.get_work_id_results.return_value = {"key": "OL12345W"}  # reset
 
-    # Test failing fetch_with_semaphore
-    openlib_caller.fetch_with_semaphore.return_value = None
+    # Reset get_work_id_results return value for next test
+    openlib_caller.get_work_id_results.return_value = {"key": "OL12345W"}
+
+    # Test fetch_with_semaphore returns None for editions
+    async def fetch_none(url):
+        if "search.json" in url:
+            return {"docs": [], "num_found": 0}
+        elif "editions.json" in url:
+            return None
+        return None
+
+    openlib_caller.fetch_with_semaphore = AsyncMock(side_effect=fetch_none)
     result = await openlib_caller._get_complete_book_data(work_id="OL12345W")
-    assert result is None
+    assert result is not None  # It should still return the book from get_work_id_results
 
 
 @pytest.mark.asyncio

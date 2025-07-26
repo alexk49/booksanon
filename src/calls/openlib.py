@@ -165,41 +165,48 @@ class OpenLibCaller:
 
     async def _get_complete_book_data(self, book: dict = {}, work_id: str = "") -> dict | None:
         """
-        Collect data for single book
+        Enrichment of a book record using search results, work details, and editions data.
+
+        Search page is called as editions doesn't always seem to have first edition for older books.
         """
         if not book and not work_id:
             logger.warning("either book or work id must be passed")
             return None
 
+        work_id = work_id or book.get("openlib_work_key", "")
         if not work_id:
-            work_id = book["openlib_work_key"]
+            logger.warning("missing work_id")
+            return None
 
-        search_url_with_key = f"https://openlibrary.org/search.json?q=key:{work_id}"
-
-        logging.info("making request to search url filtered with key: %s", search_url_with_key)
-        response = await self.fetch_with_semaphore(search_url_with_key)
-        results = self.parse_books_search_results(response)
-
-        logging.debug(results)
-
-        if len(results) > 1:
-            logging.warning("unable to use results from search response as work key: %s returned more than one result", work_id)
-        else:
-            book = results[0]
-            logging.info(book)
+        book = await self._enrich_book_from_search(work_id, book)
 
         book = await self.get_work_id_results(work_id, book=book)
 
         if not book:
+            logger.warning(f"Could not retrieve work details for {work_id}")
             return None
 
-        editions_url = self.get_editions_url(work_id)
-        editions_response = await self.fetch_with_semaphore(editions_url)
+        editions_response = await self.fetch_with_semaphore(self.get_editions_url(work_id))
+        if editions_response:
+            book = self.parse_editions_response(editions_response, book)
 
-        if not editions_response:
-            return None
+        return book
 
-        book = OpenLibCaller.parse_editions_response(response=editions_response, book=book)
+    async def _enrich_book_from_search(self, work_id: str, book: dict) -> dict:
+        """
+        Query the search endpoint using work_id and update the book if a single result is found.
+        """
+        search_url = f"{self.search_url}?q=key:{work_id}"
+        logger.info("Fetching search result using key: %s", search_url)
+
+        response = await self.fetch_with_semaphore(search_url)
+        results = self.parse_books_search_results(response)
+
+        if len(results) == 1:
+            logger.info("Successfully enriched book from search API")
+            return results[0]
+        elif len(results) > 1:
+            logger.warning(f"Search result for work_id {work_id} returned multiple matches")
 
         return book
 
@@ -245,6 +252,19 @@ class OpenLibCaller:
             for author in complete_authors:
                 pprint.pp(author)
         return book, complete_authors
+
+    @staticmethod
+    def _maybe_update_publish_year(book: Dict[str, Any], new_year: Optional[int]):
+        """
+        Update the first_publish_year in book if new_year is more accurate (earlier).
+        """
+        if new_year is None:
+            return
+
+        current_year = book.get("first_publish_year")
+        if not current_year or new_year < current_year:
+            logger.debug("Updating publish year: %s -> %s", current_year, new_year)
+            book["first_publish_year"] = new_year
 
     """ Methods for constructing URLs """
 
@@ -382,8 +402,8 @@ class OpenLibCaller:
 
             current_date = book.get("first_publish_year")
 
-            if current_date and (current_date < year):
-                book.update({"first_publish_year": year})
+            if year is not None and (current_date is None or year < current_date):
+                book["first_publish_year"] = year
 
         pages = book.get("number_of_pages_median")
 
@@ -460,50 +480,14 @@ class OpenLibCaller:
 
         return author
 
-    @staticmethod
-    def parse_work_id_page(response: Dict[str, Any], book: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def parse_work_id_page(self, response: Dict[str, Any], book: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
-        This is used to parse the work id urls, to get complete metadata for each book.
-
-        e.g:
-        https://openlibrary.org//works/OL82563W.json
-
-        If a dictionary is provided as `book`, it updates that dictionary. Expected use case is to pass,
-        dictionary of inital search results from self.search_url.
-
-        If no dict is passed then it creates and returns a new dictionary.
-
-        Args:
-            response (dict): The API response containing book data.
-            book (dict, optional): An existing dictionary to update. Defaults to None.
-
-        Returns:
-            dict: A dictionary containing the parsed book metadata.
-
-        On its own it won't return the below
-
-         # got from editions
-         'publishers': [],
-         'isbns': [],
-         # got from search url page
-         first_year_publish
-
-         author_name and author_key is returned on the book search search results, but authors returns on works
+        Merge work ID response data into an existing book dictionary.
         """
-        if book is None:
-            book = {}
+        book = book or {}
 
-        work_page_publish_year = extract_year(response.get("first_publish_year", ""))
-        logging.debug("work page publish year: %s", work_page_publish_year)
-
-        if work_page_publish_year:
-            logging.info("checking first publish year")
-            book_first_publish_year = book.get("first_publish_year")
-
-            logging.debug("current book publish year: %s", book_first_publish_year)
-
-            if not book_first_publish_year or (work_page_publish_year < book_first_publish_year):
-                book.update({"first_publish_year": work_page_publish_year})
+        work_page_year = extract_year(str(response.get("first_publish_year", "")))
+        self._maybe_update_publish_year(book, work_page_year)
 
         book.update(
             {
@@ -518,19 +502,19 @@ class OpenLibCaller:
             }
         )
 
-        logger.debug(book)
+        logger.debug("Parsed work data: %s", book)
         return book
 
 
 def extract_year(date_str: str) -> Optional[int]:
     date_formats = [
-        "%Y",               # 1999
-        "%Y-%m-%d",         # 1999-12-19
-        "%Y/%m/%d",         # 1999/12/19
-        "%B %d, %Y",        # December 19, 1999
-        "%b %d, %Y",        # Dec 19, 1999
-        "%d %B %Y",         # 19 December 1999
-        "%d %b %Y",         # 19 Dec 1999
+        "%Y",  # 1999
+        "%Y-%m-%d",  # 1999-12-19
+        "%Y/%m/%d",  # 1999/12/19
+        "%B %d, %Y",  # December 19, 1999
+        "%b %d, %Y",  # Dec 19, 1999
+        "%d %B %Y",  # 19 December 1999
+        "%d %b %Y",  # 19 Dec 1999
     ]
 
     for fmt in date_formats:
