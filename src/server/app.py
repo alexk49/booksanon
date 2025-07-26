@@ -15,7 +15,10 @@ dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger("app")
 
 
-middleware = [Middleware(SessionMiddleware, secret_key=settings.SECRET_KEY, https_only=True, same_site="strict"), Middleware(RequestIDMiddleware)]
+middleware = [
+    Middleware(SessionMiddleware, secret_key=settings.SECRET_KEY, https_only=True, same_site="strict"),
+    Middleware(RequestIDMiddleware),
+]
 
 
 @contextlib.asynccontextmanager

@@ -26,20 +26,17 @@ class RequestIDLogFilter(logging.Filter):
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
-
     "formatters": {
         "default": {
             "format": "%(asctime)s - %(levelname)s - %(name)s - [%(request_id)s] %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },
-
     "filters": {
         "request_id": {
             "()": RequestIDLogFilter,
         },
     },
-
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
@@ -62,21 +59,11 @@ LOGGING_CONFIG = {
             "maxBytes": 1_000_000,
             "backupCount": 3,
         },
-        "calls_file": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(LOGS_DIR, "calls.log"),
-            "formatter": "default",
-            "filters": ["request_id"],
-            "maxBytes": 1_000_000,
-            "backupCount": 3,
-        },
     },
-
     "root": {
         "level": logging_level,
         "handlers": ["console", "app_file"],
     },
-
     "loggers": {
         "app": {
             "level": logging_level,
@@ -88,10 +75,5 @@ LOGGING_CONFIG = {
             "handlers": ["console", "tasks_file"],
             "propagate": False,
         },
-        "app.calls": {
-            "level": logging_level,
-            "handlers": ["console", "calls_file"],
-            "propagate": False,
-        },
-    }
+    },
 }

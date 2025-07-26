@@ -4,11 +4,15 @@ import logging
 from calls.client import Client
 from calls.openlib import OpenLibCaller
 from db import Database
+from logging.config import dictConfig
 from repositories import QueueRepository, AuthorRepository, BookRepository, ReviewRepository, UserRepository
 from config import settings
+from config.logging_config import LOGGING_CONFIG
 
 
+dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger("app.tasks")
+
 
 class HueyResourceContainer:
     def __init__(self):

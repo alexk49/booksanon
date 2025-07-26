@@ -28,7 +28,7 @@ from typing import Any, Dict, List, Optional, Set
 from calls.client import Client
 
 
-logger = logging.getLogger("app.calls")
+logger = logging.getLogger(__name__)
 
 
 class OpenLibCaller:

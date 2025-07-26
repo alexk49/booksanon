@@ -10,6 +10,7 @@ from typing import Optional
 
 logger = logging.getLogger("app.calls")
 
+
 class Client:
     def __init__(
         self,
@@ -45,7 +46,7 @@ class Client:
     async def fetch_results(self, url: str, params: dict = {}):
         self.session = await self.start_session()
 
-        logger.info(f"making request to %s, with %s", url, params)
+        logger.info("making request to %s, with %s", url, params)
         for attempt in range(1, self.max_retries + 1):
             try:
                 if params != {}:

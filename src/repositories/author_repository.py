@@ -7,6 +7,7 @@ from db.models import Author
 
 logger = logging.getLogger("app")
 
+
 class AuthorRepository:
     def __init__(self, db: Database):
         self.db = db

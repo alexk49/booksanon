@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 
-logger = logging.getLogger("app")
+logger = logging.getLogger(__name__)
 
 
 class Database:
