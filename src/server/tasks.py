@@ -8,7 +8,7 @@ from config import settings
 from .huey_resources import resources
 
 
-logger = logging.getLogger("app.tasks")
+logger = logging.getLogger(__name__)
 
 huey_db = Path(settings.PROJECT_ROOT / "data" / "huey_queue.db")
 huey = SqliteHuey("queue", filename=huey_db)

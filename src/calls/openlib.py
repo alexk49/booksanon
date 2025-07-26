@@ -48,7 +48,7 @@ class OpenLibCaller:
 
     """ Calls to API """
 
-    async def get_work_id_results(self, work_id: str):
+    async def get_work_id_results(self, work_id: str, book: Optional[Dict[str, Any]] = None):
         """Fetch and optionally parse work ID results"""
         url = self.get_work_id_url(work_id)
         response = await self.fetch_with_semaphore(url)
@@ -56,7 +56,7 @@ class OpenLibCaller:
         if not response:
             return None
 
-        book = OpenLibCaller.parse_work_id_page(response)
+        book = self.parse_work_id_page(response, book=book)
 
         logger.debug(book)
         if self.pprint:
@@ -174,7 +174,21 @@ class OpenLibCaller:
         if not work_id:
             work_id = book["openlib_work_key"]
 
-        book = await self.get_work_id_results(work_id)
+        search_url_with_key = f"https://openlibrary.org/search.json?q=key:{work_id}"
+
+        logging.info("making request to search url filtered with key: %s", search_url_with_key)
+        response = await self.fetch_with_semaphore(search_url_with_key)
+        results = self.parse_books_search_results(response)
+
+        logging.debug(results)
+
+        if len(results) > 1:
+            logging.warning("unable to use results from search response as work key: %s returned more than one result", work_id)
+        else:
+            book = results[0]
+            logging.info(book)
+
+        book = await self.get_work_id_results(work_id, book=book)
 
         if not book:
             return None
@@ -355,11 +369,21 @@ class OpenLibCaller:
             publishers.update(entry.get("publishers", []))
 
         if edition_dates:
-            first_edition_date = sorted(edition_dates)[0]
+            clean_dates = []
+            for edition_date in edition_dates:
+                d = extract_year(edition_date)
+                if d:
+                    clean_dates.append(d)
+
+            first_edition_date = sorted(clean_dates)[0]
             logger.debug("edition dates found as: %s", edition_dates)
-            year = int(extract_year(first_edition_date))
+            year = extract_year(str(first_edition_date))
             logger.debug("setting first edition date as: %s", year)
-            book.update({"first_publish_year": year})
+
+            current_date = book.get("first_publish_year")
+
+            if current_date and (current_date < year):
+                book.update({"first_publish_year": year})
 
         pages = book.get("number_of_pages_median")
 
@@ -469,6 +493,18 @@ class OpenLibCaller:
         if book is None:
             book = {}
 
+        work_page_publish_year = extract_year(response.get("first_publish_year", ""))
+        logging.debug("work page publish year: %s", work_page_publish_year)
+
+        if work_page_publish_year:
+            logging.info("checking first publish year")
+            book_first_publish_year = book.get("first_publish_year")
+
+            logging.debug("current book publish year: %s", book_first_publish_year)
+
+            if not book_first_publish_year or (work_page_publish_year < book_first_publish_year):
+                book.update({"first_publish_year": work_page_publish_year})
+
         book.update(
             {
                 "title": response.get("title", ""),
@@ -486,20 +522,24 @@ class OpenLibCaller:
         return book
 
 
-def extract_year(date_str):
-    formats = [
-        "%Y",
-        "%Y-%m-%d",
-        "%Y/%m/%d",
+def extract_year(date_str: str) -> Optional[int]:
+    date_formats = [
+        "%Y",               # 1999
+        "%Y-%m-%d",         # 1999-12-19
+        "%Y/%m/%d",         # 1999/12/19
+        "%B %d, %Y",        # December 19, 1999
+        "%b %d, %Y",        # Dec 19, 1999
+        "%d %B %Y",         # 19 December 1999
+        "%d %b %Y",         # 19 Dec 1999
     ]
 
-    for fmt in formats:
+    for fmt in date_formats:
         try:
-            dt = datetime.strptime(date_str, fmt)
-            return dt.year
+            return datetime.strptime(date_str.strip(), fmt).year
         except ValueError:
             continue
-    return f"Could not parse: {date_str}"
+    logging.warning("Could not parse: %s", date_str)
+    return None
 
 
 def validate_openlib_work_id(openlib_work_id: str):
