@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from huey import SqliteHuey
@@ -59,7 +60,12 @@ async def _fetch_and_store_book_data(openlib_id: str, review: str, username="ano
     logger.info(f"fetching book data for {openlib_id}")
     book = await resources.book_repo.get_book_by_openlib_id(openlib_id)
 
-    if not book:
+    logger.debug(book)
+    one_year_ago = datetime.now(timezone.utc) - timedelta(days=365)
+    logger.debug(one_year_ago)
+
+    if not book or not book.updated_at or (book.updated_at < one_year_ago):
+        logger.info("getting data from openlibrary")
         book_data, complete_authors = await resources.openlib_caller.get_book_data_for_db(work_id=openlib_id)
 
         book = Book.from_dict(book_data)

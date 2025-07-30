@@ -2,6 +2,7 @@ import json
 import logging
 import random
 from dataclasses import asdict, dataclass, field
+from datetime import datetime
 from typing import Any, Optional, Union
 
 from asyncpg import Record
@@ -36,8 +37,8 @@ class Book:
 
     remote_links: Optional[Union[list[dict[str, str]], str]] = None
 
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     @classmethod
     def from_db_record(cls, record: Record) -> Optional["Book"]:

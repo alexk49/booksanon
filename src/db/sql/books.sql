@@ -95,7 +95,19 @@ INSERT INTO books (
     :number_of_pages_median,
     :remote_links
 )
-ON CONFLICT (openlib_work_key) DO UPDATE SET openlib_work_key = EXCLUDED.openlib_work_key
+ON CONFLICT (openlib_work_key) DO UPDATE SET
+    author_names = EXCLUDED.author_names,
+    author_keys = EXCLUDED.author_keys,
+    openlib_description = EXCLUDED.openlib_description,
+    first_publish_year = EXCLUDED.first_publish_year,
+    publishers = EXCLUDED.publishers,
+    isbns_13 = EXCLUDED.isbns_13,
+    isbns_10 = EXCLUDED.isbns_10,
+    openlib_tags = EXCLUDED.openlib_tags,
+    openlib_cover_ids = EXCLUDED.openlib_cover_ids,
+    number_of_pages_median = EXCLUDED.number_of_pages_median,
+    remote_links = EXCLUDED.remote_links,
+    updated_at = CURRENT_TIMESTAMP
 RETURNING id;
 
 -- name: link_book_author!
