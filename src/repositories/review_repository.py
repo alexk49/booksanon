@@ -1,5 +1,10 @@
+import logging
+
 from db import Database
 from db.models import Book, Review
+
+
+logger = logging.getLogger("app")
 
 
 class ReviewRepository:
@@ -7,6 +12,8 @@ class ReviewRepository:
         self.db = db
 
     async def insert_review(self, user_id, book_id, review):
+        if not user_id or not book_id or not review:
+            logger.critical("invalid parameters: user_id: %s, book_id: %s, review: %s", user_id, book_id, review)
         return await self.db.run_query("insert_review", book_id=book_id, user_id=user_id, content=review)
 
     """ Get or read values """

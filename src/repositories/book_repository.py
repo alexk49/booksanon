@@ -72,20 +72,14 @@ class BookRepository:
         records = await self.db.run_query("search_books", search_query=search_query)
         return Book.from_db_records(records)
 
-    async def get_book_and_reviews_by_book_id(self, book_id: int) -> tuple[Book | None, list[Review | None]]:
-        records = await self.db.run_query("get_book_and_reviews_by_book_id", book_id=book_id)
-
-        if not records:
+    async def get_book_and_reviews_by_book_id(self, book_id: int) -> tuple[Book | None, list[Review]]:
+        book_record = await self.db.run_query("get_book_by_id_with_authors", book_id=book_id)
+        if not book_record:
             return None, []
 
-        book = Book.from_db_record(records[0])
+        book = Book.from_db_record(book_record[0])
 
-        reviews = []
-        for r in records:
-            # left join has possible null values
-            if r:
-                reviews.append(Review.from_joined_record(r))
+        review_records = await self.db.run_query("get_reviews_by_book_id", book_id=book_id)
+        reviews = [Review.from_db_record(r) for r in review_records]
 
-        logger.debug("book: %s", book)
-        logger.debug("reviews: %s", reviews)
         return book, reviews

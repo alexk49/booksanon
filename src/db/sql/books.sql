@@ -1,5 +1,9 @@
 -- name: get_book_by_openlib_work_key^
-SELECT * FROM books WHERE openlib_work_key = :openlib_work_key;
+SELECT 
+    b.id AS book_id,
+    b.updated_at
+FROM books b
+WHERE b.openlib_work_key = :openlib_work_key;
 
 -- name: get_book_by_id^
 SELECT * FROM books WHERE id = :book_id;
@@ -32,11 +36,32 @@ SELECT
     b.number_of_pages_median,
     b.openlib_tags,
     b.remote_links,
-    b.first_publish_year
+    b.first_publish_year,
+    json_agg(json_build_object(
+        'id', a.id,
+        'name', a.name,
+        'openlib_id', a.openlib_id
+    ) ORDER BY a.name) AS authors
 FROM books b
+JOIN book_authors ba ON ba.book_id = b.id
+JOIN authors a ON a.id = ba.author_id
 WHERE
-  title ILIKE '%' || :search_query || '%'
-  OR array_to_string(author_names, ', ') ILIKE '%' || :search_query || '%'
+    b.title ILIKE '%' || :search_query || '%'
+    OR a.name ILIKE '%' || :search_query || '%'
+GROUP BY 
+    b.id,
+    b.title,
+    b.openlib_work_key,
+    b.openlib_cover_ids,
+    b.openlib_description,
+    b.author_names,
+    b.author_keys,
+    b.publishers,
+    b.number_of_pages_median,
+    b.openlib_tags,
+    b.remote_links,
+    b.first_publish_year
+ORDER BY b.title
 LIMIT 100;
 
 -- name: get_books_by_author

@@ -64,7 +64,7 @@ class Book:
             remote_links=record.get("remote_links") or [],
             first_publish_year=record.get("first_publish_year"),
             created_at=record.get("created_at"),
-            updated_at=record.get("created_at"),
+            updated_at=record.get("updated_at"),
         )
 
     @classmethod

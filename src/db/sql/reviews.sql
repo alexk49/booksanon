@@ -34,14 +34,8 @@ LIMIT 10;
 -- name: get_reviews_by_book_id
 SELECT * FROM reviews JOIN books ON books.id = reviews.book_id WHERE reviews.book_id = :book_id;
 
--- name: get_book_and_reviews_by_book_id
-SELECT
-    r.id AS review_id,
-    r.book_id,
-    r.user_id,
-    r.content,
-    r.created_at,
-    r.updated_at,
+-- name: get_book_by_id_with_authors
+SELECT 
     b.id AS book_id,
     b.title,
     b.openlib_work_key,
@@ -54,17 +48,29 @@ SELECT
     b.openlib_tags,
     b.remote_links,
     b.first_publish_year,
+    b.created_at,
     json_agg(json_build_object(
         'id', a.id,
         'name', a.name,
         'openlib_id', a.openlib_id
-    ) ORDER BY a.id) AS authors
-FROM reviews r
-JOIN books b ON b.id = r.book_id
+    ) ORDER BY a.name) AS authors
+FROM books b
 LEFT JOIN book_authors ba ON ba.book_id = b.id
 LEFT JOIN authors a ON a.id = ba.author_id
-GROUP BY r.id, b.id
-ORDER BY r.created_at DESC;
+WHERE b.id = :book_id
+GROUP BY b.id;
+
+-- name: get_reviews_by_book_id
+SELECT 
+    id AS review_id,
+    book_id,
+    user_id,
+    content,
+    created_at,
+    updated_at
+FROM reviews
+WHERE book_id = :book_id
+ORDER BY created_at DESC;
 
 -- name: get_reviews_for_books
 SELECT 
