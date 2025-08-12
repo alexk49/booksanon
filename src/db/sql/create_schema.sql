@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS books (
     isbns_13 TEXT[] DEFAULT '{}',
     isbns_10 TEXT[] DEFAULT '{}',
     openlib_tags TEXT[] DEFAULT '{}',
+    cover_id TEXT,
     openlib_cover_ids TEXT[] DEFAULT '{}',
     number_of_pages_median INT DEFAULT 0,
     remote_links JSONB DEFAULT '[]',

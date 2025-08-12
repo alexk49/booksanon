@@ -45,6 +45,7 @@ class Book:
         if not record:
             return None
 
+        cover_id = record.get("cover_id", "")
         openlib_cover_ids = record.get("openlib_cover_ids", [])
         return cls(
             id=record.get("book_id"),
@@ -56,7 +57,7 @@ class Book:
             publishers=set(record.get("publishers", [])),
             isbns_13=set(record.get("isbns_13", [])),
             isbns_10=set(record.get("isbns_10", [])),
-            cover_id=cls._pick_cover_id(openlib_cover_ids),
+            cover_id = cover_id or cls._pick_cover_id(openlib_cover_ids),
             openlib_cover_ids=openlib_cover_ids,
             number_of_pages_median=record.get("number_of_pages_median"),
             openlib_description=record.get("openlib_description"),
@@ -85,7 +86,7 @@ class Book:
             author_keys=book_dict["author_keys"],
             first_publish_year=book_dict["first_publish_year"],
             openlib_work_key=book_dict["openlib_work_key"],
-            cover_id=book_dict.get("cover_id"),
+            cover_id=str(book_dict.get("cover_id", [])[0]),
             openlib_cover_ids=[str(cid) for cid in cover_ids_from_api],
             openlib_description=description,
             openlib_tags=set(book_dict.get("subjects", [])),
