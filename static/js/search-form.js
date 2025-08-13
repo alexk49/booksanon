@@ -11,12 +11,14 @@ export function setUpSearchForm(ui) {
     );
     const books = getBookDataFromResponse(response, ui.resultsContainer);
 
-    books.forEach((book) => {
-      const card = createBookCardEl(book);
-      const selectBtnEl = card.querySelector(".select-book-btn");
-      setUpSelectBtn(card, selectBtnEl, ui);
-      ui.resultsContainer.appendChild(card);
-    });
+    if (books) {
+      books.forEach((book) => {
+        const card = createBookCardEl(book);
+        const selectBtnEl = card.querySelector(".select-book-btn");
+        setUpSelectBtn(card, selectBtnEl, ui);
+        ui.resultsContainer.appendChild(card);
+      });
+    }
   });
 }
 

@@ -57,7 +57,7 @@ class Book:
             publishers=set(record.get("publishers", [])),
             isbns_13=set(record.get("isbns_13", [])),
             isbns_10=set(record.get("isbns_10", [])),
-            cover_id = cover_id or cls._pick_cover_id(openlib_cover_ids),
+            cover_id=cover_id or cls._pick_cover_id(openlib_cover_ids),
             openlib_cover_ids=openlib_cover_ids,
             number_of_pages_median=record.get("number_of_pages_median"),
             openlib_description=record.get("openlib_description"),

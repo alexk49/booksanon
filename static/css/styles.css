@@ -333,6 +333,12 @@ main {
   align-items: baseline;
 }
 
+.review-content {
+  overflow: hidden;
+  white-space: pre-line; /* preserve paragraph breaks */
+  margin-top: 0;
+}
+
 .book-cover {
   flex: 0 0 40%;
   display: flex;

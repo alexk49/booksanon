@@ -89,9 +89,19 @@
       </section>
     </div>
     <div class="col2">
-      <section class="review-content">
+      <section>
+        {% set review_short = review.content|truncate(1000) %}
         <h4><a href="/review/{{ review.id }}">Review</a></h4>
-        <p>{{ review.content }}</p>
+        <p
+          class="review-content"
+          data-full="{{ review.content }}"
+          data-truncated="{{ review_short }}"
+        >
+          {{ review_short }}
+        </p>
+        {% if review.content|length > 1000 %}
+          <button class="expand-btn">Expand review</button>
+        {% endif %}
       </section>
     </div>
   </div>

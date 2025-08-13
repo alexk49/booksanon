@@ -15,6 +15,27 @@ function setUpNavSearchForm(navSearchFormEl, loaderEl) {
   }
 }
 
+function setUpExpandReviewBtn(expandBtn) {
+  if (!expandBtn) {
+    return;
+  }
+
+  expandBtn.addEventListener("click", () => {
+    const reviewParagraph = expandBtn.previousElementSibling;
+    const isExpanding = expandBtn.textContent === "Expand review";
+
+    if (isExpanding) {
+      const fullText = reviewParagraph.getAttribute("data-full");
+      reviewParagraph.textContent = fullText;
+      expandBtn.textContent = "Collapse review";
+    } else {
+      const truncatedText = reviewParagraph.getAttribute("data-truncated");
+      reviewParagraph.textContent = truncatedText;
+      expandBtn.textContent = "Expand review";
+    }
+  });
+}
+
 function main() {
   populateCsrfTokens();
 
@@ -27,6 +48,14 @@ function main() {
   const navSearchFormEl = document.getElementById("nav-search-form");
 
   setUpNavSearchForm(navSearchFormEl, loaderEl);
+
+  const expandBtns = document.querySelectorAll(".expand-btn");
+
+  if (expandBtns) {
+    expandBtns.forEach((btn) => {
+      setUpExpandReviewBtn(btn);
+    });
+  }
 
   window.addEventListener("pageshow", () => {
     hideEl(loaderEl);
