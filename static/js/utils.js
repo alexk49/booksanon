@@ -23,7 +23,7 @@ export async function fetchFormResponse(url, formData) {
   } catch (error) {
     let err_msg = `Error posting form data to: ${url} - ${error}`;
     console.error(err_msg);
-    return { success: "false", message: err_msg };
+    return { success: false, message: err_msg };
   }
 }
 

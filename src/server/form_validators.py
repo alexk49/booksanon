@@ -42,6 +42,12 @@ def is_required(value: Any) -> dict:
     return {"ok": False, "error": "This field is required."}
 
 
+def is_under_max_length(value: str, max_length: int = 1500) -> dict:
+    if len(value.split()) > max_length:
+        return {"ok": False, "error": "Review is too long."}
+    return {"ok": True, "value": value}
+
+
 def is_openlib_work_id(value: str) -> dict:
     if validate_openlib_work_id(value):
         return {"ok": True, "value": value}
@@ -66,7 +72,7 @@ def validate_csrf_token(session_token: str, form_token: str) -> dict:
 
 book_submit_fields = {
     "openlib_id_hidden": [is_required, is_openlib_work_id],
-    "review": [is_required],
+    "review": [is_required, is_under_max_length],
     "csrf_token": [validate_csrf_token],
 }
 

@@ -58,6 +58,13 @@ function setUpReviewForm(reviewFormContainerEl, loaderEl) {
   });
 }
 
+function setUpReviewCounter(reviewTextEl, counterEl) {
+  reviewTextEl.addEventListener("input", () => {
+    const textCount = reviewTextEl.value.split(" ").length
+    counterEl.innerText = `${textCount}/1500`
+  });
+}
+
 function main() {
   const ui = {
     loaderEl: document.getElementById("global-loader"),
@@ -89,6 +96,13 @@ function main() {
 
   if (submitReviewForm) {
     setUpReviewForm(submitReviewForm, ui.loaderEl);
+  }
+
+  const reviewText= document.querySelector('textarea[name="review"]');
+
+  if (reviewText) {
+    const counterEl = document.getElementById("text-counter");
+    setUpReviewCounter(reviewText, counterEl);
   }
 }
 
