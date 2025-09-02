@@ -6,7 +6,7 @@ export async function fetchServerData(url) {
   } catch (error) {
     let err_msg = `Error fetching data from: ${url}, ${error}`;
     console.error(err_msg);
-    return { success: "false", message: err_msg };
+    return { success: false, message: err_msg, data: null, errors: { detail: error.message } };
   }
 }
 
@@ -23,7 +23,7 @@ export async function fetchFormResponse(url, formData) {
   } catch (error) {
     let err_msg = `Error posting form data to: ${url} - ${error}`;
     console.error(err_msg);
-    return { success: false, message: err_msg };
+    return { success: false, message: err_msg, data: null, errors: { detail: error.message } };
   }
 }
 
@@ -42,8 +42,9 @@ export async function handleFormSubmission(
   try {
     return await fetchFormResponse(apiRoute, formData);
   } catch (err) {
-    console.error("Form submission failed:", err);
-    throw err;
+    const err_msg = `For submission failed: ${err}`
+    console.error(err_msg);
+    return { success: false, message: err_msg, data: null, errors: { detail: error.message } };
   } finally {
     if (loaderEl) {
       hideEl(loaderEl);

@@ -2,6 +2,7 @@ import asyncio
 import logging
 import secrets
 from collections.abc import Callable
+from typing import Any
 
 from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse
@@ -118,9 +119,10 @@ async def search_api(request):
     async def on_success(clean_form):
         logging.info("searching locally for: %s", clean_form["search_query"])
         results = await resources.book_repo.search_books(search_query=clean_form["search_query"])
-        books = [book.to_json_dict() for book in results]
-        return JSONResponse({"success": True, "results": books})
-
+        if results:
+            books = [book.to_json_dict() for book in results]
+            return api_response(success=True, message="Books found", data={"results": books})
+        return api_response(success=False, message="No results found", errors={"detail": "No results found"}, data={"results": []}, status_code=404)
     return await handle_form(request, search_form_fields, on_success)
 
 
@@ -128,10 +130,12 @@ async def search_openlib(request: Request):
     async def on_success(clean_form):
         logging.info("calling openlibrary with: %s", clean_form["search_query"])
         results = await resources.openlib_caller.search_books(search_query=clean_form["search_query"], limit=10)
-        logging.debug(results)
-        books = [Book.from_dict(res).to_json_dict() for res in results]
-        logging.debug(books)
-        return JSONResponse({"success": True, "results": books})
+        if results:
+            logging.debug(results)
+            books = [Book.from_dict(res).to_json_dict() for res in results]
+            logging.debug(books)
+            return api_response(success=True, message="Books found", data={"results": books})
+        return api_response(success=False, message="No results found", errors={"detail": "No results found"}, data={"results": []}, status_code=404)
 
     return await handle_form(request, search_form_fields, on_success)
 
@@ -146,13 +150,11 @@ async def submit_book(request: Request):
         logger.info(f"adding submission id to queue: {submission_id}")
         process_review_submission(submission_id)
 
-        return JSONResponse(
-            {
-                "success": True,
-                "message": "Thanks for adding a review! Your submission is being processed.",
-                "submission_id": submission_id,
-            },
-        )
+        return api_response(
+                success=True,
+                message="Thanks for adding a review! Your submission is being processed.",
+                data={"submission_id": submission_id},
+            )
 
     return await handle_form(request, book_submit_fields, on_success)
 
@@ -164,6 +166,25 @@ async def set_csrf_token(request: Request):
 
 
 """ helper functions """
+
+
+async def api_response(
+    success: bool,
+    message: str,
+    status_code: int = 200,
+    data: dict[str, Any] | None= None,
+    errors: dict[str, Any] | None= None,
+) -> JSONResponse:
+    """
+    Standardized API response format for all endpoints.
+    """
+    payload = {
+        "success": success,
+        "message": message,
+        "data": data if data is not None else None,
+        "errors": errors if errors is not None else None,
+    }
+    return JSONResponse(payload, status_code=status_code)
 
 
 async def handle_form(request: Request, form_fields: dict, on_success: Callable):
@@ -179,13 +200,11 @@ async def handle_form(request: Request, form_fields: dict, on_success: Callable)
 
     if errors:
         logger.warning("Errors with form submission: %s", errors)
-        return JSONResponse(
-            {
-                "success": False,
-                "message": "There have been errors with your form.",
-                "errors": errors,
-            },
-            status_code=400,
+        return api_response(
+                success=False,
+                message="There have been errors with your form.",
+                errors=errors,
+                status_code=400,
         )
 
     clean = clean_results(result)

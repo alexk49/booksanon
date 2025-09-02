@@ -47,7 +47,7 @@ class BookRepository:
         records = await self.db.run_query("get_books_by_author", author_id=author_id)
         return Book.from_db_records(records)
 
-    async def get_books_with_reviews_by_author(self, author_id: int) -> list[Book | None]:
+    async def get_books_with_reviews_by_author(self, author_id: int) -> list[Book]:
         """Fetches books by an author and attaches their reviews."""
         books = await self.get_books_by_author(author_id)
         if not books:

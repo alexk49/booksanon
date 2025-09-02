@@ -24,50 +24,50 @@ def chain_validators(value, *validators) -> dict:
     """
     for validator in validators:
         result = validator(value)
-        if not result["ok"]:
+        if not result["success"]:
             return result
-    return {"ok": True, "value": result["value"]}
+    return {"success": True, "value": result["value"]}
 
 
 def get_errors(validated_data: dict) -> dict:
     """
     Filter through results of dict to find any errors
     """
-    return {field: result["error"] for field, result in validated_data.items() if not result["ok"]}
+    return {field: result["error"] for field, result in validated_data.items() if not result["success"]}
 
 
 def is_required(value: Any) -> dict:
     if value:
-        return {"ok": True, "value": value}
-    return {"ok": False, "error": "This field is required."}
+        return {"success": True, "value": value}
+    return {"success": False, "error": "This field is required."}
 
 
 def is_under_max_length(value: str, max_length: int = 1500) -> dict:
     if len(value.split()) > max_length:
-        return {"ok": False, "error": "Review is too long."}
-    return {"ok": True, "value": value}
+        return {"success": False, "error": "Review is too long."}
+    return {"success": True, "value": value}
 
 
 def is_openlib_work_id(value: str) -> dict:
     if validate_openlib_work_id(value):
-        return {"ok": True, "value": value}
-    return {"ok": False, "error": "Invalid openlibrary work ID"}
+        return {"success": True, "value": value}
+    return {"success": False, "error": "Invalid openlibrary work ID"}
 
 
 def must_be_empty(value: Any) -> dict:
     if not value:
-        return {"ok": True, "value": value}
-    return {"ok": False, "error": "This field must be empty."}
+        return {"success": True, "value": value}
+    return {"success": False, "error": "This field must be empty."}
 
 
 def validate_csrf_token(session_token: str, form_token: str) -> dict:
     if not session_token or not form_token:
-        return {"ok": False, "error": "Missing CSRF token."}
+        return {"success": False, "error": "Missing CSRF token."}
 
     if session_token != form_token:
-        return {"ok": False, "error": "CSRF token mismatch."}
+        return {"success": False, "error": "CSRF token mismatch."}
 
-    return {"ok": True, "value": form_token}
+    return {"success": True, "value": form_token}
 
 
 book_submit_fields = {
