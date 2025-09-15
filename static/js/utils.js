@@ -72,19 +72,6 @@ export function showHiddenEl(el) {
   el.classList.remove("hidden");
 }
 
-export function getBookDataFromResponse(response, resultsContainer) {
-  // TODO update anywhere this is used
-  // see search-form.js updateBookResultsContainer
-  console.log(response);
-  if (response.success && Array.isArray(response.data.results)) {
-    resultsContainer.innerHTML = "";
-    return response.data.results;
-  } else {
-    resultsContainer.innerText = "No results found.";
-    return null;
-  }
-}
-
 /* csrf token utils */
 
 export async function getCSRF() {

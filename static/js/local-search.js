@@ -1,5 +1,5 @@
 import { handleFormSubmission } from "./utils.js";
-import { handleResponse } from "./search-form.js";
+import { handleBookSearchResponse } from "./add-book.js";
 
 export function setUpLocalSearch(ui) {
   ui.searchFormEl.addEventListener("submit", async function (e) {
@@ -10,7 +10,7 @@ export function setUpLocalSearch(ui) {
       ui.loaderEl,
     );
     const localSearch = true;
-    handleResponse(response, ui, localSearch);
+    handleBookSearchResponse(response, ui, localSearch);
   });
 }
 
