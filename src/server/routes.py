@@ -18,7 +18,7 @@ routes = [
     Route("/review/{review_id:int}", views.review_page, name="review"),
     # api routes
     Route("/api/csrf-token", views.set_csrf_token, name="csrf-token"),
-    Route("/api/search", views.search_api, name="search-api", methods=["POST"]),
+    Route("/api/search", views.local_search_api, name="search-api", methods=["POST"]),
     Route("/api/search-openlib", views.search_openlib, name="search-openlib", methods=["POST"]),
     Route("/api/submit-book", views.submit_book, name="submit-book", methods=["POST"]),
 ]

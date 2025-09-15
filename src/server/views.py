@@ -115,7 +115,7 @@ async def search(request):
 """ API routes """
 
 
-async def search_api(request):
+async def local_search_api(request):
     async def on_success(clean_form):
         logging.info("searching locally for: %s", clean_form["search_query"])
         results = await resources.book_repo.search_books(search_query=clean_form["search_query"])
