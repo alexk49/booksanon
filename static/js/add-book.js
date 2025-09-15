@@ -1,10 +1,6 @@
 import { addSubmissionToLocalStorage, handleFormSubmission } from "./utils.js";
-import {
-  createBookCardEl,
-  updateLocalBookResultsContainer,
-} from "./book-cards.js";
-import { handleFormSubmission } from "./utils.js";
-import { setUpBackBtn, setUpSearchForm } from "./search-form.js";
+import { createBookCardEl } from "./book-cards.js";
+import { updateLocalBookResultsContainer } from "./book-cards.js";
 
 export function setUpSearchForm(ui) {
   ui.searchFormEl.addEventListener("submit", async function (e) {
@@ -188,9 +184,11 @@ function main() {
 
   const providerSelect = document.getElementById("search-provider");
 
-  providerSelect.addEventListener("change", function () {
-    ui.searchFormEl.action = this.value;
-  });
+  if (providerSelect) {
+    providerSelect.addEventListener("change", function () {
+      ui.searchFormEl.action = this.value;
+    });
+  }
 
   const submitReviewForm = document.getElementById("submit-form");
 
