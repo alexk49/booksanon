@@ -37,12 +37,15 @@ function setUpReviewForm(reviewFormContainerEl, loaderEl) {
       loaderEl,
     );
 
+    console.log(response);
+
     if (response.success) {
-      const { submission_id } = response;
+      console.log("adding review to local storage");
+      const submissionID = response.data.submission_id;
       const submittedData = new FormData(this);
 
       const newSubmission = {
-        id: submission_id,
+        id: submissionID,
         timestamp: Date.now(),
         review: submittedData.get("review"),
         openlib_id: submittedData.get("openlib_id_hidden"),
@@ -60,8 +63,8 @@ function setUpReviewForm(reviewFormContainerEl, loaderEl) {
 
 function setUpReviewCounter(reviewTextEl, counterEl) {
   reviewTextEl.addEventListener("input", () => {
-    const textCount = reviewTextEl.value.split(" ").length
-    counterEl.innerText = `${textCount}/1500`
+    const textCount = reviewTextEl.value.split(" ").length;
+    counterEl.innerText = `${textCount}/1500`;
   });
 }
 
@@ -98,7 +101,7 @@ function main() {
     setUpReviewForm(submitReviewForm, ui.loaderEl);
   }
 
-  const reviewText= document.querySelector('textarea[name="review"]');
+  const reviewText = document.querySelector('textarea[name="review"]');
 
   if (reviewText) {
     const counterEl = document.getElementById("text-counter");

@@ -30,6 +30,13 @@ export function createBookCardEl(book) {
   return card;
 }
 
+export function updateLocalBookResultsContainer(books, ui) {
+  books.forEach((book) => {
+    const card = createLocalBookCard(book);
+    ui.resultsContainer.appendChild(card);
+  });
+}
+
 export function createLocalBookCard(book) {
   const card = document.createElement("div");
   card.className = "book-card";

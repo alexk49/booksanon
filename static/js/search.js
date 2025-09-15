@@ -1,5 +1,5 @@
-import { getBookDataFromResponse, handleFormSubmission } from "./utils.js";
-import { createLocalBookCard } from "./book-cards.js";
+import { handleFormSubmission } from "./utils.js";
+import { handleResponse } from "./search-form.js";
 
 export function setUpLocalSearch(ui) {
   ui.searchFormEl.addEventListener("submit", async function (e) {
@@ -9,12 +9,8 @@ export function setUpLocalSearch(ui) {
       this.action,
       ui.loaderEl,
     );
-    const books = getBookDataFromResponse(response, ui.resultsContainer);
-
-    books.forEach((book) => {
-      const card = createLocalBookCard(book);
-      ui.resultsContainer.appendChild(card);
-    });
+    const localSearch = true;
+    handleResponse(response, ui, localSearch);
   });
 }
 

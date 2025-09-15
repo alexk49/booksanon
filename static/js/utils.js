@@ -6,7 +6,11 @@ export async function fetchServerData(url) {
   } catch (error) {
     let err_msg = `Error fetching data from: ${url}, ${error}`;
     console.error(err_msg);
-    return { success: false, message: err_msg, data: null, errors: { detail: error.message } };
+    return {
+      success: false,
+      message: err_msg,
+      data: null,
+    };
   }
 }
 
@@ -23,7 +27,11 @@ export async function fetchFormResponse(url, formData) {
   } catch (error) {
     let err_msg = `Error posting form data to: ${url} - ${error}`;
     console.error(err_msg);
-    return { success: false, message: err_msg, data: null, errors: { detail: error.message } };
+    return {
+      success: false,
+      message: err_msg,
+      data: null,
+    };
   }
 }
 
@@ -42,9 +50,13 @@ export async function handleFormSubmission(
   try {
     return await fetchFormResponse(apiRoute, formData);
   } catch (err) {
-    const err_msg = `For submission failed: ${err}`
+    const err_msg = `Form submission failed: ${err}`;
     console.error(err_msg);
-    return { success: false, message: err_msg, data: null, errors: { detail: error.message } };
+    return {
+      success: false,
+      message: err_msg,
+      data: null,
+    };
   } finally {
     if (loaderEl) {
       hideEl(loaderEl);
@@ -61,9 +73,12 @@ export function showHiddenEl(el) {
 }
 
 export function getBookDataFromResponse(response, resultsContainer) {
-  if (response && Array.isArray(response.results)) {
+  // TODO update anywhere this is used
+  // see search-form.js updateBookResultsContainer
+  console.log(response);
+  if (response.success && Array.isArray(response.data.results)) {
     resultsContainer.innerHTML = "";
-    return response.results;
+    return response.data.results;
   } else {
     resultsContainer.innerText = "No results found.";
     return null;
@@ -95,6 +110,7 @@ export function getSubmissionsFromLocalStorage() {
 }
 
 export function addSubmissionToLocalStorage(newSubmission) {
+  console.log(newSubmission);
   const submissions = getSubmissionsFromLocalStorage();
 
   // Check if a submission with the same ID already exists

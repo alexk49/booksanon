@@ -121,8 +121,15 @@ async def search_api(request):
         results = await resources.book_repo.search_books(search_query=clean_form["search_query"])
         if results:
             books = [book.to_json_dict() for book in results]
-            return api_response(success=True, message="Books found", data={"results": books})
-        return api_response(success=False, message="No results found", errors={"detail": "No results found"}, data={"results": []}, status_code=404)
+            return await api_response(success=True, message="Books found", data={"results": books})
+        return await api_response(
+            success=True,
+            message="No results found",
+            errors={"detail": "No results found"},
+            data={"results": []},
+            status_code=200,
+        )
+
     return await handle_form(request, search_form_fields, on_success)
 
 
@@ -134,8 +141,14 @@ async def search_openlib(request: Request):
             logging.debug(results)
             books = [Book.from_dict(res).to_json_dict() for res in results]
             logging.debug(books)
-            return api_response(success=True, message="Books found", data={"results": books})
-        return api_response(success=False, message="No results found", errors={"detail": "No results found"}, data={"results": []}, status_code=404)
+            return await api_response(success=True, message="Books found", data={"results": books})
+        return await api_response(
+            success=True,
+            message="No results found",
+            errors={"detail": "No results found"},
+            data={"results": []},
+            status_code=200,
+        )
 
     return await handle_form(request, search_form_fields, on_success)
 
@@ -150,11 +163,11 @@ async def submit_book(request: Request):
         logger.info(f"adding submission id to queue: {submission_id}")
         process_review_submission(submission_id)
 
-        return api_response(
-                success=True,
-                message="Thanks for adding a review! Your submission is being processed.",
-                data={"submission_id": submission_id},
-            )
+        return await api_response(
+            success=True,
+            message="Thanks for adding a review! Your submission is being processed.",
+            data={"submission_id": submission_id},
+        )
 
     return await handle_form(request, book_submit_fields, on_success)
 
@@ -172,8 +185,8 @@ async def api_response(
     success: bool,
     message: str,
     status_code: int = 200,
-    data: dict[str, Any] | None= None,
-    errors: dict[str, Any] | None= None,
+    data: dict[str, Any] | None = None,
+    errors: dict[str, Any] | None = None,
 ) -> JSONResponse:
     """
     Standardized API response format for all endpoints.
@@ -200,11 +213,11 @@ async def handle_form(request: Request, form_fields: dict, on_success: Callable)
 
     if errors:
         logger.warning("Errors with form submission: %s", errors)
-        return api_response(
-                success=False,
-                message="There have been errors with your form.",
-                errors=errors,
-                status_code=400,
+        return await api_response(
+            success=False,
+            message="There have been errors with your form.",
+            errors=errors,
+            status_code=400,
         )
 
     clean = clean_results(result)
