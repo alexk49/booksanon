@@ -22,7 +22,7 @@ export async function fetchFormResponse(url, formData) {
       method: "POST",
       body: formData,
     });
-    console.log(response)
+    console.log(response);
     return await response.json();
   } catch (error) {
     const err_msg = `Unexpected error posting form data to: ${url} - ${error}`;

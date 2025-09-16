@@ -29,22 +29,24 @@ export function handleBookSearchResponse(response, ui, localSearch = false) {
     }
   } else {
     console.log(response.message);
-    writeErrorsToContainer(response, ui.resultsContainer)
+    writeErrorsToContainer(response, ui.resultsContainer);
   }
 }
 
 export function writeErrorsToContainer(response, resultsContainer) {
-    resultsContainer.innerText = response.message || "An error occurred.";
+  resultsContainer.innerText = response.message || "An error occurred.";
 
-    // Check if there are any errors and display them
-    if (response.errors && typeof response.errors === 'object') {
-      const errorMessages = Object.entries(response.errors).map(([field, error]) => {
+  // Check if there are any errors and display them
+  if (response.errors && typeof response.errors === "object") {
+    const errorMessages = Object.entries(response.errors)
+      .map(([field, error]) => {
         return `${field}: ${error}`;
-      }).join(', ');
+      })
+      .join(", ");
 
-      // Append the error messages to the results container
-      resultsContainer.innerText += `\nErrors: ${errorMessages}`;
-    }
+    // Append the error messages to the results container
+    resultsContainer.innerText += `\nErrors: ${errorMessages}`;
+  }
 }
 
 export function updateBookResultsContainer(books, ui) {
@@ -131,7 +133,11 @@ function createCardViewController() {
   };
 }
 
-function setUpReviewForm(reviewFormContainerEl, loaderEl, reviewErrorsContainer) {
+function setUpReviewForm(
+  reviewFormContainerEl,
+  loaderEl,
+  reviewErrorsContainer,
+) {
   reviewFormContainerEl.addEventListener("submit", async function (event) {
     const response = await handleFormSubmission(
       event,
@@ -160,7 +166,7 @@ function setUpReviewForm(reviewFormContainerEl, loaderEl, reviewErrorsContainer)
     } else {
       // TODO improve error handling so it takes api response error
       console.log(response);
-      writeErrorsToContainer(response, reviewErrorsContainer)
+      writeErrorsToContainer(response, reviewErrorsContainer);
     }
   });
 }
@@ -202,7 +208,7 @@ function main() {
   }
 
   const submitReviewForm = document.getElementById("submit-form");
-  const reviewErrorsContainer = document.getElementById("review-form-errors")
+  const reviewErrorsContainer = document.getElementById("review-form-errors");
 
   if (submitReviewForm && reviewErrorsContainer) {
     setUpReviewForm(submitReviewForm, ui.loaderEl, reviewErrorsContainer);

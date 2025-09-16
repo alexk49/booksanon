@@ -106,7 +106,7 @@ async def search(request):
     async def search_get(request):
         query = (request.query_params.get("q", "")).replace("+", " ")
         # get errors and reset session flash_errors storage
-        errors = request.session.pop("flash_errors", None) 
+        errors = request.session.pop("flash_errors", None)
         results = []
         if query:
             results = await resources.book_repo.search_books(search_query=query)
