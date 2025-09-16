@@ -58,4 +58,14 @@
       <p>No results found.</p>
     {% endif %}
   </section>
+    {% if errors %}
+    <div id="search-errors" class="error-messages">
+    <p>There were errors with your search:</p> 
+        <ul>
+          {% for error_type, error_message in errors.items() %}
+            <li><strong>{{ error_type }}:</strong> {{ error_message }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
 {% endblock %}

@@ -96,17 +96,26 @@ async def search(request):
             status_code=303,
         )
 
+    async def on_failure(errors):
+        request.session["flash_errors"] = errors
+        return RedirectResponse(
+            url="/search",
+            status_code=303,
+        )
+
     async def search_get(request):
         query = (request.query_params.get("q", "")).replace("+", " ")
+        # get errors and reset session flash_errors storage
+        errors = request.session.pop("flash_errors", None) 
         results = []
         if query:
             results = await resources.book_repo.search_books(search_query=query)
         return templates.TemplateResponse(
-            request, "search.html", {"request": request, "query": query, "results": results}
+            request, "search.html", {"request": request, "query": query, "results": results, "errors": errors}
         )
 
     if request.method == "POST":
-        return await handle_form(request, search_form_fields, on_success)
+        return await handle_form(request, search_form_fields, on_success, on_failure)
 
     if request.method == "GET":
         return await search_get(request)
@@ -200,7 +209,7 @@ async def api_response(
     return JSONResponse(payload, status_code=status_code)
 
 
-async def handle_form(request: Request, form_fields: dict, on_success: Callable):
+async def handle_form(request: Request, form_fields: dict, on_success: Callable, on_failure: Callable | None = None):
     """
     Generic form handler, which requires on_success function from original view to be passed
     """
@@ -213,6 +222,8 @@ async def handle_form(request: Request, form_fields: dict, on_success: Callable)
 
     if errors:
         logger.warning("Errors with form submission: %s", errors)
+        if on_failure:
+            return await on_failure(errors)
         return await api_response(
             success=False,
             message="There have been errors with your form.",
