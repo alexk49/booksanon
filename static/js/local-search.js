@@ -1,4 +1,4 @@
-import { handleBookSearchResponse } from "./add-book";
+import { handleBookSearchResponse } from "./add-book.js";
 import { handleFormSubmission } from "./utils.js";
 
 export function setUpLocalSearch(ui) {

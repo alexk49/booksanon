@@ -16,7 +16,6 @@ export function setUpSearchForm(ui) {
 }
 
 export function handleBookSearchResponse(response, ui, localSearch = false) {
-  console.log(response.data.results);
   if (response.success && Array.isArray(response.data.results)) {
     const books = response.data.results;
     console.log(books);
@@ -30,8 +29,17 @@ export function handleBookSearchResponse(response, ui, localSearch = false) {
     }
   } else {
     console.log(response.message);
-    // TODO handle errors from API response better
     ui.resultsContainer.innerText = response.message || "An error occurred.";
+
+    // Check if there are any errors and display them
+    if (response.errors && typeof response.errors === 'object') {
+      const errorMessages = Object.entries(response.errors).map(([field, error]) => {
+        return `${field}: ${error}`;
+      }).join(', ');
+
+      // Append the error messages to the results container
+      ui.resultsContainer.innerText += `\nErrors: ${errorMessages}`;
+    }
   }
 }
 

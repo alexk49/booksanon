@@ -125,7 +125,7 @@ async def local_search_api(request):
         return await api_response(
             success=True,
             message="No results found",
-            errors={"detail": "No results found"},
+            errors={"error": "No results found"},
             data={"results": []},
             status_code=200,
         )
@@ -219,7 +219,6 @@ async def handle_form(request: Request, form_fields: dict, on_success: Callable)
             errors=errors,
             status_code=400,
         )
-
     clean = clean_results(result)
     logger.info(clean)
     return await on_success(clean)

@@ -22,15 +22,16 @@ export async function fetchFormResponse(url, formData) {
       method: "POST",
       body: formData,
     });
-    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+    console.log(response)
     return await response.json();
   } catch (error) {
-    let err_msg = `Error posting form data to: ${url} - ${error}`;
+    const err_msg = `Unexpected error posting form data to: ${url} - ${error}`;
     console.error(err_msg);
     return {
       success: false,
       message: err_msg,
       data: null,
+      errors: null,
     };
   }
 }
@@ -56,6 +57,7 @@ export async function handleFormSubmission(
       success: false,
       message: err_msg,
       data: null,
+      errors: null,
     };
   } finally {
     if (loaderEl) {
