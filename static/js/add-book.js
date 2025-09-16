@@ -29,7 +29,12 @@ export function handleBookSearchResponse(response, ui, localSearch = false) {
     }
   } else {
     console.log(response.message);
-    ui.resultsContainer.innerText = response.message || "An error occurred.";
+    writeErrorsToContainer(response, ui.resultsContainer)
+  }
+}
+
+export function writeErrorsToContainer(response, resultsContainer) {
+    resultsContainer.innerText = response.message || "An error occurred.";
 
     // Check if there are any errors and display them
     if (response.errors && typeof response.errors === 'object') {
@@ -38,9 +43,8 @@ export function handleBookSearchResponse(response, ui, localSearch = false) {
       }).join(', ');
 
       // Append the error messages to the results container
-      ui.resultsContainer.innerText += `\nErrors: ${errorMessages}`;
+      resultsContainer.innerText += `\nErrors: ${errorMessages}`;
     }
-  }
 }
 
 export function updateBookResultsContainer(books, ui) {
@@ -127,7 +131,7 @@ function createCardViewController() {
   };
 }
 
-function setUpReviewForm(reviewFormContainerEl, loaderEl) {
+function setUpReviewForm(reviewFormContainerEl, loaderEl, reviewErrorsContainer) {
   reviewFormContainerEl.addEventListener("submit", async function (event) {
     const response = await handleFormSubmission(
       event,
@@ -155,9 +159,8 @@ function setUpReviewForm(reviewFormContainerEl, loaderEl) {
       window.location.href = "/submission";
     } else {
       // TODO improve error handling so it takes api response error
-      // and writes alert properly
-      alert("Submission failed.");
       console.log(response);
+      writeErrorsToContainer(response, reviewErrorsContainer)
     }
   });
 }
@@ -199,9 +202,10 @@ function main() {
   }
 
   const submitReviewForm = document.getElementById("submit-form");
+  const reviewErrorsContainer = document.getElementById("review-form-errors")
 
-  if (submitReviewForm) {
-    setUpReviewForm(submitReviewForm, ui.loaderEl);
+  if (submitReviewForm && reviewErrorsContainer) {
+    setUpReviewForm(submitReviewForm, ui.loaderEl, reviewErrorsContainer);
   }
 
   const reviewText = document.querySelector('textarea[name="review"]');
