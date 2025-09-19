@@ -121,6 +121,81 @@ async def search(request):
         return await search_get(request)
 
 
+""" Error handling pages """
+
+
+async def not_found(request: Request, exc: Exception):
+    context = {
+        "request": request,
+        "title": "404 Page Not Found",
+        "message": "The page you are looking for does not exist.",
+    }
+    return templates.TemplateResponse(request, "error.html", context=context)
+
+
+async def bad_request(request: Request, exc: Exception):
+    context = {
+        "request": request,
+        "title": "400 Bad Request",
+        "message": "The request was malformed or invalid. Please check your input.",
+    }
+    return templates.TemplateResponse("error.html", context=context)
+
+
+async def unauthorized(request: Request, exc: Exception):
+    context = {
+        "request": request,
+        "title": "401 Unauthorized",
+        "message": "You need to log in to access this resource. Please log in and try again.",
+    }
+    return templates.TemplateResponse("error.html", context=context)
+
+
+async def forbidden(request: Request, exc: Exception):
+    context = {
+        "request": request,
+        "title": "403 Forbidden",
+        "message": "You do not have permission to access this resource.",
+    }
+    return templates.TemplateResponse("error.html", context=context)
+
+
+async def rate_limit_exceeded(request: Request, exc: Exception):
+    context = {
+        "request": request,
+        "title": "429 Too Many Requests",
+        "message": "You have exceeded the rate limit. Please try again later.",
+    }
+    return templates.TemplateResponse("error.html", context=context)
+
+
+async def server_error(request: Request, exc: Exception):
+    context = {
+        "request": request,
+        "title": "500 Internal Server Error",
+        "message": "An unexpected error occurred on the server. Please try again later.",
+    }
+    return templates.TemplateResponse("error.html", context=context)
+
+
+async def service_unavailable(request: Request, exc: Exception):
+    context = {
+        "request": request,
+        "title": "503 Service Unavailable",
+        "message": "The service is temporarily unavailable. Please try again later.",
+    }
+    return templates.TemplateResponse("error.html", context=context)
+
+
+async def gateway_timeout(request: Request, exc: Exception):
+    context = {
+        "request": request,
+        "title": "504 Gateway Timeout",
+        "message": "The server did not receive a timely response from an upstream server. Please try again.",
+    }
+    return templates.TemplateResponse("error.html", context=context)
+
+
 """ API routes """
 
 

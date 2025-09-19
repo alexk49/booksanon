@@ -1,6 +1,10 @@
 export async function fetchServerData(url) {
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        Accept: "application/json",
+      },
+    });
     if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
     return await response.json();
   } catch (error) {
@@ -21,6 +25,9 @@ export async function fetchFormResponse(url, formData) {
     const response = await fetch(url, {
       method: "POST",
       body: formData,
+      headers: {
+        Accept: "application/json",
+      },
     });
     console.log(response);
     return await response.json();

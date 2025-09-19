@@ -265,7 +265,7 @@ main {
 /* styles for book reviews */
 
 .review-header {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 .review-img-wrapper {

@@ -16,21 +16,21 @@ function setUpNavSearchForm(navSearchFormEl, loaderEl) {
 }
 
 function setUpExpandReviewBtn(reviewSection) {
-  const expandBtn = reviewSection.querySelector('.expand-btn');
+  const expandBtn = reviewSection.querySelector(".expand-btn");
 
   if (!expandBtn) {
     return;
   }
 
   expandBtn.addEventListener("click", () => {
-    const reviewContent = reviewSection.querySelector('.review-content');
-    reviewContent.classList.toggle('review-content-expanded');
+    const reviewContent = reviewSection.querySelector(".review-content");
+    reviewContent.classList.toggle("review-content-expanded");
 
     // Change the button text based on the expanded state
-    if (reviewContent.classList.contains('review-content-expanded')) {
-      expandBtn.textContent = 'Hide review';
+    if (reviewContent.classList.contains("review-content-expanded")) {
+      expandBtn.textContent = "Hide review";
     } else {
-      expandBtn.textContent = 'Expand review';
+      expandBtn.textContent = "Expand review";
     }
   });
 }

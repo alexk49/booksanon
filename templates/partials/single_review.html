@@ -90,14 +90,12 @@
     </div>
     <div class="col2">
       <section class="review-section">
-        <h4 class="review-header"><a href="/review/{{ review.id }}">Review</a></h4>
-        <span
-          class="review-content"
-        >
-          {{ review.content }}
-        </span>
+        <h4 class="review-header">
+          <a href="/review/{{ review.id }}">Review</a>
+        </h4>
+        <span class="review-content"> {{ review.content }} </span>
         {% if review.content|length > 750 %}
-        <button class="expand-btn">Expand review</button>
+          <button class="expand-btn">Expand review</button>
         {% endif %}
       </section>
     </div>
