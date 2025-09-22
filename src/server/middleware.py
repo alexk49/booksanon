@@ -48,7 +48,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 return await rate_limit_exceeded(request, HTTPException(status_code=429, detail="Rate limit exceeded"))
 
         self.requests[client_ip][route].append(current_time)
-        logging.info(self.requests)
 
         response = await call_next(request)
         return response

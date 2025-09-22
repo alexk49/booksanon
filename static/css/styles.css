@@ -1,7 +1,15 @@
 /* fonts and background */
 
+:root {
+  --gray-accent: #e8e8e8;
+  --dark-gray-accent: #9a9a9a;
+  --black-font: #222;
+  --white-bg: #fff;
+}
+
 html {
   font-family: Helvetica, Arial, sans-serif, system-ui;
+  color: var(--black-font);
 }
 
 body {
@@ -42,16 +50,6 @@ main {
   display: none !important;
 }
 
-.toggle-button {
-  background: none;
-  border: none;
-  color: #0056b3;
-  cursor: pointer;
-  padding: 0;
-  font-size: 0.9rem;
-  text-decoration: underline;
-}
-
 /* enable smooth scrolling */
 @media (prefers-reduced-motion: no-preference) {
   html {
@@ -66,8 +64,8 @@ main {
   top: 0;
   padding: 1rem;
   z-index: 1000;
-  box-shadow: 0 2px 4px rgb(0 0 0 / 5%);
-  background-color: #fff;
+  box-shadow: 0 2px 4px var(--gray-accent);
+  background-color: var(--white-bg);
 }
 
 .nav-container {
@@ -81,7 +79,7 @@ main {
 .navbar-brand {
   font-size: 1.8rem;
   font-family: "Lucida Handwriting", cursive;
-  color: #282a35;
+  color: var(--black-font);
   text-decoration: none;
 }
 
@@ -94,7 +92,7 @@ main {
 }
 
 .nav-link {
-  color: #282a35;
+  color: var(--black-font);
   text-decoration: none;
   padding: 0.25rem;
   display: inline-block;
@@ -113,7 +111,7 @@ main {
 .nav-toggle .icon-bar {
   width: 100%;
   height: 3px;
-  background-color: #282a35;
+  background-color: var(--black-font);
 }
 
 /* Responsive menu behavior */
@@ -140,8 +138,9 @@ main {
     flex-direction: column;
     position: absolute;
     top: 100%;
-    background: white;
-    border: 1px solid #ccc;
+    background: var(--white-bg);
+    border: 2px solid var(--gray-accent);
+    border-radius: 8px;
     width: 200px;
     padding: 1rem;
   }
@@ -173,8 +172,8 @@ main {
 .spinner {
   width: 48px;
   height: 48px;
-  border: 5px solid #e8e8e8;
-  border-bottom-color: #9a9a9a;
+  border: 5px solid var(--gray-accent);
+  border-bottom-color: var(--dark-gray-accent);
   border-radius: 50%;
   display: inline-block;
   box-sizing: border-box;
@@ -208,7 +207,7 @@ main {
 }
 
 .book-card {
-  border: 1px solid #ddd;
+  border: 2px solid var(--gray-accent);
   border-radius: 8px;
   display: flex;
   text-align: center;
@@ -290,6 +289,10 @@ main {
   justify-content: center;
   max-width: 100%;
   padding: 1rem;
+  border: 2px solid var(--gray-accent);
+  border-radius: 8px;
+  margin: 2em;
+  padding: 2px;
 }
 
 .book-review-container header {
@@ -307,6 +310,8 @@ main {
   justify-content: center;
   align-items: center;
   gap: 0.2rem;
+  margin: 1em;
+  padding: 4px;
 }
 
 .col1 {
