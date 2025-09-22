@@ -5,6 +5,8 @@
   --dark-gray-accent: #9a9a9a;
   --black-font: #222;
   --white-bg: #fff;
+  --blue-accent: #1E5399;
+  --dark-blue-accent: #133869;
 }
 
 html {
@@ -23,6 +25,16 @@ body {
 main {
   margin: 0 auto;
   max-width: 50em;
+}
+
+a {
+  color: var(--blue-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--dark-blue-accent);
+  text-decoration: underline;
 }
 
 button, select {
@@ -104,6 +116,11 @@ button, select {
   text-decoration: none;
   padding: 0.25rem;
   display: inline-block;
+}
+
+.nav-link:hover {
+  color: var(--black-font);
+  text-decoration: underline;
 }
 
 .nav-toggle {
@@ -405,5 +422,9 @@ button, select {
 
   .book-review-container {
     margin: 0.5em;
+  }
+
+  .book-review-meta-container {
+    gap: 0;
   }
 }
