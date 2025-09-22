@@ -3,28 +3,6 @@
   <script defer type="module" src="/static/js/local-search.js"></script>
 {% endblock %}
 {% block main %}
-  <section id="search">
-    <form id="search-form" method="post" action="/api/search">
-      <div class="search-field">
-        <input
-          autocomplete="off"
-          autofocus
-          id="search_query"
-          name="search_query"
-          placeholder="Enter book"
-          type="text"
-          {%
-            if
-            query
-          %}
-            value="{{ query }}"
-          {% endif %}
-        />
-        <input type="hidden" name="csrf_token" class="csrf-token" />
-        <div class="tooltip">title, author, ISBN etc.</div>
-      </div>
-    </form>
-  </section>
   <section id="results" class="book-grid">
     {% if results %}
       {% for book in results %}

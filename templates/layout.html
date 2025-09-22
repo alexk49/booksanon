@@ -36,7 +36,7 @@
   <body>
     <nav class="nav-bar" role="navigation" aria-label="Main navigation">
       <div class="nav-container">
-        <a class="navbar-brand" href="/">
+        <a class="nav-brand" href="/">
           <strong>BooksAnon</strong>
         </a>
 
@@ -66,8 +66,12 @@
               placeholder="Search titles, authors, and ISBNs"
               name="search_query"
               id="search_form"
+              class="search-box"
               autocomplete="off"
-            />
+              {% if query %}
+              value="{{ query }}"
+              {% endif %}
+              />
             <input type="hidden" name="csrf_token" class="csrf-token" />
           </form>
         </div>

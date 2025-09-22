@@ -25,20 +25,28 @@ main {
   max-width: 50em;
 }
 
+button, select {
+  background: var(--gray-accent);
+  border: 1px solid var(--dark-gray-accent);
+  border-radius: 4px;
+  padding: 0.5rem 0.8em;
+  margin: 0.2em;
+  cursor: pointer;
+}
+
+.search-box {
+  border: 2px solid var(--gray-accent);
+  border-radius: 8px;
+  box-sizing: border-box;
+  padding: 12px;
+  width: 220px;
+}
+
 .meta-items,
 .meta-item {
   display: flex;
   gap: 0.25rem;
   align-items: baseline;
-}
-
-.meta-items {
-  gap: 1rem;
-}
-
-.meta-item dt,
-.meta-item dd {
-  margin: 0;
 }
 
 .meta-list,
@@ -76,7 +84,7 @@ main {
   margin: 0 auto;
 }
 
-.navbar-brand {
+.nav-brand {
   font-size: 1.8rem;
   font-family: "Lucida Handwriting", cursive;
   color: var(--black-font);
@@ -243,7 +251,6 @@ main {
 .book-card button {
   align-self: center;
   width: auto;
-  padding: 0.5rem 1rem;
   margin-top: 1rem;
 }
 
@@ -262,6 +269,10 @@ main {
 }
 
 /* styles for book reviews */
+
+#search, #results, #review-form {
+  margin: 2em;
+}
 
 .review-header {
   margin-bottom: 0;
@@ -288,11 +299,10 @@ main {
   text-align: center;
   justify-content: center;
   max-width: 100%;
-  padding: 1rem;
   border: 2px solid var(--gray-accent);
   border-radius: 8px;
   margin: 2em;
-  padding: 2px;
+  padding: 1rem;
 }
 
 .book-review-container header {
@@ -376,5 +386,9 @@ main {
 
   .book-review-meta-container {
     flex-direction: column;
+  }
+
+  .book-review-container {
+    margin: 0.5em;
   }
 }
