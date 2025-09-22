@@ -270,8 +270,23 @@ button, select {
 
 /* styles for book reviews */
 
+/* add styles to main section ids */
 #search, #results, #review-form {
   margin: 2em;
+}
+
+.search-form-container {
+  display: flex;
+  align-items: center;
+}
+
+#search-provider {
+  margin-right: 2em;
+}
+
+.search-field-container {
+  margin-bottom: 0px;
+  margin-top: 5px;
 }
 
 .review-header {

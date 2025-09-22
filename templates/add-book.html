@@ -19,11 +19,15 @@
       single book you want to submit to the site, and write your review for it.
     </p>
     <form id="search-form" method="post" action="/api/search-openlib">
+    <div class="search-form-container">
+      <div class="search-field-container">
       <select id="search-provider">
         <option value="/api/search-openlib">Open Library</option>
         <option value="/api/search">BooksAnon</option>
       </select>
-      <div class="search-field">
+      <div class="tooltip">Search where?</div>
+    </div>
+      <div class="search-field-container">
         <input
           autocomplete="off"
           autofocus
@@ -33,9 +37,10 @@
           placeholder="Enter book"
           type="text"
         />
-        <input type="hidden" name="csrf_token" class="csrf-token" />
-        <div class="tooltip">title, author, ISBN etc.</div>
+        <div class="tooltip">Search titles, authors, and ISBNs</div>
       </div>
+        <input type="hidden" name="csrf_token" class="csrf-token" />
+    </div>
     </form>
   </section>
   <section id="results" class="book-grid"></section>
