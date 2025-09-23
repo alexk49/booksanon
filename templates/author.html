@@ -14,34 +14,23 @@
         {% for book in books %}
           {% include "partials/single_book.html" %}
           {% if book.reviews %}
+          {% for review in book.reviews %}
             <section>
               <article class="review">
+                <div class="review-content-container">
                 <h3>
                   <a href="/review/{{ book.reviews[0].id }}">Review</a> –
-                  submitted {{ book.reviews[0].created_at }}
+                  submitted {{ review.created_at }}
                 </h3>
-                <p>{{ book.reviews[0].content }}</p>
+                    <span class="review-content"> {{ review.content }}</span>
+                </div>
               </article>
-
-              {% if book.reviews|length > 1 %}
-                <details class="inline-details">
-                  <summary>View more reviews</summary>
-                  {% for review in book.reviews[1:] %}
-                    <article class="review">
-                      <h3>
-                        <a href="/review/{{ review.id }}">Review</a> – submitted
-                        {{ review.created_at }}
-                      </h3>
-                      <p>{{ review.content }}</p>
-                    </article>
-                  {% endfor %}
-                </details>
-              {% endif %}
             </section>
-          {% endif %}
+            {% endfor %}
+            {% endif %}
         {% endfor %}
       </section>
-    {% endif %}
+      {% endif %}
   </article>
 {% else %}
   <p>No author found.</p>

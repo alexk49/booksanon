@@ -4,13 +4,13 @@
   {% if reviews %}
     {% for review in reviews %}
       <article class="review">
+        <div class="review-content-container">
         <h3>
           <a href="/review/{{ review.id }}">Review</a> - submitted
           {{ review.created_at }}
         </h3>
-        <section class="review-content">
-          <p>{{ review.content }}</p>
-        </section>
+        <span class="review-content"> {{ review.content }} </span>
+        </div>
       </article>
     {% endfor %}
   {% endif %}

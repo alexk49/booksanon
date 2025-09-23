@@ -1,4 +1,4 @@
-/* fonts and background */
+/* fonts and global styles */
 
 :root {
   --gray-accent: #e8e8e8;
@@ -46,6 +46,13 @@ button, select {
   cursor: pointer;
 }
 
+/* enable smooth scrolling */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 .search-box {
   border: 2px solid var(--gray-accent);
   border-radius: 8px;
@@ -54,27 +61,8 @@ button, select {
   width: 220px;
 }
 
-.meta-items,
-.meta-item {
-  display: flex;
-  gap: 0.25rem;
-  align-items: baseline;
-}
-
-.meta-list,
-.tooltip {
-  font-size: 0.75em;
-}
-
 .hidden {
   display: none !important;
-}
-
-/* enable smooth scrolling */
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
 }
 
 /* nav bar */
@@ -118,10 +106,11 @@ button, select {
   display: inline-block;
 }
 
-.nav-link:hover {
+/* .nav-link:hover {
   color: var(--black-font);
   text-decoration: underline;
 }
+*/
 
 .nav-toggle {
   display: none;
@@ -215,7 +204,18 @@ button, select {
   }
 }
 
-/* book display on search results */
+/* book display */
+
+.meta-item {
+  display: flex;
+  gap: 0.25rem;
+  align-items: baseline;
+}
+
+.meta-list,
+.tooltip {
+  font-size: 0.75em;
+}
 
 .book-grid {
   display: grid;
@@ -297,6 +297,12 @@ button, select {
   align-items: center;
 }
 
+.review-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 #search-provider {
   margin-right: 2em;
 }
@@ -307,7 +313,7 @@ button, select {
 }
 
 .review-header {
-  margin-bottom: 0;
+  margin-bottom: 0.2em;
 }
 
 .review-img-wrapper {
@@ -385,15 +391,26 @@ button, select {
 }
 
 .review-content {
-  overflow: hidden;
   white-space: pre-line; /* preserve paragraph breaks */
   margin-top: 0;
   display: block;
-  max-height: 25em;
+}
+
+.review-content-snippet {
+    max-height: 25em;
+    overflow: hidden;
 }
 
 .review-content-expanded {
   max-height: none;
+}
+
+.review-content-container {
+    border: 2px solid var(--gray-accent);
+    border-radius: 8px;
+    padding: 8px;
+    margin: 2em;
+    padding: 1rem;
 }
 
 .book-cover {
@@ -420,8 +437,9 @@ button, select {
     flex-direction: column;
   }
 
-  .book-review-container {
-    margin: 0.5em;
+  .book-review-container,
+  .review-content-container {
+    margin: 0.25em;
   }
 
   .book-review-meta-container {

@@ -93,9 +93,11 @@
         <h4 class="review-header">
           <a href="/review/{{ review.id }}">Review</a>
         </h4>
-        <span class="review-content"> {{ review.content }} </span>
         {% if review.content|length > 750 %}
+        <span class="review-content review-content-snippet"> {{ review.content }} </span>
           <button class="expand-btn">Expand review</button>
+        {% else %}
+        <span class="review-content"> {{ review.content }} </span>
         {% endif %}
       </section>
     </div>
