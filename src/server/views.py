@@ -34,6 +34,12 @@ async def home(request: Request):
     return templates.TemplateResponse(request, template, context=context)
 
 
+async def about(request: Request):
+    template = "about.html"
+    context = {"request": request}
+    return templates.TemplateResponse(request, template, context=context)
+
+
 async def add_book(request: Request):
     if "session_id" not in request.session:
         request.session["session_id"] = await create_csrf_token()

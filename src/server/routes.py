@@ -11,6 +11,7 @@ routes = [
     # page routes
     Route("/", views.home, name="home"),
     Route("/add-book", views.add_book, name="add_book"),
+    Route("/about", views.about, name="about"),
     Route("/submission", views.submission, name="submission"),
     Route("/search", views.search, name="search", methods=["GET", "POST"]),
     Route("/book/{book_id:int}", views.book_page, name="book"),
