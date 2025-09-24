@@ -5,7 +5,7 @@
   --dark-gray-accent: #9a9a9a;
   --black-font: #222;
   --white-bg: #fff;
-  --blue-accent: #1E5399;
+  --blue-accent: #1e5399;
   --dark-blue-accent: #133869;
 }
 
@@ -37,7 +37,8 @@ a:hover {
   text-decoration: underline;
 }
 
-button, select {
+button,
+select {
   background: var(--gray-accent);
   border: 1px solid var(--dark-gray-accent);
   border-radius: 4px;
@@ -288,7 +289,9 @@ button, select {
 /* styles for book reviews */
 
 /* add styles to main section ids */
-#search, #results, #review-form {
+#search,
+#results,
+#review-form {
   margin: 2em;
 }
 
@@ -308,7 +311,7 @@ button, select {
 }
 
 .search-field-container {
-  margin-bottom: 0px;
+  margin-bottom: 0;
   margin-top: 5px;
 }
 
@@ -397,8 +400,8 @@ button, select {
 }
 
 .review-content-snippet {
-    max-height: 25em;
-    overflow: hidden;
+  max-height: 25em;
+  overflow: hidden;
 }
 
 .review-content-expanded {
@@ -406,11 +409,10 @@ button, select {
 }
 
 .review-content-container {
-    border: 2px solid var(--gray-accent);
-    border-radius: 8px;
-    padding: 8px;
-    margin: 2em;
-    padding: 1rem;
+  border: 2px solid var(--gray-accent);
+  border-radius: 8px;
+  margin: 2em;
+  padding: 1rem;
 }
 
 .book-cover {
@@ -435,14 +437,11 @@ button, select {
 
   .book-review-meta-container {
     flex-direction: column;
+    gap: 0;
   }
 
   .book-review-container,
   .review-content-container {
     margin: 0.25em;
-  }
-
-  .book-review-meta-container {
-    gap: 0;
   }
 }

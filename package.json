@@ -19,6 +19,6 @@
   },
   "scripts": {
     "lint": "npx eslint --fix static/js/*.js && npx stylelint --fix \"static/css/*.css\"",
-    "format": "npx prettier --write \"static/js/**/*.js\" \"static/css/**/*.css\" \"templates/**/*.html\""
+    "format": "npx prettier --write \"static/js/**/*.js\" \"static/css/**/*.css\""
   }
 }
