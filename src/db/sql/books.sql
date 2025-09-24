@@ -81,6 +81,7 @@ SELECT
     b.openlib_tags,
     b.remote_links,
     b.first_publish_year,
+    b.created_at,
     json_agg(json_build_object(
         'id', a.id,
         'name', a.name,

@@ -103,6 +103,6 @@
     </div>
   </div>
   <footer class="book-review-footer">
-    <small>First added: {{ review.created_at }}</small>
+    <small>First added: {{ review.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
   </footer>
 </article>
