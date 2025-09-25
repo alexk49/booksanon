@@ -39,3 +39,11 @@ pip install .  # project dependencies
 pip install -e .[test,lint]  # install linters and pytest etc.
 npm install  # only includes linters and jest
 ```
+
+Once pip is installed the project cli will be available, run the help command for more info:
+
+```
+books --help
+```
+
+This allows you to test calls to the API, read/write from the database or start an interactive session as well as linting and testing.
