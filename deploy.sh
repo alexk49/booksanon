@@ -1,21 +1,29 @@
 #!/bin/bash
 
-remove_existing_container_by_name() {
-    $1=container_name
-    if docker ps -a --format '{{.Names}}' | grep -Eq "^${container_name}\$"; then
-        echo "Removing existing container: $container_name" docker rm -f "$container_name" fi
+set -e
 
+DB_CONTAINER_NAME="booksanon-db"
+APP_CONTAINER_NAME="booksanon-app"
+
+remove_existing_container_by_name() {
+    container_name="$1"
+
+    echo "searching for existing $container_name"
+
+    if docker ps -a --format '{{.Names}}' | grep -Eq "^${container_name}\$"; then
+        echo "Removing existing container: $container_name"
+        docker rm -f "$container_name"
+    fi
 }
 
 deploy_db_container_local () {
-    DB_CONTAINER_NAME="booksanon-db"
     remove_existing_container_by_name "$DB_CONTAINER_NAME"
     echo "deploying container locally"
     docker run --name "$DB_CONTAINER_NAME" \
-            -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
-            -e POSTGRES_DB=booksanon \
-            -p 5432:5432 -v "$POSTGRES_VOLUME_PATH":/var/lib/postgresql/data \
-            -d postgres
+            --env POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+            --env POSTGRES_DB=booksanon-db \
+            --publish 5432:5432 --volume "$POSTGRES_VOLUME_PATH":/var/lib/postgresql/data \
+            --detach postgres
 }
 
 deploy_app_local () {
@@ -32,7 +40,30 @@ deploy_huey_local () {
 }
 
 deploy_app () {
-    docker-compose up --build -d app
+    # docker compose up --build -d app --remove-orphans --force-recreate
+    remove_existing_container_by_name "$DB_CONTAINER_NAME"
+   
+    echo "starting up $DB_CONTAINER_NAME"
+    docker run --name "$DB_CONTAINER_NAME" \
+            --env-file .env \
+            --publish "$DB_PORT":5432 \
+            --volume "$POSTGRES_VOLUME_PATH":/var/lib/postgresql/data \
+            --detach postgres
+
+    echo "waiting for db to init"
+    sleep 2
+
+    remove_existing_container_by_name "$APP_CONTAINER_NAME"
+
+    echo "starting up $APP_CONTAINER_NAME"
+
+    docker run --name "$APP_CONTAINER_NAME" \
+            --env-file .env \
+            --publish "$PORT:8000" \
+            --link "$DB_CONTAINER_NAME":db \
+            --volume ./data:/data  \
+            --volume ./logs:/logs  \
+            --detach booksanon
 }
 
 

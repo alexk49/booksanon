@@ -1,34 +1,36 @@
-version: '3.8'
-
 services:
   db:
     image: postgres
+    container_name: booksanon-db
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: booksanon
       DB_PORT: ${DB_PORT}
     volumes:
-      - ${POSTGRES_VOLUME_PATH}:/var/lib/postgresql/data
+      - ${POSTGRES_VOLUME_PATH}:${POSTGRES_VOLUME_PATH}
     ports:
-      - "5432:{DB_PORT}"
+      - "5432:${DB_PORT}"
 
   app:
+    container_name: booksanon-app
     build:
       context: .
       dockerfile: Dockerfile
     environment:
+      DEBUG: ${DEBUG}
+      EMAIL: ${EMAIL_ADDRESS}
+      POSTGRES_USERNAME: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_URL: ${POSTGRES_URL}
+      POSTGRES_KEY: ${POSTGRES_KEY}
+      POSTGRES_VOLUME_PATH: ${POSTGRES_VOLUME_PATH}
+      SECRET_KEY: ${SECRET_KEY}
       HOST: ${HOST}
       PORT: ${PORT}
       WORKERS: ${WORKERS}
     ports:
       - "8000:${PORT}"
-    depends_on:
-      - db
-
-  huey:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: huey_consumer.py src.server.tasks.huey --workers=1
+    volumes:
+      - ./data:/data
     depends_on:
       - db

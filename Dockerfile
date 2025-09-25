@@ -4,11 +4,13 @@ RUN python -m venv /venv
 
 ENV PATH="/venv/bin:$PATH"
 
-RUN pip install .
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
 
 COPY src /src
-COPY static /src/static
+COPY static /static
+COPY templates /templates
 
 WORKDIR /src
 
-CMD ["uvicorn", "src.server.app:app", "--host", "${HOST}", "--port", "${PORT}", "--workers", "${WORKERS}", "--log-level", "info"]
+CMD sh -c "huey_consumer.py server.tasks.huey --workers=1 & uvicorn server.app:app --host ${HOST} --port ${PORT} --workers ${WORKERS} --log-level info"
