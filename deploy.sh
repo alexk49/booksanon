@@ -1,19 +1,21 @@
 #!/bin/bash
 
+remove_existing_container_by_name() {
+    $1=container_name
+    if docker ps -a --format '{{.Names}}' | grep -Eq "^${container_name}\$"; then
+        echo "Removing existing container: $container_name" docker rm -f "$container_name" fi
+
+}
 
 deploy_db_container_local () {
-        if [[ "$(docker ps -a | grep booksanon-db)" ]]; then 
-                echo "removing existing container"
-                docker stop "booksanon-db";
-                docker rm "booksanon-db"
-        fi;
-
-        echo "deploying container locally"
-        docker run --name booksanon-db \
-                -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
-                -e POSTGRES_DB=booksanon \
-                -p 5432:5432 -v "$POSTGRES_VOLUME_PATH":/var/lib/postgresql/data \
-                -d postgres
+    DB_CONTAINER_NAME="booksanon-db"
+    remove_existing_container_by_name "$DB_CONTAINER_NAME"
+    echo "deploying container locally"
+    docker run --name "$DB_CONTAINER_NAME" \
+            -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+            -e POSTGRES_DB=booksanon \
+            -p 5432:5432 -v "$POSTGRES_VOLUME_PATH":/var/lib/postgresql/data \
+            -d postgres
 }
 
 deploy_app_local () {
@@ -27,6 +29,10 @@ deploy_huey_local () {
     echo "running huey"
     source .venv/bin/activate
     huey_consumer.py src.server.tasks.huey --workers=1 
+}
+
+deploy_app () {
+    docker-compose up --build -d app
 }
 
 
@@ -47,6 +53,10 @@ run web app locally
 
 -hl | --huey-local)
 run huey task runner locally
+
+-p | --production)
+
+deploy production app
 
 _EOF_
 }
@@ -80,6 +90,10 @@ while [[ -n "$1" ]]; do
                 ;;
             -l | --local)
                 deploy_app_local
+                exit
+                ;;
+            -p | --production)
+                deploy_app
                 exit
                 ;;
             -h | --help)
