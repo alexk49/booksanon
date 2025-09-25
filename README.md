@@ -1,11 +1,14 @@
 # BooksAnon
 
 ## About
-BooksAnon is a web application, where users can recommend a book to a database without entering any of their own personal data. This is a no strings attached book recommendation and exists for people who just want to share something they've read with others.
 
-The biblographical data is obtained via the [Open Library API](https://openlibrary.org/dev/docs/api/books). Every submitted book recommendation is then stored in an sqlite3 database.
+BooksAnon is a web application for recommending books and looking for book recommendations.
 
-# Set up
+Users can recommend a book without entering any personal data. This is a no strings attached book recommendation service and exists for people who just want to share something they've read with others.
+
+The biblographical data is obtained via the [Open Library API](https://openlibrary.org/dev/docs/api/books).
+
+## Set up
 
 An .env file is required with the following values:
 
