@@ -17,7 +17,7 @@ logger = logging.getLogger("app.tasks")
 class HueyResourceContainer:
     def __init__(self):
         self.db = Database(
-            user=settings.POSTGRES_USERNAME, password=settings.POSTGRES_PASSWORD, url=settings.POSTGRES_URL
+            user=settings.POSTGRES_USER, password=settings.POSTGRES_PASSWORD, url=settings.POSTGRES_URL
         )
 
         self.client = Client(email=settings.EMAIL_ADDRESS)

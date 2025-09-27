@@ -19,10 +19,19 @@ remove_existing_container_by_name() {
 deploy_db_container_local () {
     remove_existing_container_by_name "$DB_CONTAINER_NAME"
     echo "deploying container locally"
+    deploy_db_container
+}
+
+deploy_db_container () {
+    # Make sure to have set in .env:
+    # POSTGRES_USER      - defaults to 'postgres'
+    # POSTGRES_PASSWORD  - required
+    # POSTGRES_DB
+    # POSTGRES_VOLUME_NAME - optional but useful for named volume
     docker run --name "$DB_CONTAINER_NAME" \
-            --env POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
-            --env POSTGRES_DB=booksanon-db \
-            --publish 5432:5432 --volume "$POSTGRES_VOLUME_PATH":/var/lib/postgresql/data \
+            --env-file .env \
+            --publish "$DB_PORT:$DB_PORT" \
+            --volume "$POSTGRES_VOLUME_NAME":/var/lib/postgresql/data \
             --detach postgres
 }
 
@@ -32,6 +41,17 @@ deploy_app_local () {
     uvicorn src.server.app:app --reload --log-level info --access-log
 }
 
+deploy_app_container () {
+    docker build -t booksanon .
+
+    docker run --name "$APP_CONTAINER_NAME" \
+            --env-file .env \
+            --publish "$PORT:$PORT" \
+            --link "$DB_CONTAINER_NAME":db \
+            --volume ./data:/data  \
+            --volume ./logs:/logs  \
+            --detach booksanon
+}
 
 deploy_huey_local () {
     echo "running huey"
@@ -39,16 +59,11 @@ deploy_huey_local () {
     huey_consumer.py src.server.tasks.huey --workers=1 
 }
 
-deploy_app () {
-    # docker compose up --build -d app --remove-orphans --force-recreate
+deploy_full_app () {
     remove_existing_container_by_name "$DB_CONTAINER_NAME"
    
     echo "starting up $DB_CONTAINER_NAME"
-    docker run --name "$DB_CONTAINER_NAME" \
-            --env-file .env \
-            --publish "$DB_PORT":5432 \
-            --volume "$POSTGRES_VOLUME_PATH":/var/lib/postgresql/data \
-            --detach postgres
+    deploy_db_container
 
     echo "waiting for db to init"
     sleep 2
@@ -56,14 +71,14 @@ deploy_app () {
     remove_existing_container_by_name "$APP_CONTAINER_NAME"
 
     echo "starting up $APP_CONTAINER_NAME"
+    deploy_app_container
+}
 
-    docker run --name "$APP_CONTAINER_NAME" \
-            --env-file .env \
-            --publish "$PORT:8000" \
-            --link "$DB_CONTAINER_NAME":db \
-            --volume ./data:/data  \
-            --volume ./logs:/logs  \
-            --detach booksanon
+restart_app_only () {
+    remove_existing_container_by_name "$APP_CONTAINER_NAME"
+
+    echo "starting up $APP_CONTAINER_NAME"
+    deploy_app_container
 }
 
 
@@ -85,9 +100,11 @@ run web app locally
 -hl | --huey-local)
 run huey task runner locally
 
--p | --production)
+-ra | --restart-app
+restart web app only
 
-deploy production app
+-f | --full)
+restart and deploy db and app containers
 
 _EOF_
 }
@@ -123,8 +140,12 @@ while [[ -n "$1" ]]; do
                 deploy_app_local
                 exit
                 ;;
-            -p | --production)
-                deploy_app
+            -f | --full)
+                deploy_full_app
+                exit
+                ;;
+            -ra | --restart-app)
+                restart_app_only
                 exit
                 ;;
             -h | --help)

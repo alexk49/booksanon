@@ -15,11 +15,16 @@ An .env file is required with the following values:
 ```
 DEBUG=True
 EMAIL_ADDRESS=  # email is required for requests to openlib
-POSTGRES_USERNAME=
+POSTGRES_USER=
 POSTGRES_PASSWORD=
 POSTGRES_URL={localhost-or-url}:{port}/{username}
-POSTGRES_VOLUME_PATH=/var/lib/postgres/data/{volume-name}
+POSTGRES_DB=/var/lib/postgres/data/{volume-name}
+POSTGRES_VOLUME_NAME
+DB_PORT=
 SECRET_KEY=
+HOST=
+PORT=
+WORKERS=
 ```
 
 Docker must be installed:

@@ -14,7 +14,7 @@ class AppResourceContainer:
         self.client = Client(email=settings.EMAIL_ADDRESS)
         self.openlib_caller = OpenLibCaller(client=self.client)
         self.db = Database(
-            user=settings.POSTGRES_USERNAME, password=settings.POSTGRES_PASSWORD, url=settings.POSTGRES_URL
+            user=settings.POSTGRES_USER, password=settings.POSTGRES_PASSWORD, url=settings.POSTGRES_URL
         )
 
         self.review_repo = ReviewRepository(db=self.db)

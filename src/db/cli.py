@@ -33,15 +33,15 @@ def define_db_args(db_parser):
 
 
 async def handle_db_args(args):
-    POSTGRES_USERNAME = os.environ.get("POSTGRES_USERNAME")
+    POSTGRES_USER = os.environ.get("POSTGRES_USER")
     POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
     POSTGRES_URL = os.environ.get("POSTGRES_URL")
 
     if args.interact:
-        run_command(["docker", "exec", "-it", "booksanon-db", "psql", "-U", POSTGRES_USERNAME])
+        run_command(["docker", "exec", "-it", "booksanon-db", "psql", "-U", POSTGRES_USER])
         sys.exit(0)
 
-    async with Database(user=POSTGRES_USERNAME, password=POSTGRES_PASSWORD, url=POSTGRES_URL) as db:
+    async with Database(user=POSTGRES_USER, password=POSTGRES_PASSWORD, url=POSTGRES_URL) as db:
         book_repo = BookRepository(db=db)
 
         if args.create_schema:
