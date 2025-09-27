@@ -16,9 +16,7 @@ logger = logging.getLogger("app.tasks")
 
 class HueyResourceContainer:
     def __init__(self):
-        self.db = Database(
-            user=settings.POSTGRES_USER, password=settings.POSTGRES_PASSWORD, url=settings.POSTGRES_URL
-        )
+        self.db = Database(user=settings.POSTGRES_USER, password=settings.POSTGRES_PASSWORD, url=settings.POSTGRES_URL)
 
         self.client = Client(email=settings.EMAIL_ADDRESS)
         self.openlib_caller = OpenLibCaller(client=self.client, max_concurrent_requests=1)

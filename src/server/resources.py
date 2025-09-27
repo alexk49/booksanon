@@ -13,9 +13,7 @@ class AppResourceContainer:
     def __init__(self):
         self.client = Client(email=settings.EMAIL_ADDRESS)
         self.openlib_caller = OpenLibCaller(client=self.client)
-        self.db = Database(
-            user=settings.POSTGRES_USER, password=settings.POSTGRES_PASSWORD, url=settings.POSTGRES_URL
-        )
+        self.db = Database(user=settings.POSTGRES_USER, password=settings.POSTGRES_PASSWORD, url=settings.POSTGRES_URL)
 
         self.review_repo = ReviewRepository(db=self.db)
         self.author_repo = AuthorRepository(db=self.db)
