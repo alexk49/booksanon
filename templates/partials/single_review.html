@@ -38,11 +38,11 @@
           >
         </div>
 
+        {% set pubs = review.book.publishers_display %}
+        {% if pubs|length > 10 %}
         <div class="review-meta-item">
           <span><strong>Publishers:</strong></span>
           <div class="meta-list">
-            {% set pubs = review.book.publishers_display %}
-            {% if pubs|length > 10 %}
               {{ pubs[:10]|join(', ') }}
               <details class="inline-details">
                 <summary>see more</summary>
@@ -50,31 +50,31 @@
               </details>
             {% elif pubs %}
               {{ pubs|join(', ') }}
-            {% else %}
-              Unknown publisher
-            {% endif %}
           </div>
         </div>
 
+        {% endif %}
+
+        {% set tags = review.book.tags_display %}
+        {% if tags %}
         <div class="review-meta-item">
           <span><strong>OpenLib Tags:</strong></span>
           <div class="meta-list">
             <span>
-              {% set tags = review.book.tags_display %}
-              {% if tags|length > 10 %}
+                {% if tags|length > 10 %}
                 {{ tags[:10]|join(', ') }}
                 <details class="inline-details">
                   <summary>see more</summary>
                   {{ tags[10:]|join(', ') }}
                 </details>
-              {% elif tags %}
+                {% else %}
                 {{ tags|join(', ') }}
-              {% else %}
-                No tags
-              {% endif %}
-            </span>
+                {% endif %}
+              </span>
+
           </div>
         </div>
+        {% endif %}
 
         <div class="review-meta-item">
           <div class="meta-list">
