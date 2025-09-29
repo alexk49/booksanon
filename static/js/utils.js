@@ -29,7 +29,6 @@ export async function fetchFormResponse(url, formData) {
         Accept: "application/json",
       },
     });
-    console.log(response);
     return await response.json();
   } catch (error) {
     const err_msg = `Unexpected error posting form data to: ${url} - ${error}`;
@@ -106,7 +105,6 @@ export function getSubmissionsFromLocalStorage() {
 }
 
 export function addSubmissionToLocalStorage(newSubmission) {
-  console.log(newSubmission);
   const submissions = getSubmissionsFromLocalStorage();
 
   // Check if a submission with the same ID already exists

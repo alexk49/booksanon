@@ -19,8 +19,6 @@ function renderSubmissions(submissionsEl) {
     return;
   }
 
-  console.log(submissions);
-
   submissions.forEach((submission) => {
     const submissionEl = createSubmissionEl(submission);
     submissionsEl.appendChild(submissionEl);

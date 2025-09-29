@@ -18,7 +18,6 @@ export function setUpSearchForm(ui) {
 export function handleBookSearchResponse(response, ui, localSearch = false) {
   if (response.success && Array.isArray(response.data.results)) {
     const books = response.data.results;
-    console.log(books);
 
     // localSearch is only used by the internal search form
     // recommendation/add-book searches will always be localSearch = false
@@ -28,7 +27,6 @@ export function handleBookSearchResponse(response, ui, localSearch = false) {
       updateBookResultsContainer(books, ui);
     }
   } else {
-    console.log(response.message);
     writeErrorsToContainer(response, ui.resultsContainer);
   }
 }
@@ -146,10 +144,7 @@ function setUpReviewForm(
       loaderEl,
     );
 
-    console.log(response);
-
     if (response.success) {
-      console.log("adding review to local storage");
       const submissionID = response.data.submission_id;
       const submittedData = new FormData(this);
 
@@ -164,8 +159,6 @@ function setUpReviewForm(
 
       window.location.href = "/submission";
     } else {
-      // TODO improve error handling so it takes api response error
-      console.log(response);
       writeErrorsToContainer(response, reviewErrorsContainer);
     }
   });
