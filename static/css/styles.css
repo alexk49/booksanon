@@ -288,6 +288,23 @@ select {
   justify-content: center;
 }
 
+.book-container {
+  flex-direction: column;
+  display: flex;
+  gap: 2rem;
+  max-width: 100%;
+  text-align: left;
+  padding: 0.2em;
+}
+
+.book-col-container {
+  display: flex;
+  gap: 2rem;
+  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
 /* styles for book reviews */
 
 .bookshelves {

@@ -10,8 +10,9 @@
       {% endfor %}
     </h3>
   </header>
-  <div class="book-review-col-container">
-    <div class="col1">
+  <div class="book-container">
+    <div class="book-col-container">
+      <div class="col1">
       <section class="review-img-wrapper">
         {% if book.cover_id %}
           <a href="/book/{{ book.id }}"
@@ -22,7 +23,9 @@
           /></a>
         {% endif %}
       </section>
+      </div>
 
+      <div class="col2>
       <section class="book-metadata">
         <div class="review-meta-item">
           <span>
@@ -33,6 +36,8 @@
         <div class="review-meta-item">
           <span><strong>Pages:</strong>{{ book.number_of_pages_median }}</span>
         </div>
+      </div>
+    </div>
 
         <div class="review-meta-item">
           <span><strong>Publishers:</strong></span>
@@ -82,15 +87,6 @@
           </div>
         </div>
       </section>
-    </div>
-
-    <div class="col2">
-      <section>
-        <h4>OpenLib description</h4>
-        <span class="review-content">{{ book.openlib_description }}</span>
-      </section>
-    </div>
-  </div>
   <footer class="book-review-footer">
     <small>First added: {{ book.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
   </footer>
