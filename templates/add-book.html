@@ -5,9 +5,11 @@
 {% block main %}
   <h1>Add a book to the site</h1>
   <section id="search">
+  <details>
+    <summary>Help</summary>
     <p>
       If you search through the <a href="https://www.openlibrary.org">Open Library</a> then your query is sent to the
-      <a href="https://openlibrary.org/developers/api">Open Library API</a>. If you select BooksAnon, then your only books that have already been added to BooksAnon will appear in your search results.
+      <a href="https://openlibrary.org/developers/api">Open Library API</a>. If you select BooksAnon, then only books that have already been added to BooksAnon will appear in your search results.
     <p>Either search will return a maximum of 10 results. You can then verify the
       single book you want to submit to the site and write your review for it.
     </p>
@@ -16,7 +18,8 @@
       search query the better your results will be. "Harry Potter and the
       Philosopher's Stone Rowling" is a better search than just "Harry Potter".
     </p>
-    <p>You can't save an unfinished review before you submit it or edit it after submitting!</p>
+    <p>You can't save an unfinished review or edit it after submitting!</p>
+  </details>
     <form id="search-form" method="post" action="/api/search-openlib">
     <div class="search-form-container">
       <div class="search-field-container">
