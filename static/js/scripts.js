@@ -15,16 +15,15 @@ function setUpNavSearchForm(navSearchFormEl, loaderEl) {
   }
 }
 
-function setUpExpandReviewBtn(reviewSection) {
-  const expandBtn = reviewSection.querySelector(".expand-btn");
+function setUpExpandReviewBtn(reviewArticle) {
+  const expandBtn = reviewArticle.querySelector(".expand-btn");
+  const reviewContent = reviewArticle.querySelector(".review-content");
 
-  if (!expandBtn) {
-    return;
-  }
+  if (!expandBtn || !reviewContent) return;
 
   expandBtn.addEventListener("click", () => {
-    const reviewContent = reviewSection.querySelector(".review-content");
     reviewContent.classList.toggle("review-content-expanded");
+    reviewArticle.classList.toggle("compact-book-review-container-expanded");
 
     // Change the button text based on the expanded state
     if (reviewContent.classList.contains("review-content-expanded")) {
@@ -48,10 +47,11 @@ function main() {
 
   setUpNavSearchForm(navSearchFormEl, loaderEl);
 
-  const reviewSections = document.querySelectorAll(".review-section");
+  // const reviewSections = document.querySelectorAll(".review-section");
+  const reviewArticles = document.querySelectorAll(".compact-book-review-container");
 
-  if (reviewSections) {
-    reviewSections.forEach((review) => {
+  if (reviewArticles) {
+    reviewArticles.forEach((review) => {
       setUpExpandReviewBtn(review);
     });
   }

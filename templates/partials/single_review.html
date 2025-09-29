@@ -3,105 +3,92 @@
     <h3>
       <a href="/book/{{ review.book_id }}">{{ review.book.title }}</a> By
       {% for author in review.book.authors %}
-        <a href="/author/{{ author.id }}">{{ author.name }}</a
-        >{% if not loop.last %}
-          ,
-        {% endif %}
+        <a href="/author/{{ author.id }}">{{ author.name }}</a>{% if not loop.last %},{% endif %}
       {% endfor %}
     </h3>
   </header>
-  <div class="book-review-meta-container">
+
+  <div class="book-review-col-container">
     <div class="col1">
       <section class="review-img-wrapper">
         {% if review.book.cover_id %}
-          <a href="/book/{{ review.book.id }}"
-            ><img
+          <a href="/book/{{ review.book.id }}">
+            <img
               src="https://covers.openlibrary.org/b/id/{{ review.book.cover_id }}-M.jpg"
               alt="Book cover"
               loading="lazy"
-          /></a>
+            />
+          </a>
         {% endif %}
       </section>
 
       <section class="book-metadata">
         <div class="review-meta-item">
-          <span>
-            <strong>First published:</strong
-            >{{ review.book.first_publish_year }}</span
-          >
+          <span><strong>First published:</strong> {{ review.book.first_publish_year }}</span>
         </div>
 
         <div class="review-meta-item">
-          <span
-            ><strong>Pages:</strong
-            >{{ review.book.number_of_pages_median }}</span
-          >
+          <span><strong>Pages:</strong> {{ review.book.number_of_pages_median }}</span>
         </div>
 
         {% set pubs = review.book.publishers_display %}
-        {% if pubs|length > 10 %}
-        <div class="review-meta-item">
-          <span><strong>Publishers:</strong></span>
-          <div class="meta-list">
-              {{ pubs[:10]|join(', ') }}
-              <details class="inline-details">
-                <summary>see more</summary>
-                {{ pubs[10:]|join(', ') }}
-              </details>
-            {% elif pubs %}
-              {{ pubs|join(', ') }}
+        {% if pubs %}
+          <div class="review-meta-item">
+            <span><strong>Publishers:</strong></span>
+            <div class="meta-list">
+              {% if pubs|length > 10 %}
+                {{ pubs[:10]|join(', ') }}
+                <details class="inline-details">
+                  <summary>see more</summary>
+                  {{ pubs[10:]|join(', ') }}
+                </details>
+              {% else %}
+                {{ pubs|join(', ') }}
+              {% endif %}
+            </div>
           </div>
-        </div>
-
         {% endif %}
 
         {% set tags = review.book.tags_display %}
         {% if tags %}
-        <div class="review-meta-item">
-          <span><strong>OpenLib Tags:</strong></span>
-          <div class="meta-list">
-            <span>
-                {% if tags|length > 10 %}
+          <div class="review-meta-item">
+            <span><strong>OpenLib Tags:</strong></span>
+            <div class="meta-list">
+              {% if tags|length > 10 %}
                 {{ tags[:10]|join(', ') }}
                 <details class="inline-details">
                   <summary>see more</summary>
                   {{ tags[10:]|join(', ') }}
                 </details>
-                {% else %}
+              {% else %}
                 {{ tags|join(', ') }}
-                {% endif %}
-              </span>
-
+              {% endif %}
+            </div>
           </div>
-        </div>
         {% endif %}
 
         <div class="review-meta-item">
           <div class="meta-list">
             <span>
               {% for link in review.book.link_outs %}
-                <a href="{{ link.url }}">{{ link.text }}</a
-                >{% if not loop.last %},{% endif %}
+                <a href="{{ link.url }}">{{ link.text }}</a>{% if not loop.last %}, {% endif %}
               {% endfor %}
             </span>
           </div>
         </div>
       </section>
     </div>
+
     <div class="col2">
       <section class="review-section">
         <h4 class="review-header">
           <a href="/review/{{ review.id }}">Review</a>
         </h4>
-        {% if review.content|length > 750 %}
-        <span class="review-content review-content-snippet"> {{ review.content }} </span>
-          <button class="expand-btn">Expand review</button>
-        {% else %}
-        <span class="review-content"> {{ review.content }} </span>
-        {% endif %}
+          <div class="review-content">{{ review.content }}</div>
       </section>
     </div>
   </div>
+
   <footer class="book-review-footer">
     <small>First added: {{ review.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
   </footer>

@@ -1,7 +1,57 @@
 {% extends "layout.html" %}
 {% block main %}
   <h2>Latest book reviews</h2>
+  <div class="bookshelves">
   {% for review in reviews %}
-    {% include "partials/single_review.html" %}
+    <article class="compact-book-review-container">
+      <div class="review-card-wrapper">
+        {% if review.book.cover_id %}
+          <div class="img-wrapper">
+            <a href="/book/{{ review.book.id }}">
+              <img
+                src="https://covers.openlibrary.org/b/id/{{ review.book.cover_id }}-M.jpg"
+                alt="Book cover"
+                loading="lazy"
+              />
+            </a>
+          </div>
+        {% endif %}
+
+        <div class="book-meta">
+          <h3>
+            <a href="/book/{{ review.book.id }}">{{ review.book.title }}</a>
+          </h3>
+          <p>by {{ review.book.author_display }}</p>
+          <p>Published: {{ review.book.first_publish_year }}</p>
+          <p>Pages: {{ review.book.number_of_pages_median }}</p>
+
+          {% if review.book.filtered_link_outs %}
+            <div class="link-outs">
+              <ul>
+                {% for link in review.book.filtered_link_outs %}
+                  <li><a href="{{ link.url }}">{{ link.text }}</a></li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+        <section class="review-section">
+            <h4 class="review-header">
+              <a href="/review/{{ review.id }}">Review</a>
+            </h4>
+        {% if review.content|length > 150 %}
+          <div class="review-content review-content-snippet">{{ review.content }}</div>
+          <button class="expand-btn">Expand review</button>
+        {% else %}
+          <div class="review-content">{{ review.content }}</div>
+        {% endif %}
+        </section>
+        <footer class="book-review-footer">
+          <small>First added: {{ review.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+        </footer>
+    </article>
   {% endfor %}
+  </div>
 {% endblock %}
