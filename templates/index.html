@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block main %}
   <h2>Latest book reviews</h2>
-  <div class="bookshelves">
+  <div id="review-bookshelves" class="bookshelves">
   {% for review in reviews %}
     <article class="compact-book-review-container">
       <div class="review-card-wrapper">
@@ -49,9 +49,15 @@
         {% endif %}
         </section>
         <footer class="book-review-footer">
-          <small>First added: {{ review.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+          <small>First added: {{ review.created_at.astimezone().strftime('%Y-%m-%d %H:%M') }}</small>
+           
         </footer>
     </article>
   {% endfor %}
   </div>
+    <form id="fetch-reviews-form" method="post" action="/api/fetch-more-reviews">
+      <button id="fetch-reviews-btn" type="submit">See more</button>
+      <input type="hidden" name="cursor" id="cursor" value="{{ cursor or '' }}" />
+      <input type="hidden" name="csrf_token" class="csrf-token" />
+    </form>
 {% endblock %}

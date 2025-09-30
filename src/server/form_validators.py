@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 from calls.openlib import validate_openlib_work_id
@@ -54,6 +55,15 @@ def is_openlib_work_id(value: str) -> dict:
     return {"success": False, "error": "Invalid openlibrary work ID"}
 
 
+def is_valid_date(date_str: str) -> dict:
+    try:
+        # Parse ISO 8601 datetime string
+        cursor = datetime.fromisoformat(date_str)
+        return {"success": True, "value": cursor}
+    except ValueError:
+        return {"success": False, "error": "Cursor is invalid date"}
+
+
 def must_be_empty(value: Any) -> dict:
     if not value:
         return {"success": True, "value": value}
@@ -78,5 +88,10 @@ book_submit_fields = {
 
 search_form_fields = {
     "search_query": [is_required],
+    "csrf_token": [validate_csrf_token],
+}
+
+fetch_more_reviews_fields = {
+    "cursor": [is_required, is_valid_date],
     "csrf_token": [validate_csrf_token],
 }

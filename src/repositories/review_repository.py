@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from db import Database
 from db.models import Book, Review
@@ -28,8 +29,17 @@ class ReviewRepository:
         record = await self.db.run_query("get_review_and_book_by_review_id", review_id=review_id)
         return Review.from_db_record(record)
 
-    async def get_most_recent_book_reviews(self, limit: int = 10) -> list[Book]:
+    async def get_most_recent_book_reviews(self, limit: int = 2) -> list[Book]:
         records = await self.db.run_query("get_most_recent_book_reviews", limit=limit)
+        logger.debug(records)
+        return Review.from_db_records(records)
+
+    async def get_recent_reviews_by_cursor(self, limit: int = 10, cursor: datetime | None = None):
+        logger.debug(cursor)
+        logger.debug(limit)
+        records = await self.db.run_query(
+            "get_recent_reviews_by_cursor", limit=limit, cursor=cursor)
+        logger.debug(records)
         return Review.from_db_records(records)
 
     async def get_reviews_by_book_id(self, book_id: int) -> list[Book]:

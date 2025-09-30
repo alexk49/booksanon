@@ -2,6 +2,7 @@ import asyncio
 import logging
 import secrets
 from collections.abc import Callable
+from datetime import timedelta
 from typing import Any
 
 from starlette.requests import Request
@@ -9,7 +10,7 @@ from starlette.responses import JSONResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
 
 from db.models import Book
-from .form_validators import book_submit_fields, clean_results, get_errors, search_form_fields, validate_form
+from .form_validators import book_submit_fields, clean_results, fetch_more_reviews_fields, get_errors, search_form_fields, validate_form
 from config import settings
 from .resources import resources
 from .tasks import process_review_submission
@@ -30,7 +31,23 @@ async def home(request: Request):
     logger.debug("fetching latest reviews")
     reviews = await resources.review_repo.get_most_recent_book_reviews()
     logger.debug(reviews)
-    context = {"request": request, "reviews": reviews}
+    
+    for r in reviews:
+        logger.debug(f"Review id={r.id}, created_at={r.created_at}")
+
+    reviews.sort(key=lambda r: (r.created_at, r.id), reverse=True)
+
+    for r in reviews:
+        logger.debug(f"Review id={r.id}, created_at={r.created_at}")
+
+    next_cursor = str(reviews[-1].created_at.isoformat() if reviews else None)
+    logger.debug(next_cursor)
+
+    context = {
+        "request": request,
+        "reviews": reviews,
+        "cursor": next_cursor
+    }
     return templates.TemplateResponse(request, template, context=context)
 
 
@@ -205,6 +222,39 @@ async def gateway_timeout(request: Request, exc: Exception):
 """ API routes """
 
 
+async def fetch_more_reviews(request: Request):
+    async def on_success(clean_form):
+        cursor = clean_form["cursor"]
+        # limit = int(request.query_params.get("limit", 2))
+        limit = 2
+
+        logger.debug(cursor)
+        logger.debug(limit)
+
+        results = await resources.review_repo.get_recent_reviews_by_cursor(
+            limit=limit,
+            cursor=cursor
+        )
+
+        logger.debug("results: %s", results)
+
+        next_cursor = str(results[-1].created_at.isoformat() if results else None)
+
+        reviews = [review.to_json_dict() for review in results]
+
+        if reviews:
+            return await api_response(success=True, message="Reviews found", data={"results": reviews, "next_cursor": next_cursor})
+        else:
+            return await api_response(
+                success=True,
+                message=f"No reviews after {cursor}",
+                errors={"error": "No more reviews"},
+                data={"results": [], "next_cursor": str(cursor)},
+                status_code=200,
+            )
+    return await handle_form(request, fetch_more_reviews_fields, on_success)
+
+
 async def local_search_api(request):
     async def on_success(clean_form):
         logging.info("searching locally for: %s", clean_form["search_query"])
@@ -219,7 +269,6 @@ async def local_search_api(request):
             data={"results": []},
             status_code=200,
         )
-
     return await handle_form(request, search_form_fields, on_success)
 
 
@@ -287,6 +336,7 @@ async def api_response(
         "data": data if data is not None else None,
         "errors": errors if errors is not None else None,
     }
+    logger.debug(payload)
     return JSONResponse(payload, status_code=status_code)
 
 

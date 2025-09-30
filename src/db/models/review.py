@@ -4,6 +4,7 @@ from typing import Optional
 from asyncpg import Record
 
 from .book import Book
+from .utils import make_json_safe
 
 
 @dataclass
@@ -43,3 +44,6 @@ class Review:
             created_at=record.get("created_at"),
             updated_at=record.get("updated_at"),
         )
+
+    def to_json_dict(self) -> dict:
+        return make_json_safe(self)
