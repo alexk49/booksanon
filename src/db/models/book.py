@@ -48,10 +48,6 @@ class Book:
         cover_id = record.get("cover_id", "")
         openlib_cover_ids = record.get("openlib_cover_ids", [])
 
-        # Always parse remote_links from JSON string
-        raw_links = record.get("remote_links") or "[]"
-        remote_links = cls._parse_remote_links(raw_links)
-
         return cls(
             id=record.get("book_id"),
             title=record.get("title", ""),
@@ -67,7 +63,7 @@ class Book:
             number_of_pages_median=record.get("number_of_pages_median"),
             openlib_description=record.get("openlib_description"),
             openlib_tags=set(record.get("openlib_tags", [])),
-            remote_links=remote_links,
+            remote_links=record.get("remote_links", []),
             first_publish_year=record.get("first_publish_year"),
             created_at=record.get("created_at"),
             updated_at=record.get("updated_at"),
@@ -107,9 +103,7 @@ class Book:
         return map_types_for_db(db_dict)
 
     def to_json_dict(self) -> dict:
-        data = make_json_safe(self)
-        data["filtered_link_outs"] = make_json_safe(self.filtered_link_outs)
-        return data
+        return make_json_safe(self)
 
     """ Helper methods """
 

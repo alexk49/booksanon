@@ -35,7 +35,7 @@ function setUpExpandReviewBtn(reviewArticle) {
   });
 }
 
-function setUpFetchMoreReviews (fetchReviewsForm, bookshelvesEl, loaderEl) {
+function setUpFetchMoreReviews (fetchReviewsForm, bookshelvesEl, fetchFormErrorsEl, loaderEl) {
   fetchReviewsForm.addEventListener("submit", async function (e) {
     console.log("submitting")
     const response = await handleFormSubmission(
@@ -44,12 +44,16 @@ function setUpFetchMoreReviews (fetchReviewsForm, bookshelvesEl, loaderEl) {
       "/api/fetch-more-reviews",
       loaderEl,
     );
-    handleFetchReviewsResponse(response, bookshelvesEl)
+    console.log(response)
+    handleFetchReviewsResponse(response, bookshelvesEl, fetchFormErrorsEl)
   });
 }
 
-function handleFetchReviewsResponse(response, bookshelvesEl) {
-  if (response.success && Array.isArray(response.data.results)) {
+function handleFetchReviewsResponse(response, bookshelvesEl, fetchFormErrorsEl) {
+  console.log(response.message)
+  if (response.success &&
+  Array.isArray(response.data.results) &&
+  response.data.results.length > 0) {
     const reviews = response.data.results;
     console.log(reviews);
     reviews.forEach(review => {
@@ -59,9 +63,25 @@ function handleFetchReviewsResponse(response, bookshelvesEl) {
     });
 
     const cursorInput = document.getElementById("cursor");
-    cursorInput.value = response.data.next_cursor || "";
+
+    const nextCursorVal = response.data.next_cursor
+
+    if (nextCursorVal) {
+      cursorInput.value = nextCursorVal
+    }
+
+    const reviewIdEl = document.getElementById("review-id");
+
+    const reviewIdVal = response.data.next_review_id
+
+    if (reviewIdVal) {
+      reviewIdEl.value = reviewIdVal
+    }
+
+    fetchFormErrorsEl.innerText = '';
+
   } else {
-    writeErrorsToContainer(response, bookshelvesEl);
+    writeErrorsToContainer(response, fetchFormErrorsEl);
   }
 }
 
@@ -145,9 +165,10 @@ function main() {
 
   const fetchReviewsForm = document.getElementById("fetch-reviews-form");
   const bookshelvesEl = document.getElementById("review-bookshelves");
+  const fetchFormErrorsEl = document.getElementById("fetch-form-errors");
 
-  if (fetchReviewsForm && bookshelvesEl) {
-    setUpFetchMoreReviews(fetchReviewsForm,  bookshelvesEl, loaderEl);
+  if (fetchReviewsForm && bookshelvesEl && fetchFormErrorsEl) {
+    setUpFetchMoreReviews(fetchReviewsForm,  bookshelvesEl, fetchFormErrorsEl, loaderEl);
   }
 
   window.addEventListener("pageshow", () => {

@@ -46,4 +46,6 @@ class Review:
         )
 
     def to_json_dict(self) -> dict:
+        if self.book:
+            self.book = make_json_safe(self.book)
         return make_json_safe(self)

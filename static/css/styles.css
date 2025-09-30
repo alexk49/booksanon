@@ -481,6 +481,10 @@ select {
   text-align: center;
 }
 
+#fetch-form-errors, #fetch-reviews-form {
+  margin: 2em;
+}
+
 @media (width <= 600px) {
   .col1,
   .col2 {
@@ -496,5 +500,10 @@ select {
   .review-content-container,
   .compact-book-review-container {
     margin: 0.25em;
+  }
+
+  #fetch-form-errors,
+  #fetch-reviews-form {
+    margin: 1em;
   }
 }

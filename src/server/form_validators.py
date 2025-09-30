@@ -64,6 +64,14 @@ def is_valid_date(date_str: str) -> dict:
         return {"success": False, "error": "Cursor is invalid date"}
 
 
+def is_int(value: str) -> dict:
+    try:
+        int_value = int(value)
+        return {"success": True, "value": int_value}
+    except ValueError:
+        return {"success": False, "error": "value cannot be converted to int"}
+
+
 def must_be_empty(value: Any) -> dict:
     if not value:
         return {"success": True, "value": value}
@@ -93,5 +101,6 @@ search_form_fields = {
 
 fetch_more_reviews_fields = {
     "cursor": [is_required, is_valid_date],
+    "review_id": [is_required, is_int],
     "csrf_token": [validate_csrf_token],
 }

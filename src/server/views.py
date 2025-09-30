@@ -28,25 +28,19 @@ async def home(request: Request):
     if "session_id" not in request.session:
         request.session["session_id"] = await create_csrf_token()
     template = "index.html"
-    logger.debug("fetching latest reviews")
     reviews = await resources.review_repo.get_most_recent_book_reviews()
-    logger.debug(reviews)
-    
-    for r in reviews:
-        logger.debug(f"Review id={r.id}, created_at={r.created_at}")
-
-    reviews.sort(key=lambda r: (r.created_at, r.id), reverse=True)
-
-    for r in reviews:
-        logger.debug(f"Review id={r.id}, created_at={r.created_at}")
+    logger.debug("fetching latest reviews: %s", reviews)
 
     next_cursor = str(reviews[-1].created_at.isoformat() if reviews else None)
+    review_id = str(reviews[-1].id if reviews else None)
     logger.debug(next_cursor)
+    logger.debug(review_id)
 
     context = {
         "request": request,
         "reviews": reviews,
-        "cursor": next_cursor
+        "cursor": next_cursor,
+        "review_id": review_id
     }
     return templates.TemplateResponse(request, template, context=context)
 
@@ -225,33 +219,30 @@ async def gateway_timeout(request: Request, exc: Exception):
 async def fetch_more_reviews(request: Request):
     async def on_success(clean_form):
         cursor = clean_form["cursor"]
-        # limit = int(request.query_params.get("limit", 2))
+        review_id = clean_form["review_id"]
         limit = 2
-
-        logger.debug(cursor)
-        logger.debug(limit)
 
         results = await resources.review_repo.get_recent_reviews_by_cursor(
             limit=limit,
-            cursor=cursor
+            cursor=cursor,
+            review_id=review_id
         )
-
         logger.debug("results: %s", results)
 
         next_cursor = str(results[-1].created_at.isoformat() if results else None)
+        next_review_id = str(results[-1].id if results else None)
 
         reviews = [review.to_json_dict() for review in results]
 
         if reviews:
-            return await api_response(success=True, message="Reviews found", data={"results": reviews, "next_cursor": next_cursor})
-        else:
-            return await api_response(
-                success=True,
-                message=f"No reviews after {cursor}",
-                errors={"error": "No more reviews"},
-                data={"results": [], "next_cursor": str(cursor)},
-                status_code=200,
-            )
+            return await api_response(success=True, message="Reviews found", data={"results": reviews, "next_cursor": next_cursor, "next_review_id": next_review_id})
+        return await api_response(
+            success=True,
+            message=f"No reviews after {cursor}",
+            errors={"error": "No more reviews"},
+            data={"results": [], "next_cursor": str(cursor), "next_review_id": review_id},
+            status_code=200,
+        )
     return await handle_form(request, fetch_more_reviews_fields, on_success)
 
 
@@ -286,7 +277,6 @@ async def search_openlib(request: Request):
             message="No results found",
             errors={"detail": "No results found"},
             data={"results": []},
-            status_code=200,
         )
 
     return await handle_form(request, search_form_fields, on_success)

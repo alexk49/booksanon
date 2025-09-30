@@ -32,7 +32,7 @@ GROUP BY r.id, b.id
 ORDER BY r.created_at DESC
 LIMIT 2;
 
--- name: get_recent_reviews_by_cursor(limit, cursor)
+-- name: get_recent_reviews_by_cursor(limit, cursor, previous_review_id)
 SELECT
     r.id AS review_id,
     r.book_id,
@@ -63,7 +63,7 @@ FROM reviews r
 JOIN books b ON b.id = r.book_id
 LEFT JOIN book_authors ba ON ba.book_id = b.id
 LEFT JOIN authors a ON a.id = ba.author_id
-WHERE r.created_at < :cursor
+WHERE r.created_at <= :cursor AND (r.id != :previous_review_id OR :previous_review_id IS NULL)
 GROUP BY r.id, b.id
 ORDER BY r.created_at DESC, r.id DESC
 LIMIT :limit;
