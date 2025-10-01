@@ -1,3 +1,14 @@
+import {
+  createElWithClass,
+  createElWithText,
+  createImgWrapperEl,
+  createTitleElWithLink,
+  createAuthorEl,
+  createPublishYearEl,
+  createPageNumEl,
+  createLinkOutsEl,
+  getImgUrl,
+} from "./book-cards.js"; 
 import { handleFormSubmission, setInputValue, writeErrorsToContainer } from "./utils.js";
 
 export function setUpExpandReviewBtn(reviewArticle) {
@@ -39,9 +50,9 @@ function handleFetchReviewsResponse(response, bookshelvesEl, fetchFormErrorsEl) 
   response.data.results.length > 0) {
     const reviews = response.data.results;
     reviews.forEach(review => {
-      const reviewEl = renderReviewEl(review);
-      bookshelvesEl.appendChild(reviewEl);
-      setUpExpandReviewBtn(reviewEl);
+      const reviewArticleEl = renderReviewArticleEl(review);
+      bookshelvesEl.appendChild(reviewArticleEl);
+      setUpExpandReviewBtn(reviewArticleEl);
     });
 
     setInputValue("cursor", response.data.next_cursor);
@@ -53,120 +64,79 @@ function handleFetchReviewsResponse(response, bookshelvesEl, fetchFormErrorsEl) 
   }
 }
 
-function renderReviewEl(review) {
-  const article = document.createElement("article");
-  article.classList.add("compact-book-review-container");
-
-  const wrapper = document.createElement("div");
-  wrapper.classList.add("review-card-wrapper");
+export function renderReviewArticleEl(review) {
+  const article = createElWithClass("article", "compact-book-review-container");
+  const wrapper = createElWithClass("div", "review-card-wrapper");
 
   if (review.book.cover_id) {
-    const imgWrapper = document.createElement("div");
-    imgWrapper.classList.add("img-wrapper");
+    const imgUrl = getImgUrl(review.book.cover_id);
+    const imgWrapper = createImgWrapperEl(imgUrl);
 
     const link = document.createElement("a");
     link.href = `/book/${review.book.id}`;
-
-    const img = document.createElement("img");
-    img.src = `https://covers.openlibrary.org/b/id/${review.book.cover_id}-M.jpg`;
-    img.alt = "Book cover";
-    img.loading = "lazy";
-
-    link.appendChild(img);
+    link.appendChild(imgWrapper.querySelector("img"));
+    imgWrapper.innerHTML = "";
     imgWrapper.appendChild(link);
+
     wrapper.appendChild(imgWrapper);
   }
 
-  const meta = document.createElement("div");
-  meta.classList.add("book-meta");
+  const meta = createElWithClass("div", "book-meta");
 
-  const h3 = document.createElement("h3");
-  const titleLink = document.createElement("a");
-  titleLink.href = `/book/${review.book.id}`;
-  titleLink.textContent = review.book.title;
-  h3.appendChild(titleLink);
-  meta.appendChild(h3);
+  meta.appendChild(createTitleElWithLink(review.book.title, review.book.id));
 
   if (review.book.author_display) {
-    const authorEl = document.createElement("p");
-    authorEl.textContent = `by ${review.book.author_display}`;
-    meta.appendChild(authorEl);
+    meta.appendChild(createAuthorEl(review.book.author_display));
   }
 
-  const publishEl = document.createElement("p");
-  publishEl.textContent = `Published: ${review.book.first_publish_year || ""}`;
-  meta.appendChild(publishEl);
+  meta.appendChild(createPublishYearEl(review.book.first_publish_year || ""));
 
-  const pagesEl = document.createElement("p");
-  pagesEl.textContent = `Pages: ${review.book.number_of_pages_median || ""}`;
-  meta.appendChild(pagesEl);
+  const pageNumEl = createPageNumEl(review.book.number_of_pages_median);
+  if (pageNumEl) meta.appendChild(pageNumEl);
 
-  if (review.book.filtered_link_outs && review.book.filtered_link_outs.length > 0) {
-    const linkOutsDiv = document.createElement("div");
-    linkOutsDiv.classList.add("link-outs");
-
-    const ul = document.createElement("ul");
-    review.book.filtered_link_outs.forEach(link => {
-      const li = document.createElement("li");
-      const a = document.createElement("a");
-      a.href = link.url;
-      a.textContent = link.text;
-      li.appendChild(a);
-      ul.appendChild(li);
-    });
-
-    linkOutsDiv.appendChild(ul);
-    meta.appendChild(linkOutsDiv);
+  if (review.book.filtered_link_outs?.length > 0) {
+    meta.appendChild(createLinkOutsEl(review.book.filtered_link_outs));
   }
 
   wrapper.appendChild(meta);
   article.appendChild(wrapper);
 
-  const section = document.createElement("section");
-  section.classList.add("review-section");
+  const section = createElWithClass("section", "review-section");
 
-  const h4 = document.createElement("h4");
-  h4.classList.add("review-header");
-
-  const reviewLink = document.createElement("a");
+  const h4 = createElWithClass("h4", "review-header");
+  const reviewLink = createElWithText("a", "Review");
   reviewLink.href = `/review/${review.id}`;
-  reviewLink.textContent = "Review";
   h4.appendChild(reviewLink);
-
   section.appendChild(h4);
 
   if (review.content.length > 150) {
-    const snippetDiv = document.createElement("div");
-    snippetDiv.classList.add("review-content", "review-content-snippet");
+    const snippetDiv = createElWithClass("div", "review-content review-content-snippet");
     snippetDiv.textContent = review.content;
 
-    const expandBtn = document.createElement("button");
-    expandBtn.classList.add("expand-btn");
+    const expandBtn = createElWithClass("button", "expand-btn");
     expandBtn.textContent = "Expand review";
 
     section.appendChild(snippetDiv);
     section.appendChild(expandBtn);
   } else {
-    const contentDiv = document.createElement("div");
-    contentDiv.classList.add("review-content");
+    const contentDiv = createElWithClass("div", "review-content");
     contentDiv.textContent = review.content;
     section.appendChild(contentDiv);
   }
 
   article.appendChild(section);
 
-  const footer = document.createElement("footer");
-  footer.classList.add("book-review-footer");
-
-  const small = document.createElement("small");
-  small.textContent = `First added: ${new Date(review.created_at).toLocaleString([], {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit"
-  })}`;
-
+  const footer = createElWithClass("footer", "book-review-footer");
+  const small = createElWithText(
+    "small",
+    `First added: ${new Date(review.created_at).toLocaleString([], {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    })}`
+  );
   footer.appendChild(small);
   article.appendChild(footer);
 
