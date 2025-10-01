@@ -1,4 +1,7 @@
 {% extends "layout.html" %}
+{% block javascript %}
+  <script defer type="module" src="/static/js/index.js"></script>
+{% endblock %}
 {% block main %}
   <h2>Latest book reviews</h2>
   <div id="review-bookshelves" class="bookshelves">

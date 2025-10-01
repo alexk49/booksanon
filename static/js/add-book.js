@@ -1,4 +1,4 @@
-import { addSubmissionToLocalStorage, handleFormSubmission } from "./utils.js";
+import { addSubmissionToLocalStorage, handleFormSubmission, writeErrorsToContainer } from "./utils.js";
 import { createBookCardEl } from "./book-cards.js";
 import { updateLocalBookResultsContainer } from "./book-cards.js";
 
@@ -28,22 +28,6 @@ export function handleBookSearchResponse(response, ui, localSearch = false) {
     }
   } else {
     writeErrorsToContainer(response, ui.resultsContainer);
-  }
-}
-
-export function writeErrorsToContainer(response, resultsContainer) {
-  resultsContainer.innerText = response.message || "An error occurred.";
-
-  // Check if there are any errors and display them
-  if (response.errors && typeof response.errors === "object") {
-    const errorMessages = Object.entries(response.errors)
-      .map(([field, error]) => {
-        return `${field}: ${error}`;
-      })
-      .join(", ");
-
-    // Append the error messages to the results container
-    resultsContainer.innerText += `\nErrors: ${errorMessages}`;
   }
 }
 

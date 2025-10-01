@@ -33,8 +33,7 @@ async def home(request: Request):
 
     next_cursor = str(reviews[-1].created_at.isoformat() if reviews else None)
     review_id = str(reviews[-1].id if reviews else None)
-    logger.debug(next_cursor)
-    logger.debug(review_id)
+    logger.debug("next_cursor: %s, review_id: %s", next_cursor, review_id)
 
     context = {
         "request": request,

@@ -72,6 +72,15 @@ export async function handleFormSubmission(
   }
 }
 
+/* DOM utils */
+
+export function setInputValue(id, value) {
+  const el = document.getElementById(id);
+  if (el && value !== undefined && value !== null) {
+    el.value = value;
+  }
+}
+
 export function hideEl(el) {
   el.classList.add("hidden");
 }
@@ -79,6 +88,21 @@ export function hideEl(el) {
 export function showHiddenEl(el) {
   el.classList.remove("hidden");
 }
+
+export function writeErrorsToContainer(response, resultsContainer) {
+  resultsContainer.innerText = response.message || "An error occurred.";
+
+  if (response.errors && typeof response.errors === "object") {
+    const errorMessages = Object.entries(response.errors)
+      .map(([field, error]) => {
+        return `${field}: ${error}`;
+      })
+      .join(", ");
+
+    resultsContainer.innerText += `\nErrors: ${errorMessages}`;
+  }
+}
+
 
 /* csrf token utils */
 
