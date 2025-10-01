@@ -1,4 +1,4 @@
--- name: get_most_recent_book_reviews
+-- name: get_most_recent_book_reviews(limit)
 SELECT
     r.id AS review_id,
     r.book_id,
@@ -30,7 +30,7 @@ LEFT JOIN book_authors ba ON ba.book_id = b.id
 LEFT JOIN authors a ON a.id = ba.author_id
 GROUP BY r.id, b.id
 ORDER BY r.created_at DESC
-LIMIT 2;
+LIMIT :limit;
 
 -- name: get_recent_reviews_by_cursor(limit, cursor, previous_review_id)
 SELECT

@@ -219,10 +219,8 @@ async def fetch_more_reviews(request: Request):
     async def on_success(clean_form):
         cursor = clean_form["cursor"]
         review_id = clean_form["review_id"]
-        limit = 2
 
         results = await resources.review_repo.get_recent_reviews_by_cursor(
-            limit=limit,
             cursor=cursor,
             review_id=review_id
         )

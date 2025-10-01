@@ -29,12 +29,12 @@ class ReviewRepository:
         record = await self.db.run_query("get_review_and_book_by_review_id", review_id=review_id)
         return Review.from_db_record(record)
 
-    async def get_most_recent_book_reviews(self, limit: int = 2) -> list[Book]:
+    async def get_most_recent_book_reviews(self, limit: int = 20) -> list[Book]:
         records = await self.db.run_query("get_most_recent_book_reviews", limit=limit)
         logger.debug(records)
         return Review.from_db_records(records)
 
-    async def get_recent_reviews_by_cursor(self, limit: int = 10, cursor: datetime | None = None, review_id: int | None= None):
+    async def get_recent_reviews_by_cursor(self, limit: int = 20, cursor: datetime | None = None, review_id: int | None= None):
         records = await self.db.run_query(
             "get_recent_reviews_by_cursor", limit=limit, cursor=cursor, previous_review_id=review_id)
         logger.debug(records)

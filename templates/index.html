@@ -61,8 +61,8 @@
     <div id="fetch-form-errors"></div>
     <form id="fetch-reviews-form" method="post" action="/api/fetch-more-reviews">
       <button id="fetch-reviews-btn" type="submit">See more</button>
-      <input type="hidden" name="cursor" id="cursor" value="{{ cursor or '' }}" />
-      <input type="hidden" name="review_id" id="review-id" class="review-id" value="{{ review_id or ''}}" />
+      <input type="hidden" name="cursor" id="cursor" value="{{ cursor or '' }}" autocomplete="off" />
+      <input type="hidden" name="review_id" id="review-id" class="review-id" value="{{ review_id or ''}}" autocomplete="off" />
       <input type="hidden" name="csrf_token" class="csrf-token" />
     </form>
 {% endblock %}

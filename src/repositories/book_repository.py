@@ -29,7 +29,7 @@ class BookRepository:
 
     """ Get or read values """
 
-    async def get_most_recent_books(self, limit: int = 10) -> list[Book | None]:
+    async def get_most_recent_books(self, limit: int = 20) -> list[Book | None]:
         records = await self.db.run_query("get_most_recent_books", limit=limit)
         return Book.from_db_records(records)
 
