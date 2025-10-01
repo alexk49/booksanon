@@ -31,20 +31,17 @@ export function setUpExpandReviewBtn(reviewArticle) {
 
 function setUpFetchMoreReviews (fetchReviewsForm, bookshelvesEl, fetchFormErrorsEl, loaderEl) {
   fetchReviewsForm.addEventListener("submit", async function (e) {
-    console.log("submitting")
     const response = await handleFormSubmission(
       e,
       this,
       "/api/fetch-more-reviews",
       loaderEl,
     );
-    console.log(response)
     handleFetchReviewsResponse(response, bookshelvesEl, fetchFormErrorsEl)
   });
 }
 
 function handleFetchReviewsResponse(response, bookshelvesEl, fetchFormErrorsEl) {
-  console.log(response.message)
   if (response.success &&
   Array.isArray(response.data.results) &&
   response.data.results.length > 0) {
