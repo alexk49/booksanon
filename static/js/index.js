@@ -8,8 +8,12 @@ import {
   createPageNumEl,
   createLinkOutsEl,
   getImgUrl,
-} from "./book-cards.js"; 
-import { handleFormSubmission, setInputValue, writeErrorsToContainer } from "./utils.js";
+} from "./book-cards.js";
+import {
+  handleFormSubmission,
+  setInputValue,
+  writeErrorsToContainer,
+} from "./utils.js";
 
 export function setUpExpandReviewBtn(reviewArticle) {
   const expandBtn = reviewArticle.querySelector(".expand-btn");
@@ -29,7 +33,12 @@ export function setUpExpandReviewBtn(reviewArticle) {
   });
 }
 
-function setUpFetchMoreReviews (fetchReviewsForm, bookshelvesEl, fetchFormErrorsEl, loaderEl) {
+function setUpFetchMoreReviews(
+  fetchReviewsForm,
+  bookshelvesEl,
+  fetchFormErrorsEl,
+  loaderEl,
+) {
   fetchReviewsForm.addEventListener("submit", async function (e) {
     const response = await handleFormSubmission(
       e,
@@ -37,16 +46,22 @@ function setUpFetchMoreReviews (fetchReviewsForm, bookshelvesEl, fetchFormErrors
       "/api/fetch-more-reviews",
       loaderEl,
     );
-    handleFetchReviewsResponse(response, bookshelvesEl, fetchFormErrorsEl)
+    handleFetchReviewsResponse(response, bookshelvesEl, fetchFormErrorsEl);
   });
 }
 
-function handleFetchReviewsResponse(response, bookshelvesEl, fetchFormErrorsEl) {
-  if (response.success &&
-  Array.isArray(response.data.results) &&
-  response.data.results.length > 0) {
+function handleFetchReviewsResponse(
+  response,
+  bookshelvesEl,
+  fetchFormErrorsEl,
+) {
+  if (
+    response.success &&
+    Array.isArray(response.data.results) &&
+    response.data.results.length > 0
+  ) {
     const reviews = response.data.results;
-    reviews.forEach(review => {
+    reviews.forEach((review) => {
       const reviewArticleEl = renderReviewArticleEl(review);
       bookshelvesEl.appendChild(reviewArticleEl);
       setUpExpandReviewBtn(reviewArticleEl);
@@ -54,8 +69,7 @@ function handleFetchReviewsResponse(response, bookshelvesEl, fetchFormErrorsEl) 
 
     setInputValue("cursor", response.data.next_cursor);
     setInputValue("review-id", response.data.next_review_id);
-    fetchFormErrorsEl.innerText = '';
-
+    fetchFormErrorsEl.innerText = "";
   } else {
     writeErrorsToContainer(response, fetchFormErrorsEl);
   }
@@ -107,7 +121,10 @@ export function renderReviewArticleEl(review) {
   section.appendChild(h4);
 
   if (review.content.length > 150) {
-    const snippetDiv = createElWithClass("div", "review-content review-content-snippet");
+    const snippetDiv = createElWithClass(
+      "div",
+      "review-content review-content-snippet",
+    );
     snippetDiv.textContent = review.content;
 
     const expandBtn = createElWithClass("button", "expand-btn");
@@ -131,8 +148,8 @@ export function renderReviewArticleEl(review) {
       month: "2-digit",
       day: "2-digit",
       hour: "2-digit",
-      minute: "2-digit"
-    })}`
+      minute: "2-digit",
+    })}`,
   );
   footer.appendChild(small);
   article.appendChild(footer);
@@ -143,7 +160,9 @@ export function renderReviewArticleEl(review) {
 function main() {
   const loaderEl = document.getElementById("global-loader");
 
-  const reviewArticles = document.querySelectorAll(".compact-book-review-container");
+  const reviewArticles = document.querySelectorAll(
+    ".compact-book-review-container",
+  );
 
   if (reviewArticles) {
     reviewArticles.forEach((review) => {
@@ -156,7 +175,12 @@ function main() {
   const fetchFormErrorsEl = document.getElementById("fetch-form-errors");
 
   if (fetchReviewsForm && bookshelvesEl && fetchFormErrorsEl) {
-    setUpFetchMoreReviews(fetchReviewsForm,  bookshelvesEl, fetchFormErrorsEl, loaderEl);
+    setUpFetchMoreReviews(
+      fetchReviewsForm,
+      bookshelvesEl,
+      fetchFormErrorsEl,
+      loaderEl,
+    );
   }
 }
 document.addEventListener("DOMContentLoaded", main);

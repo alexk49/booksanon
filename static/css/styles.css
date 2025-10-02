@@ -12,7 +12,6 @@
   --main-border: 2px solid var(--gray-accent);
   --border-radius-lg: 8px;
   --border-radius-sm: 4px;
-
   --gap-sm: 0.2rem;
   --gap-md: 1rem;
   --gap-lg: 2rem;
@@ -289,7 +288,7 @@ select {
 }
 
 .compact-book-review-container-expanded {
-  grid-column: 1 / -1;  /* full width for expanded review */
+  grid-column: 1 / -1; /* full width for expanded review */
   transition: all 0.3s ease;
 }
 
@@ -299,7 +298,6 @@ select {
   flex-wrap: wrap;
   padding: 1rem;
 }
-
 
 /* add styles to main section ids */
 #search,
@@ -444,7 +442,8 @@ select {
   text-align: center;
 }
 
-#fetch-form-errors, #fetch-reviews-form {
+#fetch-form-errors,
+#fetch-reviews-form {
   margin: 2em;
 }
 

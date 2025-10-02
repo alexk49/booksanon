@@ -1,4 +1,4 @@
-import { hideEl, showHiddenEl, populateCsrfTokens, } from "./utils.js";
+import { hideEl, showHiddenEl, populateCsrfTokens } from "./utils.js";
 
 function setUpNavToggle(navToggleBtn, navMenu) {
   navToggleBtn.addEventListener("click", () => {

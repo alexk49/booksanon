@@ -103,7 +103,6 @@ export function writeErrorsToContainer(response, resultsContainer) {
   }
 }
 
-
 /* csrf token utils */
 
 export async function getCSRF() {

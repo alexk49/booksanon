@@ -2,7 +2,6 @@ import asyncio
 import logging
 import secrets
 from collections.abc import Callable
-from datetime import timedelta
 from typing import Any
 
 from starlette.requests import Request
@@ -10,7 +9,14 @@ from starlette.responses import JSONResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
 
 from db.models import Book
-from .form_validators import book_submit_fields, clean_results, fetch_more_reviews_fields, get_errors, search_form_fields, validate_form
+from .form_validators import (
+    book_submit_fields,
+    clean_results,
+    fetch_more_reviews_fields,
+    get_errors,
+    search_form_fields,
+    validate_form,
+)
 from config import settings
 from .resources import resources
 from .tasks import process_review_submission
@@ -35,12 +41,7 @@ async def home(request: Request):
     review_id = str(reviews[-1].id if reviews else None)
     logger.debug("next_cursor: %s, review_id: %s", next_cursor, review_id)
 
-    context = {
-        "request": request,
-        "reviews": reviews,
-        "cursor": next_cursor,
-        "review_id": review_id
-    }
+    context = {"request": request, "reviews": reviews, "cursor": next_cursor, "review_id": review_id}
     return templates.TemplateResponse(request, template, context=context)
 
 
@@ -220,10 +221,7 @@ async def fetch_more_reviews(request: Request):
         cursor = clean_form["cursor"]
         review_id = clean_form["review_id"]
 
-        results = await resources.review_repo.get_recent_reviews_by_cursor(
-            cursor=cursor,
-            review_id=review_id
-        )
+        results = await resources.review_repo.get_recent_reviews_by_cursor(cursor=cursor, review_id=review_id)
         logger.debug("results: %s", results)
 
         next_cursor = str(results[-1].created_at.isoformat() if results else None)
@@ -232,7 +230,11 @@ async def fetch_more_reviews(request: Request):
         reviews = [review.to_json_dict() for review in results]
 
         if reviews:
-            return await api_response(success=True, message="Reviews found", data={"results": reviews, "next_cursor": next_cursor, "next_review_id": next_review_id})
+            return await api_response(
+                success=True,
+                message="Reviews found",
+                data={"results": reviews, "next_cursor": next_cursor, "next_review_id": next_review_id},
+            )
         return await api_response(
             success=True,
             message=f"No reviews after {cursor}",
@@ -240,6 +242,7 @@ async def fetch_more_reviews(request: Request):
             data={"results": [], "next_cursor": str(cursor), "next_review_id": review_id},
             status_code=200,
         )
+
     return await handle_form(request, fetch_more_reviews_fields, on_success)
 
 
@@ -257,6 +260,7 @@ async def local_search_api(request):
             data={"results": []},
             status_code=200,
         )
+
     return await handle_form(request, search_form_fields, on_success)
 
 

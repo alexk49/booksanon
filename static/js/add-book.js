@@ -1,4 +1,8 @@
-import { addSubmissionToLocalStorage, handleFormSubmission, writeErrorsToContainer } from "./utils.js";
+import {
+  addSubmissionToLocalStorage,
+  handleFormSubmission,
+  writeErrorsToContainer,
+} from "./utils.js";
 import { createBookCardEl } from "./book-cards.js";
 import { updateLocalBookResultsContainer } from "./book-cards.js";
 

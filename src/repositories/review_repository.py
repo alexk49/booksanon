@@ -34,9 +34,12 @@ class ReviewRepository:
         logger.debug(records)
         return Review.from_db_records(records)
 
-    async def get_recent_reviews_by_cursor(self, limit: int = 20, cursor: datetime | None = None, review_id: int | None= None):
+    async def get_recent_reviews_by_cursor(
+        self, limit: int = 20, cursor: datetime | None = None, review_id: int | None = None
+    ):
         records = await self.db.run_query(
-            "get_recent_reviews_by_cursor", limit=limit, cursor=cursor, previous_review_id=review_id)
+            "get_recent_reviews_by_cursor", limit=limit, cursor=cursor, previous_review_id=review_id
+        )
         logger.debug(records)
         return Review.from_db_records(records)
 
