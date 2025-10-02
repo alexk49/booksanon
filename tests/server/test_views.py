@@ -7,7 +7,7 @@ from server.resources import resources
 
 
 def mock_validate_csrf_token(session_token, form_token):
-    return {"ok": True, "value": form_token}
+    return {"success": True, "value": form_token}
 
 
 @pytest.fixture
@@ -165,8 +165,8 @@ def test_search_api(client, mock_book_repo, mock_book_record, mock_review_repo):
     assert response.status_code == 200
     json_response = response.json()
     assert json_response["success"] is True
-    assert len(json_response["results"]) == 1
-    assert json_response["results"][0]["title"] == "Mock Book"
+    assert len(json_response["data"]["results"]) == 1
+    assert json_response["data"]["results"][0]["title"] == "Mock Book"
     mock_book_repo["search_books"].assert_called_once_with(search_query="Mock Book")
 
 
@@ -182,7 +182,7 @@ def test_search_openlib(client, mock_openlib_caller, mock_review_repo):
             "title": "Test Book",
             "author_names": ["Test Author"],
             "author_keys": ["OL1A"],
-            "cover_i": 123,
+            "cover_id": [123],
             "openlib_id": "OL1M",
             "first_publish_year": 2021,
             "openlib_work_key": "OL1W",
@@ -198,8 +198,8 @@ def test_search_openlib(client, mock_openlib_caller, mock_review_repo):
     assert response.status_code == 200
     json_response = response.json()
     assert json_response["success"] is True
-    assert len(json_response["results"]) == 1
-    assert json_response["results"][0]["title"] == "Test Book"
+    assert len(json_response["data"]["results"]) == 1
+    assert json_response["data"]["results"][0]["title"] == "Test Book"
     mock_openlib_caller.assert_called_once_with(search_query="Test Book", limit=10)
 
 
@@ -226,7 +226,7 @@ def test_submit_book(client, mock_queue_repo, mock_process_review_submission, mo
     json_response = response.json()
     assert json_response["success"] is True
     assert json_response["message"] == "Thanks for adding a review! Your submission is being processed."
-    assert json_response["submission_id"] == 1
+    assert json_response["data"]["submission_id"] == 1
     mock_queue_repo.assert_called_once_with(openlib_id="OL1W", review="This is a test review.")
     mock_process_review_submission.assert_called_once_with(1)
 

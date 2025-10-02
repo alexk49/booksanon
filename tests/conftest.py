@@ -28,8 +28,8 @@ def mock_author_record():
         "openlib_id": "/authors/OL1A",
         "birth_date": "1970",
         "death_date": None,
-        "created_at": datetime.now().isoformat(),
-        "updated_at": datetime.now().isoformat(),
+        "created_at": datetime.now(),
+        "updated_at": datetime.now(),
     }.copy()
 
 
@@ -46,8 +46,8 @@ def mock_book_record():
         "subjects": ["fiction", "adventure"],
         "first_publish_year": 2000,
         "openlibrary_key": "OL123M",
-        "created_at": datetime.now().isoformat(),
-        "updated_at": datetime.now().isoformat(),
+        "created_at": datetime.now(),
+        "updated_at": datetime.now(),
     }.copy()
 
 
@@ -59,8 +59,8 @@ def mock_review_record():
             "book_id": book_id,
             "user_id": 42,
             "content": f"Review content {review_id}",
-            "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat(),
+            "created_at": datetime.now(),
+            "updated_at": datetime.now(),
             # Book fields (used by Book.from_db_record)
             "title": "Mock Book",
             "authors": '[{"id": 1, "name": "Author One"}]',
