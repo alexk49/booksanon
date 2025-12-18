@@ -48,8 +48,8 @@ deploy_app_container () {
             --env-file .env \
             --publish "$PORT:$PORT" \
             --link "$DB_CONTAINER_NAME":db \
-            --volume ./data:/data  \
-            --volume ./logs:/logs  \
+            --volume ./data:/home/app/data  \
+            --volume ./logs:/home/app/logs  \
             --detach booksanon
 }
 

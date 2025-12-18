@@ -1,16 +1,28 @@
-FROM python:slim
+FROM python:3.12-slim
 
-RUN python -m venv /venv
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3-dev \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV PATH="/venv/bin:$PATH"
+RUN useradd -m app
+USER app
+WORKDIR /home/app
 
-COPY requirements.txt ./
-RUN pip install -r requirements.txt
+RUN python -m venv venv
 
-COPY src /src
-COPY static /static
-COPY templates /templates
+ENV PATH="/home/app/venv/bin:$PATH"
 
-WORKDIR /src
+COPY --chown=app:app requirements.txt ./
+RUN pip install --upgrade pip setuptools wheel \
+    && pip install -r requirements.txt \
+    && rm -rf /home/app/.cache/pip
 
-CMD sh -c "huey_consumer.py server.tasks.huey --workers=1 & uvicorn server.app:app --host ${HOST} --port ${PORT} --workers ${WORKERS} --log-level info"
+COPY --chown=app:app src/ ./src
+COPY --chown=app:app static/ ./static
+COPY --chown=app:app templates/ ./templates
+
+WORKDIR /home/app/src
+
+CMD ["sh", "-c", "huey_consumer.py server.tasks.huey --workers=1 & uvicorn server.app:app --host ${HOST} --port ${PORT} --workers ${WORKERS} --log-level info"]
